@@ -1,0 +1,83 @@
+opt_out_usage
+default_platform :ios
+
+platform :ios do
+  before_all do
+    xcversion(
+      version: "~> 8.0"
+    )
+  end
+
+  desc 'Run all the tests'
+  lane :tests do |options|
+    cocoapods
+    scan(
+      clean: true,
+      skip_build: true,
+      output_directory: './artifacts/unit-tests',
+      scheme: 'Tests',
+      device: 'REM SDK Unit Tests',
+      code_coverage: true
+    )
+
+    slather(
+      output_directory: './artifacts/coverage',
+      scheme: 'Tests',
+      cobertura_xml: true,
+      proj: './RPerformanceTracking.xcodeproj',
+      workspace: './RPerformanceTracking.xcworkspace',
+      binary_basename: 'RPerformanceTracking',
+      ignore: [
+        '../*',
+      ]
+    )
+  end
+
+  desc 'CI build'
+  lane :ci do |options|
+    tests(options)
+  end
+
+  desc 'Module Pre-Release checks'
+  lane :release do |options|
+
+    release_tag = options[:tag]
+    module_name = options[:module]
+    release_branch = options[:branch]
+
+
+    # Remove the newline character from the release_tag otherwise it won't enter into if statement
+    release_tag = release_tag.to_s.strip
+
+    unless release_tag.empty?
+      if !git_tag_exists(tag: "#{release_tag}")
+        puts "#{release_tag} version doesn't exist, it will be tagged to master branch and push it to the remote. After the version is tagged, run 'release' lane again"
+
+      ensure_git_branch(
+          branch: "#{release_branch}"
+      )
+
+      add_git_tag(
+         tag: "#{release_tag}"
+      )
+      sh "git push origin #{release_tag}"
+
+      end
+    end
+
+    lint(options)
+
+    puts "generate documentation for #{module_name} version #{release_tag}"
+    documentation(
+      module_name: module_name,
+      module_version: release_tag
+    )
+  end
+
+  desc 'Lint the podspec'
+  lane :lint do |options|
+    pod_lib_lint(sources: [options[:spec_source], "https://github.com/CocoaPods/Specs"], allow_warnings: true, verbose: false)
+  end
+
+end
+# vim:syntax=ruby:et:sts=2:sw=2:ts=2:ff=unix:

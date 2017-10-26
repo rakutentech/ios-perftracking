@@ -1,0 +1,22 @@
+#import <RPerformanceTracking/RPTDefines.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class _RPTRingBuffer, _RPTMetric;
+
+RPT_EXPORT @interface _RPTTracker : NSObject
+@property (nonatomic, readonly) _RPTRingBuffer *ringBuffer;
+
+- (void)startMetric:(NSString *)metric;
+- (void)prolongMetric;
+- (void)endMetric;
+
+- (uint_fast64_t)startMethod:(NSString *)method receiver:(NSObject *)receiver;
+- (uint_fast64_t)startRequest:(NSURLRequest *)request;
+- (uint_fast64_t)startCustom:(NSString *)custom;
+- (void)end:(uint_fast64_t)trackindIdentifier;
+
+- (instancetype)initWithRingBuffer:(_RPTRingBuffer *)ringBuffer currentMetric:(_RPTMetric *)currentMetric NS_DESIGNATED_INITIALIZER;
+@end
+
+NS_ASSUME_NONNULL_END

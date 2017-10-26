@@ -1,0 +1,26 @@
+#OSX
+.DS_Store
+.LSOverride
+
+#vim
+*.swp
+
+#Xcode
+xcuserdata
+*.xccheckout
+*.xcworkspace
+build
+
+# Cocoapods
+Podfile.lock
+Pods
+
+# Fastlane
+/artifacts
+/fastlane/report.xml
+/fastlane/README.md
+
+# Doxygen
+/.doxygen
+/Doxyfile
+

@@ -1,0 +1,8 @@
+framework module RPerformanceTracking {
+  umbrella header "RPerformanceTracking.h"
+
+  export *
+  module * { export * }
+
+  link framework "Foundation"
+}

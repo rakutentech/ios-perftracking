@@ -1,0 +1,30 @@
+Pod::Spec.new do |s|
+  s.name         = "RPerformanceTracking"
+  s.version      = "0.1.1"
+  s.authors      = "Rakuten Ecosystem Mobile"
+  s.summary      = "Automatic performance tracking for all your applications."
+  s.homepage     = "https://github.com/rakutentech/"
+  s.license      = { :type => 'MIT', :file => 'LICENSE' }
+  s.source       = { :git => "https://github.com/rakutentech/ios-perftracking.git", :tag => s.version.to_s }
+  s.platform     = :ios, '8.0'
+  s.requires_arc = true
+  s.pod_target_xcconfig = {
+    'CLANG_ENABLE_MODULES'                                  => 'YES',
+    'CLANG_MODULES_AUTOLINK'                                => 'YES',
+    'CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES' => 'YES',
+    'GCC_C_LANGUAGE_STANDARD'                               => 'gnu11',
+  }
+  s.user_target_xcconfig = {
+    'CLANG_ENABLE_MODULES'                                  => 'YES',
+    'CLANG_MODULES_AUTOLINK'                                => 'YES',
+    'CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES' => 'YES',
+  }
+  s.weak_frameworks = [
+    'Foundation',
+  ]
+  s.source_files = "RPerformanceTracking/**/*.{h,m}"
+  s.private_header_files = "RPerformanceTracking/Private/**/*.h"
+#   s.resource_bundles = {'RPerformanceTrackingAssets' => ['RPerformanceTracking/Assets/*']}
+  s.module_map = 'RPerformanceTracking/RPerformanceTracking.modulemap'
+end
+# vim:syntax=ruby:et:sts=2:sw=2:ts=2:ff=unix:

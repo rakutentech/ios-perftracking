@@ -1,0 +1,6 @@
+# This file will get merged with ~/Doxyfile before running Doxygen
+PROJECT_NAME     = RPerformanceTracking
+PROJECT_BRIEF    = ""
+INPUT           += RPerformanceTracking
+IGNORE_PREFIX    = RPerformanceTracking
+EXCLUDE_PATTERNS = \ */RPerformanceTracking/RPTPerformanceMeasurement.h* \ */RPerformanceTracking/RPTPerformanceMeasurement.m \ */Private/*
