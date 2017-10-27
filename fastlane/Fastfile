@@ -16,7 +16,7 @@ platform :ios do
       skip_build: true,
       output_directory: './artifacts/unit-tests',
       scheme: 'Tests',
-      device: 'REM SDK Unit Tests',
+      device: 'iPhone 8',
       code_coverage: true
     )
 
@@ -35,6 +35,17 @@ platform :ios do
 
   desc 'CI build'
   lane :ci do |options|
+    # Use env variables to set up config & location endpoints/keys in order
+    # to keep those items secret
+    set_info_plist_value(path: "./Tests/HostApp/Info.plist",
+                         key: "RPTConfigAPIEndpoint",
+                         value: ENV['REM_FL_RPT_CONFIG_ENDPOINT'] || "https://performance-endpoint.com")
+    set_info_plist_value(path: "./Tests/HostApp/Info.plist",
+                         key: "RPTLocationAPIEndpoint",
+                         value: ENV['REM_FL_RPT_LOCATION_ENDPOINT'] || "https://location-endpoint.com")
+    set_info_plist_value(path: "./Tests/HostApp/Info.plist",
+                         key: "RPTSubscriptionKey",
+                         value: ENV['REM_FL_RPT_SUBSCRIPTION_KEY'] || "SUBSCRIPTION_KEY")
     tests(options)
   end
 

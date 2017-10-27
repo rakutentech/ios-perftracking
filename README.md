@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/rakutentech/ios-perftracking.svg?branch=master)](https://travis-ci.org/rakutentech/ios-perftracking)
+[![codecov](https://codecov.io/gh/rakutentech/ios-perftracking/branch/master/graph/badge.svg)](https://codecov.io/gh/rakutentech/ios-perftracking)
+
+
 # Performance Tracking
 
 The **Performance Tracking** module is a tool that lets you measure the performance of your iOS mobile application. It does this by adding measurement calls to app lifecycle, network requests and some standard UIKit class methods.
@@ -29,7 +33,7 @@ Run `pod install` to install the module and its dependencies.
 
 ### Configuring
 
-Currently we do not host any public Performance Tracking backend APIs.
+Currently we do not host any publicly accessible Performance Tracking backend APIs.
 
 You must specify the following values in your application's info.plist in order to use the module:
 
