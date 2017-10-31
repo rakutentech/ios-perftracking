@@ -7,3 +7,6 @@ before_install:
 - gem update fastlane --no-ri --no-rdoc --no-document
 
 script: fastlane ci
+
+after_success:
+- bash <(curl -s https://codecov.io/bash) -f ./artifacts/coverage/cobertura.xml -X coveragepy -X gcov -X xcode
