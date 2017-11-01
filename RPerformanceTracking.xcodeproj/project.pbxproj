@@ -24,6 +24,7 @@
 		6D312C621EA5D98D00467620 /* NetworkSessionHookTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D312C611EA5D98D00467620 /* NetworkSessionHookTests.m */; };
 		6D3DBD4A1E824A9B00B97E89 /* SenderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D3DBD491E824A9B00B97E89 /* SenderTests.m */; };
 		6D64251D1EB8611C00755DA3 /* ConfigTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D64251C1EB8611C00755DA3 /* ConfigTests.m */; };
+		6DA30F6B1FAAF501006A4DE6 /* MainThreadWatcherTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6DA30F6A1FAAF501006A4DE6 /* MainThreadWatcherTests.m */; };
 		6DA949E31E94E09600856C95 /* SenderIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6DA949E21E94E09600856C95 /* SenderIntegrationTests.m */; };
 		C80E064C1EA876FF00FD22D2 /* TrackingManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C80E064B1EA876FF00FD22D2 /* TrackingManagerTests.m */; };
 		C83BA7A01EDEA2150048D5C5 /* UITableViewCellTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C83BA79F1EDEA2150048D5C5 /* UITableViewCellTests.m */; };
@@ -68,6 +69,7 @@
 		6D312C611EA5D98D00467620 /* NetworkSessionHookTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NetworkSessionHookTests.m; sourceTree = "<group>"; };
 		6D3DBD491E824A9B00B97E89 /* SenderTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SenderTests.m; sourceTree = "<group>"; };
 		6D64251C1EB8611C00755DA3 /* ConfigTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConfigTests.m; sourceTree = "<group>"; };
+		6DA30F6A1FAAF501006A4DE6 /* MainThreadWatcherTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MainThreadWatcherTests.m; sourceTree = "<group>"; };
 		6DA949E21E94E09600856C95 /* SenderIntegrationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SenderIntegrationTests.m; sourceTree = "<group>"; };
 		C80E064B1EA876FF00FD22D2 /* TrackingManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TrackingManagerTests.m; sourceTree = "<group>"; };
 		C83BA79F1EDEA2150048D5C5 /* UITableViewCellTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UITableViewCellTests.m; sourceTree = "<group>"; };
@@ -144,6 +146,7 @@
 				C83BA79F1EDEA2150048D5C5 /* UITableViewCellTests.m */,
 				C8D982DE1F18D83C0088EBEC /* LocationTests.m */,
 				6D64251C1EB8611C00755DA3 /* ConfigTests.m */,
+				6DA30F6A1FAAF501006A4DE6 /* MainThreadWatcherTests.m */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -282,6 +285,7 @@
 				C8B86DF71EC1749A00C7B8DD /* UIWebViewHookTests.m in Sources */,
 				5AC8DD3C1E95E3B80067995E /* UIViewControllerTests.m in Sources */,
 				5AC8DDC81E96354D0067995E /* TestViewController.m in Sources */,
+				6DA30F6B1FAAF501006A4DE6 /* MainThreadWatcherTests.m in Sources */,
 				C8D982DF1F18D83C0088EBEC /* LocationTests.m in Sources */,
 				C83BA7A01EDEA2150048D5C5 /* UITableViewCellTests.m in Sources */,
 				6D312C621EA5D98D00467620 /* NetworkSessionHookTests.m in Sources */,
