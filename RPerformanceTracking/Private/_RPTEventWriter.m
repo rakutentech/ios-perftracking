@@ -10,18 +10,31 @@
 #import "RPerformanceTracking.h"
 #import "_RPTLocation.h"
 #import "_RPTTrackingManager.h"
+#import "UIDevice+RPerformanceTracking.h"
 
 NSString *_RPTJSONFormatWithStringValue(NSString *key, NSString *value);
-NSString *_RPTJSONFormatWithIntegerValue(NSString *key, unsigned long long value);
+NSString *_RPTJSONFormatWithIntegerValue(NSString *key, long long value);
+NSString *_RPTJSONFormatWithUnsignedIntegerValue(NSString *key, unsigned long long value);
+NSString *_RPTJSONFormatWithFloatValue(NSString *key, float value);
 
 NSString *_RPTJSONFormatWithStringValue(NSString *key, NSString *value)
 {
     return [NSString stringWithFormat:@"\"%@\":\"%@\"", key, value];
 }
 
-NSString *_RPTJSONFormatWithIntegerValue(NSString *key, unsigned long long value)
+NSString *_RPTJSONFormatWithIntegerValue(NSString *key, long long value)
+{
+    return [NSString stringWithFormat:@"\"%@\":%lld", key, value];
+}
+
+NSString *_RPTJSONFormatWithUnsignedIntegerValue(NSString *key, unsigned long long value)
 {
     return [NSString stringWithFormat:@"\"%@\":%llu", key, value];
+}
+
+NSString *_RPTJSONFormatWithFloatValue(NSString *key, float value)
+{
+    return [NSString stringWithFormat:@"\"%@\":%.2f", key, value];
 }
 
 @interface _RPTEventWriter ()
@@ -165,7 +178,19 @@ NSString *_RPTJSONFormatWithIntegerValue(NSString *key, unsigned long long value
         [_writer appendString:@","];
         [_writer appendString:_RPTJSONFormatWithStringValue(@"os_version", osVersion)];
     }
-    
+
+    [_writer appendString:@","];
+    [_writer appendString:_RPTJSONFormatWithIntegerValue(@"app_mem_used", [device usedAppMemory])];
+
+    [_writer appendString:@","];
+    [_writer appendString:_RPTJSONFormatWithIntegerValue(@"device_mem_free", [device freeDeviceMemory])];
+
+    [_writer appendString:@","];
+    [_writer appendString:_RPTJSONFormatWithIntegerValue(@"device_mem_total", [device totalDeviceMemory])];
+
+    [_writer appendString:@","];
+    [_writer appendString:_RPTJSONFormatWithFloatValue(@"battery_level", device.batteryLevel)];
+
     [_writer appendString:@",\"measurements\":["];
 }
 
@@ -183,11 +208,11 @@ NSString *_RPTJSONFormatWithIntegerValue(NSString *key, unsigned long long value
     [_writer appendString:@"{"];
     [_writer appendString:_RPTJSONFormatWithStringValue(@"metric", metric.identifier)];
     [_writer appendString:@","];
-    [_writer appendString:_RPTJSONFormatWithIntegerValue(@"urls", metric.urlCount)];
+    [_writer appendString:_RPTJSONFormatWithUnsignedIntegerValue(@"urls", metric.urlCount)];
     [_writer appendString:@","];
-    [_writer appendString:_RPTJSONFormatWithIntegerValue(@"time", MAX(1ull, (unsigned long long)duration))]; // round to 1ms
+    [_writer appendString:_RPTJSONFormatWithUnsignedIntegerValue(@"time", MAX(1ull, (unsigned long long)duration))]; // round to 1ms
     [_writer appendString:@","];
-    [_writer appendString:_RPTJSONFormatWithIntegerValue(@"start", MAX(0ull, (unsigned long long)(metric.startTime * 1000.0)))];
+    [_writer appendString:_RPTJSONFormatWithUnsignedIntegerValue(@"start", MAX(0ull, (unsigned long long)(metric.startTime * 1000.0)))];
     [_writer appendString:@"}"];
 
     _measurementCount ++;
@@ -245,10 +270,10 @@ NSString *_RPTJSONFormatWithIntegerValue(NSString *key, unsigned long long value
 
     NSTimeInterval duration = (measurement.endTime - measurement.startTime) * 1000.0;
     [_writer appendString:@","];
-    [_writer appendString:_RPTJSONFormatWithIntegerValue(@"time", MAX(1ull, (unsigned long long)duration))]; // round to 1ms
+    [_writer appendString:_RPTJSONFormatWithUnsignedIntegerValue(@"time", MAX(1ull, (unsigned long long)duration))]; // round to 1ms
 
     [_writer appendString:@","];
-    [_writer appendString:_RPTJSONFormatWithIntegerValue(@"start", MAX(0ull, (unsigned long long)(measurement.startTime * 1000.0)))];
+    [_writer appendString:_RPTJSONFormatWithUnsignedIntegerValue(@"start", MAX(0ull, (unsigned long long)(measurement.startTime * 1000.0)))];
     [_writer appendString:@"}"];
 
     _measurementCount ++;
