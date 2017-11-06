@@ -7,6 +7,7 @@
 #import "../RPerformanceTracking/Private/_RPTMeasurement.h"
 #import "../RPerformanceTracking/Private/_RPTMetric.h"
 #import "_RPTLocation.h"
+#import "../RPerformanceTracking/Private/UIDevice+RPerformanceTracking.h"
 
 @interface _RPTEventWriter ()
 @property (nonatomic) NSMutableString           *writer;
@@ -14,6 +15,9 @@
 @end
 
 @interface EventWriterTests : XCTestCase
+{
+    id mockDevice;
+}
 @property (nonatomic, copy) NSString            *fixedPrefix;
 @end
 
@@ -31,8 +35,14 @@
     };
     NSData *data = [NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:0];
     [_RPTConfiguration persistWithData:data];
-    
-    _fixedPrefix = [NSString stringWithFormat:@"{\"app\":\"%@\",\"version\":\"1.0\",\"device\":\"x86_64\",\"country\":\"US\",\"network\":\"wifi\",\"os\":\"ios\",\"os_version\":\"%@\",\"measurements\":[", NSBundle.mainBundle.bundleIdentifier, UIDevice.currentDevice.systemVersion];
+
+    mockDevice = OCMPartialMock(UIDevice.currentDevice);
+    OCMStub([mockDevice freeDeviceMemory]).andReturn(3000);
+    OCMStub([mockDevice totalDeviceMemory]).andReturn(10000);
+    OCMStub([mockDevice usedAppMemory]).andReturn(100);
+    OCMStub([mockDevice batteryLevel]).andReturn(0.86f);
+
+    _fixedPrefix = [NSString stringWithFormat:@"{\"app\":\"%@\",\"version\":\"1.0\",\"device\":\"x86_64\",\"country\":\"US\",\"network\":\"wifi\",\"os\":\"ios\",\"os_version\":\"%@\",\"app_mem_used\":100,\"device_mem_free\":3000,\"device_mem_total\":10000,\"battery_level\":0.86,\"measurements\":[", NSBundle.mainBundle.bundleIdentifier, UIDevice.currentDevice.systemVersion];
     
     // Ensure locale is used
     [OHHTTPStubs stubRequestsPassingTest:^BOOL(NSURLRequest *request) {
@@ -45,6 +55,7 @@
 - (void)tearDown {
     [super tearDown];
     [OHHTTPStubs removeAllStubs];
+    [mockDevice stopMocking];
 }
 
 - (_RPTConfiguration *)defaultConfiguration
@@ -177,7 +188,7 @@
     [eventWriter writeWithMetric:[self defaultMetric]];
     XCTAssertNotNil(eventWriter.writer);
     
-    NSString *prefix = [NSString stringWithFormat:@"{\"app\":\"%@\",\"version\":\"1.0\",\"device\":\"x86_64\",\"country\":\"%@\",\"network\":\"wifi\",\"os\":\"ios\",\"os_version\":\"%@\",\"measurements\":[", NSBundle.mainBundle.bundleIdentifier, [[NSLocale currentLocale] objectForKey:NSLocaleCountryCode], UIDevice.currentDevice.systemVersion];
+    NSString *prefix = [NSString stringWithFormat:@"{\"app\":\"%@\",\"version\":\"1.0\",\"device\":\"x86_64\",\"country\":\"%@\",\"network\":\"wifi\",\"os\":\"ios\",\"os_version\":\"%@\",\"app_mem_used\":100,\"device_mem_free\":3000,\"device_mem_total\":10000,\"battery_level\":0.86,\"measurements\":[", NSBundle.mainBundle.bundleIdentifier, [[NSLocale currentLocale] objectForKey:NSLocaleCountryCode], UIDevice.currentDevice.systemVersion];
     
     NSString *responseString = [NSString stringWithFormat:@"%@{\"metric\":\"default_metric\",\"urls\":5,\"time\":3000,\"start\":1200}", prefix];
     XCTAssertEqualObjects(eventWriter.writer.copy, responseString);
