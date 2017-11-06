@@ -38,7 +38,7 @@
         // thread blocked
         dispatch_async(dispatch_get_main_queue(), ^{
             _watcherRunning = NO; // reset watcher
-            dispatch_semaphore_signal(_semaphore);
+            dispatch_semaphore_signal(self.semaphore);
         });
         
         [NSThread sleepForTimeInterval:_blockThreshold];

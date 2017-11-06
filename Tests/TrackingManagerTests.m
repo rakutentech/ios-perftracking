@@ -44,6 +44,27 @@ static const NSUInteger     TRACKING_DATA_LIMIT  = 100u;
 
 @implementation TrackingManagerTests
 
+- (void)setUp
+{
+    [super setUp];
+    NSDictionary *dict = @{
+                           @"enablePercent": @(100),
+                           @"sendUrl": @"https://performance-endpoint.com/measurements/messages?timeout=60&api-version=2014-01",
+                           @"sendHeaders":@{@"Authorization": @"SharedAccessSignature sr=foo",
+                                            @"Content-Type": @"application/atom+xml;type=entry;charset=utf-8",
+                                            @"BrokerProperties": @"PartitionKey: ABC"
+                                            }
+                           };
+    NSData *data = [NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:0];
+    [_RPTConfiguration persistWithData:data];
+}
+
+- (void)tearDown
+{
+    [NSUserDefaults.standardUserDefaults setObject:nil forKey:@"com.rakuten.performancetracking"];
+    [super tearDown];
+}
+
 - (void)testSharedInstancesAreEqual
 {
     XCTAssertEqualObjects([_RPTTrackingManager sharedInstance], [_RPTTrackingManager sharedInstance]);
