@@ -53,7 +53,7 @@ static _RPTTrackingManager *_trackingManager = nil;
 }
 
 // To enable, set a valid `RPTLocationAPIEndpoint` and `RPTSubscriptionKey` in HostApp's info.plist
-- (void)DISABLE_testThatLocationAndCountryCanBeFetchedFromServer
+- (void)DISABLED_testThatLocationAndCountryCanBeFetchedFromServer
 {
 	XCTestExpectation *waitForResponse = [self expectationWithDescription:@"wait"];
 	

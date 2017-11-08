@@ -26,7 +26,7 @@
 - (void)setUp {
     [super setUp];
     NSDictionary *dict = @{
-        @"enablePercent": @(20.00),
+        @"enablePercent": @(100),
         @"sendUrl": @"https://performance-endpoint.com/measurements/messages?timeout=60&api-version=2014-01",
         @"sendHeaders":@{@"Authorization": @"SharedAccessSignature sr=foo",
                          @"Content-Type": @"application/atom+xml;type=entry;charset=utf-8",
@@ -54,6 +54,7 @@
 
 - (void)tearDown {
     [super tearDown];
+    [NSUserDefaults.standardUserDefaults setObject:nil forKey:@"com.rakuten.performancetracking"];
     [OHHTTPStubs removeAllStubs];
     [mockDevice stopMocking];
 }

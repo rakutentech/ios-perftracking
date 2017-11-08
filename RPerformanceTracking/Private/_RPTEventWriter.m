@@ -245,6 +245,13 @@ NSString *_RPTJSONFormatWithFloatValue(NSString *key, float value)
                 [_writer appendString:_RPTJSONFormatWithStringValue(@"verb", measurement.method)];
             }
             break;
+            
+        case _RPTDeviceMeasurementKind:
+            if ([measurement.receiver isKindOfClass:NSString.class])
+            {
+                [_writer appendString:_RPTJSONFormatWithStringValue(@"device", (NSString *)measurement.receiver)];
+            }
+            break;
 
         case _RPTCustomMeasurementKind:
             if ([measurement.receiver isKindOfClass:NSString.class])

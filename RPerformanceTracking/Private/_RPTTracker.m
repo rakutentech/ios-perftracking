@@ -83,6 +83,16 @@
     return measurement ? measurement.trackingIdentifier : 0;
 }
 
+- (uint_fast64_t)addDevice:(NSString *)name start:(NSTimeInterval)startTime end:(NSTimeInterval)endTime
+{
+    _RPTMeasurement *measurement = [self _startWithKind:_RPTDeviceMeasurementKind receiver:name.copy method:nil];
+    
+    measurement.startTime = startTime; // override value set by _startWithKind
+    measurement.endTime = endTime;
+    
+    return measurement ? measurement.trackingIdentifier : 0;
+}
+
 - (void)end:(uint_fast64_t)trackingIdentifier
 {
     if (trackingIdentifier)
