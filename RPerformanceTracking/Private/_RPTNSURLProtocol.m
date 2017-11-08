@@ -58,8 +58,14 @@ static void startTrackingRequestOnNSURLSessionTask(NSURLRequest *request, NSURLS
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
 {
     NSString *scheme = request.URL.scheme.lowercaseString;
-    if (![request.URL.absoluteString containsString:[_RPTTrackingManager sharedInstance].configuration.eventHubURL.absoluteString] &&
-        (![NSURLProtocol propertyForKey:RPTCustomProtocolKey inRequest:request] && (([scheme isEqualToString:@"http"] || [scheme isEqualToString:@"https"]))))
+    
+    NSString *eventHubURLString = [_RPTTrackingManager sharedInstance].configuration.eventHubURL.absoluteString;
+    BOOL isHTTP = [scheme isEqualToString:@"http"] || [scheme isEqualToString:@"https"];
+    
+    // if config response is invalid the eventHubURL string below will be nil, which causes an exception in containsString, so make sure len > 0
+    BOOL isRPTURL = eventHubURLString.length && [request.URL.absoluteString containsString:eventHubURLString];
+
+    if (!isRPTURL && isHTTP && ![NSURLProtocol propertyForKey:RPTCustomProtocolKey inRequest:request])
     {
         return YES;
     }

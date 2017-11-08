@@ -9,6 +9,7 @@ typedef NS_ENUM(NSUInteger, _RPTMeasurementKind)
     _RPTMetricMeasurementKind = 1,
     _RPTMethodMeasurementKind,
     _RPTURLMeasurementKind,
+    _RPTDeviceMeasurementKind,
     _RPTCustomMeasurementKind,
 };
 
