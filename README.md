@@ -42,6 +42,7 @@ You must specify the following values in your application's info.plist in order 
 | `RPTSubscriptionKey` | Only internal Rakuten developers can setup a key. If not a Rakuten developer set a non-empty string |
 | `RPTConfigAPIEndpoint` | Endpoint to fetch the module configuration - see `_RPTConfiguration` class for response format |
 | `RPTLocationAPIEndpoint` | Endpoint to fetch the current location - see `_RPTLocation` class for response format |
+| `RPTRelayAppID` | Relay portal application ID. Only internal Rakuten developers can setup app ID. If not a Rakuten developer set a non-empty string |
 
 Now your application is ready to automatically track the `Launch` metric, network requests, view lifecycle methods, and more.
 
