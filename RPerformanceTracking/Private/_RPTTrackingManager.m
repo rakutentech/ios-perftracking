@@ -125,7 +125,7 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
             // Profile main thread to check if it is running for > 0.4 s
             _watcher = _RPTMainThreadWatcher.new;
             [_watcher start];
-            
+            [UIDevice currentDevice].batteryMonitoringEnabled = YES;
         } while (0);
         
         [self updateConfiguration];
