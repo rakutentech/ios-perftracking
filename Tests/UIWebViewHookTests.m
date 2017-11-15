@@ -54,7 +54,7 @@
     _trackingManager.tracker                = [_RPTTracker.alloc initWithRingBuffer:ringBuffer
                                                                       currentMetric:currentMetric];
     
-    _webView                                = [[UIWebView alloc] initWithFrame:CGRectZero];
+    _webView                                = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, 200, 300)];
     _defaultRequest                         = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://www.google.com"]];
     _webView.delegate                       = self;
     [NSURLProtocol registerClass:[_RPTNSURLProtocol class]];
@@ -82,6 +82,7 @@
                                    replacing:@selector(_rpt_webView:didFailLoadWithError:)
                                onlyIfPresent:NO];
 
+    [_webView stopLoading];
     _webView.delegate = nil;
     _webView = nil;
 }
@@ -181,7 +182,7 @@
     id mockCustomProtocol = OCMClassMock([_RPTNSURLProtocol class]);
     
     [_webView loadRequest:_defaultRequest];
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         
         OCMVerify([mockCustomProtocol canInitWithRequest:[OCMArg any]]);
         [wait fulfill];
@@ -196,7 +197,7 @@
     id mockCustomProtocol = OCMClassMock([_RPTNSURLProtocol class]);
     
     [_webView loadRequest:_defaultRequest];
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         
         OCMVerify([mockCustomProtocol canonicalRequestForRequest:[OCMArg any]]);
         [wait fulfill];

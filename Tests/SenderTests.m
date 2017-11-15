@@ -32,6 +32,17 @@ static const NSUInteger      MAX_MEASUREMENTS    = 512u;
 - (void)setUp
 {
     [super setUp];
+    
+    NSDictionary *dict = @{
+                           @"enablePercent": @(100),
+                           @"sendUrl": @"https://performance-endpoint.com/measurements/messages?timeout=60&api-version=2014-01",
+                           @"sendHeaders":@{@"Authorization": @"SharedAccessSignature sr=foo",
+                                            @"Content-Type": @"application/atom+xml;type=entry;charset=utf-8",
+                                            @"BrokerProperties": @"PartitionKey: ABC"
+                                            }
+                           };
+    NSData *data = [NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:0];
+    [_RPTConfiguration persistWithData:data];
 
     _RPTConfiguration *configuration    = [_RPTConfiguration loadConfiguration];
     _RPTEventWriter *eventWriter        = [_RPTEventWriter.alloc initWithConfiguration:configuration];
@@ -44,9 +55,9 @@ static const NSUInteger      MAX_MEASUREMENTS    = 512u;
 {
     [_sender stop];
     _sender = nil;
-    
-    [super tearDown];
+    [NSUserDefaults.standardUserDefaults setObject:nil forKey:@"com.rakuten.performancetracking"];
     [OHHTTPStubs removeAllStubs];
+    [super tearDown];
 }
 
 - (_RPTMeasurement *)defaultMetricMeasurement

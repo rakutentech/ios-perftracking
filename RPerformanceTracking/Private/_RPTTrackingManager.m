@@ -8,6 +8,7 @@
 #import "_RPTHelpers.h"
 #import "_RPTEventWriter.h"
 #import "_RPTLocation.h"
+#import "_RPTMainThreadWatcher.h"
 
 static const NSUInteger      MAX_MEASUREMENTS           = 512u;
 static const NSUInteger      TRACKING_DATA_LIMIT        = 100u;
@@ -73,7 +74,8 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
 @property (nonatomic)            NSTimer              *refreshConfigTimer;
 @property (nonatomic)            double                currentActivationRatio;
 @property (nonatomic)            NSMutableDictionary<_RPTTrackingKey *, NSNumber *> *trackingData;
-@property (nonatomic)            BOOL                 forceTrackingEnabled;
+@property (nonatomic)            BOOL                  forceTrackingEnabled;
+@property (nonatomic)            _RPTMainThreadWatcher *watcher;
 @end
 
 /* RPT_EXPORT */ @implementation _RPTTrackingManager
@@ -120,6 +122,10 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
             [self addEndMetricObservers];
             [_sender start];
             
+            // Profile main thread to check if it is running for > 0.4 s
+            _watcher = _RPTMainThreadWatcher.new;
+            [_watcher start];
+            [UIDevice currentDevice].batteryMonitoringEnabled = YES;
         } while (0);
         
         [self updateConfiguration];
