@@ -26,6 +26,8 @@
 	<true/>
 	<key>RPTLocationAPIEndpoint</key>
 	<string>https://location-endpoint.com</string>
+	<key>RPTRelayAppID</key>
+	<string>RELAYAPP_ID</string>
 	<key>RPTSubscriptionKey</key>
 	<string>SUBSCRIPTION_KEY</string>
 	<key>UILaunchStoryboardName</key>

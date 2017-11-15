@@ -166,12 +166,18 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
     NSString *thisVersion   = [thisBundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
     
     NSBundle *appBundle     = NSBundle.mainBundle;
-    NSString *appIdentifier = appBundle.bundleIdentifier;
+    NSString *relayAppID    = [appBundle objectForInfoDictionaryKey:@"RPTRelayAppID"];
     NSString *appVersion    = [appBundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
     
     NSString *country       = [[NSLocale currentLocale] objectForKey:NSLocaleCountryCode];
     
-    NSString *path = [NSString stringWithFormat:@"/platform/ios/app/%@/version/%@/", appIdentifier, appVersion];
+    NSString *path = [NSString stringWithFormat:@"/platform/ios/"];
+    if (relayAppID.length){ path = [path stringByAppendingString:[NSString stringWithFormat:@"app/%@/", relayAppID]]; }
+#if DEBUG
+    NSAssert(relayAppID.length, @"Your application's Info.plist must contain a key 'RPTRelayAppID' set to the relay Portal application ID");
+#endif
+    
+    path = [path stringByAppendingString:[NSString stringWithFormat:@"version/%@/", appVersion]];
     
     NSURLSessionConfiguration *sessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration;
     
