@@ -1,7 +1,54 @@
 #import <objc/runtime.h>
 #import "_RPTClassManipulator.h"
 
+@interface SwizzleDetail : NSObject
+@property (nonatomic, readonly) NSString *className;
+@property (nonatomic, readonly) IMP originalImplementation; // FIXME: should this be wrapped in NSValue?
++ (instancetype)objectWithClass:(NSString *)className implementation:(IMP)imp;
+@end
+
+@implementation SwizzleDetail
+- (instancetype)initWithClass:(NSString *)className implementation:(IMP)imp
+{
+    if (self = [super init])
+    {
+        _className = className;
+        _originalImplementation = imp;
+    }
+    return self;
+}
+
++ (instancetype)objectWithClass:(NSString *)className implementation:(IMP)imp
+{
+    return (className && imp) ? [self.alloc initWithClass:className implementation:imp] : nil;
+}
+@end
+
+// Map of selectors to objects containing the class name and original implementation
+typedef NSMutableDictionary<NSValue *, SwizzleDetail *> swizzleMappingDictionary;
+
+@interface _RPTClassManipulator ()
+@property (class, nonatomic) swizzleMappingDictionary *swizzleMap;
+@end
+
 @implementation _RPTClassManipulator
+static swizzleMappingDictionary *_swizzleMap = nil;
+
++ (swizzleMappingDictionary *)swizzleMap
+{
+    return _swizzleMap;
+}
+
++ (void)setSwizzleMap:(swizzleMappingDictionary *)newSwizzleMap
+{
+    _swizzleMap = newSwizzleMap;
+}
+
++ (void)load
+{
+    if (!self.swizzleMap) _swizzleMap = NSMutableDictionary.new;
+}
+
 + (BOOL)addMethodFromClass:(Class)sender
               withSelector:(SEL)newSelector
                    toClass:(Class)recipient
@@ -103,6 +150,24 @@
                                 method_getImplementation(newMethod),
                                 method_getTypeEncoding(newMethod));
             }
+            else
+            {
+                static dispatch_once_t onceToken;
+                dispatch_once(&onceToken, ^{
+                    
+                    class_replaceMethod(recipient,
+                                        newSelector,
+                                        newImp,
+                                        method_getTypeEncoding(newMethod));
+                    
+                    class_replaceMethod(sender,
+                                        newSelector,
+                                        originalImp,
+                                        method_getTypeEncoding(originalMethod));
+                    
+                });
+                return YES;
+            }
             Method newMethodInRecipient = class_getInstanceMethod(recipient, newSelector);
 
             if (originalMethod && newMethodInRecipient)
@@ -113,5 +178,59 @@
     }
     
     return YES;
+}
+
++ (void)swizzleSelector:(SEL)sel onClass:(Class)recipient newImplementation:(IMP)newImp types:(const char *)types
+{
+    if (!sel || !recipient || !newImp || !types)
+    {
+        return;
+    }
+    
+    if ([[_RPTClassManipulator _classNameForSelector:sel] isEqualToString:NSStringFromClass(recipient)])
+    {
+        // Same selector and recipient - already swizzled
+        return;
+    }
+    
+    Method m = class_getInstanceMethod(recipient, sel);
+    
+    if (m)
+    {
+        IMP originalImplementation = method_setImplementation(m, newImp);
+        [_RPTClassManipulator _addSelectorMapping:sel className:NSStringFromClass(recipient) implementation:originalImplementation];
+    }
+    else
+    {
+        // add method, there's no original implementation
+        class_addMethod(recipient, sel, newImp, types);
+    }
+}
+
++ (IMP)implementationForOriginalSelector:(SEL)selector
+{
+    SwizzleDetail *swizzleDetail = _swizzleMap[[NSValue valueWithPointer:selector]];
+    return swizzleDetail.originalImplementation;
+}
+
++ (void)_addSelectorMapping:(SEL)selector className:(NSString *)className implementation:(IMP)implementation
+{
+    NSValue *selKey = [NSValue valueWithPointer:selector];
+    SwizzleDetail *swizzleDetail = [SwizzleDetail objectWithClass:className implementation:implementation];
+    if (swizzleDetail)
+    {
+        _swizzleMap[selKey] = swizzleDetail;
+    }
+}
+
++ (NSString *)_classNameForSelector:(SEL)selector
+{
+    NSValue *selKey = [NSValue valueWithPointer:selector];
+    SwizzleDetail *swizzleDetail = _swizzleMap[selKey];
+    if (swizzleDetail)
+    {
+        return swizzleDetail.className;
+    }
+    return nil;
 }
 @end

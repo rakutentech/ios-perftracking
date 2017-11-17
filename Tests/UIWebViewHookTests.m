@@ -271,7 +271,7 @@
     [mockProtocol stopMocking];
 }
 
-#pragma MARK: UIWebViewDelegate
+// MARK: UIWebViewDelegate
 
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {

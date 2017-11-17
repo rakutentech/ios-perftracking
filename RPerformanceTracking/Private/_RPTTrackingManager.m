@@ -91,6 +91,10 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
         _refreshConfigTimer.tolerance = _refreshConfigInterval * 0.1;
         [[NSRunLoop mainRunLoop] addTimer:_refreshConfigTimer forMode:NSRunLoopCommonModes];
         
+        NSBundle *appBundle = NSBundle.mainBundle;
+        _forceTrackingEnabled = [[appBundle objectForInfoDictionaryKey:@"RPTForceTrackingEnabledKey"] boolValue];
+        _disableProtocolWebviewObserving = [[appBundle objectForInfoDictionaryKey:@"RPTDisableProtocolWebviewObserving"] boolValue];
+        
         do
         {
             _configuration = [_RPTConfiguration loadConfiguration];
@@ -196,11 +200,7 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
     NSAssert(subscriptionKey.length, @"Your application's Info.plist file must contain a key 'RPTSubscriptionKey' which should be set to your 'Ocp-Apim-Subscription-Key' from the API Portal");
 #endif
     
-    _forceTrackingEnabled = [[appBundle objectForInfoDictionaryKey:@"RPTForceTrackingEnabledKey"] boolValue];
-    _disableProtocolWebviewObserving = [[appBundle objectForInfoDictionaryKey:@"RPTDisableProtocolWebviewObserving"] boolValue];
-    
     NSURL *url = [base URLByAppendingPathComponent:path];
-    
     NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
     components.query = [NSString stringWithFormat:@"sdk=%@&country=%@", thisVersion, country];
     
