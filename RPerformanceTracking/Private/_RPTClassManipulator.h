@@ -39,6 +39,13 @@ RPT_EXPORT @interface _RPTClassManipulator : NSObject
                        toClass:(Class)recipient
                      replacing:(SEL)originalSelector
                  onlyIfPresent:(BOOL)onlyIfPresent;
+
+// FIXME: the methods above that use selector IMP swapping should be deprecated/removed after
+// all the swizzling setup calls are changed to use the below selector preserving method (which
+// makes us compatible with 3rd party SDK swizzlers e.g. New Relic)
++ (void)swizzleSelector:(SEL)sel onClass:(Class)recipient newImplementation:(IMP)newImp types:(const char *)types;
+
++ (IMP)implementationForOriginalSelector:(SEL)selector;
 @end
 
 NS_ASSUME_NONNULL_END
