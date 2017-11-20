@@ -20,7 +20,8 @@ static NSString *const       METRIC_LAUNCH              = @"_launch";
 static const NSUInteger      ARCRANDOM_MAX              = 0x100000000;
 #pragma clang diagnostic push
 
-static const NSTimeInterval  REFRESH_CONFIG_INTERVAL    = 3600.0; // 1 hour
+static const NSTimeInterval  REFRESH_CONFIG_INTERVAL        = 3600.0; // 1 hour
+static const NSTimeInterval  MAIN_THREAD_BLOCK_THRESHOLD    = 0.4;
 
 RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
 @property (nonatomic, readonly) NSString      *identifier;
@@ -122,9 +123,10 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
             [self addEndMetricObservers];
             [_sender start];
             
-            // Profile main thread to check if it is running for > 0.4 s
-            _watcher = _RPTMainThreadWatcher.new;
+            // Profile main thread to check if it is running for > threshold time
+            _watcher = [_RPTMainThreadWatcher.alloc initWithThreshold:MAIN_THREAD_BLOCK_THRESHOLD];
             [_watcher start];
+            
             [UIDevice currentDevice].batteryMonitoringEnabled = YES;
         } while (0);
         
@@ -237,17 +239,11 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
               }
           }
 
-          BOOL disableTracking = [self disableTracking];
-          if (disableTracking || invalidConfig)
+          BOOL shouldDisableTracking = [self disableTracking];
+          if (shouldDisableTracking || invalidConfig)
           {
-              RPTLog(@"Tracking disabled: activation check response %@, Config API response %@", disableTracking?@"OFF":@"ON", invalidConfig?@"invalid":@"valid");
-              
-              // async in background because the sender stop is blocking
-              dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                  [self.sender stop];
-                  self.tracker = nil;
-              });
-              [self invalidateRefreshConfigTimer];
+              RPTLog(@"Tracking disabled: activation check response %@, Config API response %@", shouldDisableTracking?@"OFF":@"ON", invalidConfig?@"invalid":@"valid");
+              [self stopTracking];
           }
           else
           {
@@ -256,6 +252,18 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
           }
       }] resume];
 }
+
+- (void)stopTracking
+{
+    // async in background because the sender stop is blocking
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [self.sender stop];
+        self.tracker = nil;
+    });
+    [self invalidateRefreshConfigTimer];
+    [_watcher cancel];
+}
+
 - (void)refreshLocation
 {
 	NSURLSessionConfiguration *sessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration;
