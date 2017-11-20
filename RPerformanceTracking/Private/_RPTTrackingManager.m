@@ -20,7 +20,8 @@ static NSString *const       METRIC_LAUNCH              = @"_launch";
 static const NSUInteger      ARCRANDOM_MAX              = 0x100000000;
 #pragma clang diagnostic push
 
-static const NSTimeInterval  REFRESH_CONFIG_INTERVAL    = 3600.0; // 1 hour
+static const NSTimeInterval  REFRESH_CONFIG_INTERVAL        = 3600.0; // 1 hour
+static const NSTimeInterval  MAIN_THREAD_BLOCK_THRESHOLD    = 0.4;
 
 RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
 @property (nonatomic, readonly) NSString      *identifier;
@@ -123,7 +124,7 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
             [_sender start];
             
             // Profile main thread to check if it is running for > threshold time
-            _watcher = [_RPTMainThreadWatcher.alloc initWithThreshold:0.4];
+            _watcher = [_RPTMainThreadWatcher.alloc initWithThreshold:MAIN_THREAD_BLOCK_THRESHOLD];
             [_watcher start];
             
             [UIDevice currentDevice].batteryMonitoringEnabled = YES;
