@@ -122,9 +122,10 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
             [self addEndMetricObservers];
             [_sender start];
             
-            // Profile main thread to check if it is running for > 0.4 s
-            _watcher = _RPTMainThreadWatcher.new;
+            // Profile main thread to check if it is running for > threshold time
+            _watcher = [_RPTMainThreadWatcher.alloc initWithThreshold:0.4];
             [_watcher start];
+            
             [UIDevice currentDevice].batteryMonitoringEnabled = YES;
         } while (0);
         
@@ -237,17 +238,11 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
               }
           }
 
-          BOOL disableTracking = [self disableTracking];
-          if (disableTracking || invalidConfig)
+          BOOL shouldDisableTracking = [self disableTracking];
+          if (shouldDisableTracking || invalidConfig)
           {
-              RPTLog(@"Tracking disabled: activation check response %@, Config API response %@", disableTracking?@"OFF":@"ON", invalidConfig?@"invalid":@"valid");
-              
-              // async in background because the sender stop is blocking
-              dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                  [self.sender stop];
-                  self.tracker = nil;
-              });
-              [self invalidateRefreshConfigTimer];
+              RPTLog(@"Tracking disabled: activation check response %@, Config API response %@", shouldDisableTracking?@"OFF":@"ON", invalidConfig?@"invalid":@"valid");
+              [self stopTracking];
           }
           else
           {
@@ -256,6 +251,18 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
           }
       }] resume];
 }
+
+- (void)stopTracking
+{
+    // async in background because the sender stop is blocking
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [self.sender stop];
+        self.tracker = nil;
+    });
+    [self invalidateRefreshConfigTimer];
+    [_watcher cancel];
+}
+
 - (void)refreshLocation
 {
 	NSURLSessionConfiguration *sessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration;
