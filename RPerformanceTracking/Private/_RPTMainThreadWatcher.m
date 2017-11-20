@@ -15,12 +15,12 @@
 // Inspired by https://medium.com/@mandrigin/ios-app-performance-instruments-beyond-48fe7b7cdf2
 @implementation _RPTMainThreadWatcher
 
-- (instancetype)init
+- (instancetype)initWithThreshold:(NSTimeInterval)threshold
 {
     if (self = [super init])
     {
         _watcherRunning = NO;
-        _blockThreshold = 0.4;
+        _blockThreshold = threshold;
         _semaphore = dispatch_semaphore_create(0);
     }
     return self;
@@ -37,7 +37,7 @@
         // <= blockThreshold seconds then we consider the main
         // thread blocked
         dispatch_async(dispatch_get_main_queue(), ^{
-            _watcherRunning = NO; // reset watcher
+            self.watcherRunning = NO; // reset watcher
             dispatch_semaphore_signal(self.semaphore);
         });
         
