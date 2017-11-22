@@ -8,8 +8,14 @@
 - (BOOL)controlEventEndsMetricOnTarget:(id)target withAction:(SEL)action
 {
     NSString *actionName = NSStringFromSelector(action);
+    
+    // UIControlEvents enum constant UIControlEventPrimaryActionTriggered was introduced in
+    // iOS 9.0 but there is no way to check enum availability at runtime. Instead check that
+    // UIStackView (also introduced in iOS 9.0) is available
+    BOOL primaryActionTriggeredAvailable = [UIStackView class];
+    
     return ([[self actionsForTarget:target forControlEvent:UIControlEventTouchUpInside] containsObject:actionName] ||
-            [[self actionsForTarget:target forControlEvent:UIControlEventPrimaryActionTriggered] containsObject:actionName] ||
+            (primaryActionTriggeredAvailable && [[self actionsForTarget:target forControlEvent:UIControlEventPrimaryActionTriggered] containsObject:actionName]) ||
             [[self actionsForTarget:target forControlEvent:UIControlEventValueChanged] containsObject:actionName]);
 }
 
