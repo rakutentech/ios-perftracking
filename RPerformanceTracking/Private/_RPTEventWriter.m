@@ -73,6 +73,7 @@ NSString *_RPTJSONFormatWithFloatValue(NSString *key, float value)
     static NSString *modelIdentifier;
     static UIDevice *device;
     static NSString *osVersion;
+    static NSString *relayAppID;
     __block NSString *carrierName;
     static SCNetworkReachabilityRef reachability;
 
@@ -83,6 +84,7 @@ NSString *_RPTJSONFormatWithFloatValue(NSString *key, float value)
         appVersion = [bundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
         device = UIDevice.currentDevice;
         osVersion = [NSString stringWithFormat:@"%@", device.systemVersion];
+        relayAppID = [bundle objectForInfoDictionaryKey:@"RPTRelayAppID"];
 
         struct utsname systemInfo;
         uname(&systemInfo);
@@ -137,7 +139,13 @@ NSString *_RPTJSONFormatWithFloatValue(NSString *key, float value)
     {
         [_writer appendString:_RPTJSONFormatWithStringValue(@"app", appIdentifier)];
     }
-
+    
+    if (relayAppID)
+    {
+        [_writer appendString:@","];
+        [_writer appendString:_RPTJSONFormatWithStringValue(@"relay_app_id", relayAppID)];
+    }
+    
     if (appVersion)
     {
         [_writer appendString:@","];

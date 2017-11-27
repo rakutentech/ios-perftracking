@@ -42,7 +42,7 @@
     OCMStub([mockDevice usedAppMemory]).andReturn(100);
     OCMStub([mockDevice batteryLevel]).andReturn(0.86f);
 
-    _fixedPrefix = [NSString stringWithFormat:@"{\"app\":\"%@\",\"version\":\"1.0\",\"device\":\"x86_64\",\"country\":\"US\",\"network\":\"wifi\",\"os\":\"ios\",\"os_version\":\"%@\",\"app_mem_used\":100,\"device_mem_free\":3000,\"device_mem_total\":10000,\"battery_level\":0.86,\"measurements\":[", NSBundle.mainBundle.bundleIdentifier, UIDevice.currentDevice.systemVersion];
+    _fixedPrefix = [NSString stringWithFormat:@"{\"app\":\"%@\",\"relay_app_id\":\"%@\",\"version\":\"1.0\",\"device\":\"x86_64\",\"country\":\"US\",\"network\":\"wifi\",\"os\":\"ios\",\"os_version\":\"%@\",\"app_mem_used\":100,\"device_mem_free\":3000,\"device_mem_total\":10000,\"battery_level\":0.86,\"measurements\":[", NSBundle.mainBundle.bundleIdentifier, [NSBundle.mainBundle objectForInfoDictionaryKey:@"RPTRelayAppID"], UIDevice.currentDevice.systemVersion];
     
     // Ensure locale is used
     [OHHTTPStubs stubRequestsPassingTest:^BOOL(NSURLRequest *request) {
@@ -189,7 +189,7 @@
     [eventWriter writeWithMetric:[self defaultMetric]];
     XCTAssertNotNil(eventWriter.writer);
     
-    NSString *prefix = [NSString stringWithFormat:@"{\"app\":\"%@\",\"version\":\"1.0\",\"device\":\"x86_64\",\"country\":\"%@\",\"network\":\"wifi\",\"os\":\"ios\",\"os_version\":\"%@\",\"app_mem_used\":100,\"device_mem_free\":3000,\"device_mem_total\":10000,\"battery_level\":0.86,\"measurements\":[", NSBundle.mainBundle.bundleIdentifier, [[NSLocale currentLocale] objectForKey:NSLocaleCountryCode], UIDevice.currentDevice.systemVersion];
+    NSString *prefix = [NSString stringWithFormat:@"{\"app\":\"%@\",\"relay_app_id\":\"%@\",\"version\":\"1.0\",\"device\":\"x86_64\",\"country\":\"%@\",\"network\":\"wifi\",\"os\":\"ios\",\"os_version\":\"%@\",\"app_mem_used\":100,\"device_mem_free\":3000,\"device_mem_total\":10000,\"battery_level\":0.86,\"measurements\":[", NSBundle.mainBundle.bundleIdentifier, [NSBundle.mainBundle objectForInfoDictionaryKey:@"RPTRelayAppID"], [[NSLocale currentLocale] objectForKey:NSLocaleCountryCode], UIDevice.currentDevice.systemVersion];
     
     NSString *responseString = [NSString stringWithFormat:@"%@{\"metric\":\"default_metric\",\"urls\":5,\"time\":3000,\"start\":1200}", prefix];
     XCTAssertEqualObjects(eventWriter.writer.copy, responseString);
