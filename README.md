@@ -21,13 +21,11 @@ The **Performance Tracking** module is a tool that lets you measure the performa
 
 ### Installing as CocoaPods pod
 
-At this time the module is not published as a public CocoaPods pod so you will need to clone the repository locally.
-
 To use the module your `Podfile` should contain:
 
     source 'https://github.com/CocoaPods/Specs.git'
 
-    pod 'RPerformanceTracking', :path => '/path-to-performance-tracking-podspec'
+    pod 'RPerformanceTracking'
 
 Run `pod install` to install the module and its dependencies.
 
