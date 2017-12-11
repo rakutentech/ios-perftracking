@@ -9,14 +9,12 @@
 #import "_RPTConfiguration.h"
 
 @interface _RPTTrackingManager()
-
 @property (nonatomic) NSTimeInterval         refreshConfigInterval;
 @property (nonatomic, readwrite) _RPTSender *sender;
 @property (nonatomic) _RPTMetric            *currentMetric;
 @property (nonatomic) _RPTEventWriter       *eventWriter;
 
 - (void)updateConfiguration;
-
 @end
 
 @interface MockSender: _RPTSender
@@ -82,7 +80,7 @@ static _RPTTrackingManager *_trackingManager = nil;
     }];
 }
 
-- (void)testThatTrackingStoppedWhenStubbedConfigHasOneHundredPercentActivationRatio
+- (void)testThatTrackingIsRunningWhenStubbedConfigHasOneHundredPercentActivationRatio
 {
     [self stubConfigResponseWithActivationRatio:100];
     
@@ -312,6 +310,53 @@ static _RPTTrackingManager *_trackingManager = nil;
 	
 	[mockBundle stopMocking];
 	[self waitForExpectationsWithTimeout:4 handler:nil];
+}
+
+- (void)assertThatConfigRequestIsNotSentWhenPlistReturnsValue:(NSString *)value forKey:(NSString *)key
+{
+    id mockBundle = OCMPartialMock([NSBundle mainBundle]);
+    OCMStub([mockBundle bundleIdentifier]).andReturn(@"jp.co.rakuten.HostApp");
+    OCMStub([mockBundle objectForInfoDictionaryKey:key]).andReturn(value);
+    
+    id mockNSURLSessionClass = OCMClassMock(NSURLSession.class);
+    OCMStub([mockNSURLSessionClass sessionWithConfiguration:OCMOCK_ANY]).andDo(^(NSInvocation *inv){
+        XCTFail(@"Shouldn't call sessionWithConfiguration when %@ is set to %@", key, value ?: @"nil");
+    });
+    
+    XCTAssertThrowsSpecificNamed([_trackingManager updateConfiguration], NSException, NSInternalInconsistencyException); // Our NSAssert("key value".length) causes this to fire
+    
+    [mockNSURLSessionClass stopMocking];
+    [mockBundle stopMocking];
+}
+
+- (void)testThatConfigRequestIsNotSentIfConfigEndpointIsNotInPlist
+{
+    [self assertThatConfigRequestIsNotSentWhenPlistReturnsValue:nil forKey:@"RPTConfigAPIEndpoint"];
+}
+
+- (void)testThatConfigRequestIsNotSentIfConfigEndpointIsZeroLengthInPlist
+{
+    [self assertThatConfigRequestIsNotSentWhenPlistReturnsValue:@"" forKey:@"RPTConfigAPIEndpoint"];
+}
+
+- (void)testThatConfigRequestIsNotSentIfSubscriptionKeyIsNotInPlist
+{
+    [self assertThatConfigRequestIsNotSentWhenPlistReturnsValue:nil forKey:@"RPTSubscriptionKey"];
+}
+
+- (void)testThatConfigRequestIsNotSentIfSubscriptionKeyIsZeroLengthInPlist
+{
+    [self assertThatConfigRequestIsNotSentWhenPlistReturnsValue:@"" forKey:@"RPTSubscriptionKey"];
+}
+
+- (void)testThatConfigRequestIsNotSentIfAppIDIsNotInPlist
+{
+    [self assertThatConfigRequestIsNotSentWhenPlistReturnsValue:nil forKey:@"RPTRelayAppID"];
+}
+
+- (void)testThatConfigRequestIsNotSentIfAppIDIsZeroLengthInPlist
+{
+    [self assertThatConfigRequestIsNotSentWhenPlistReturnsValue:@"" forKey:@"RPTRelayAppID"];
 }
 
 @end
