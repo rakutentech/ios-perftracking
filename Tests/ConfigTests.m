@@ -167,7 +167,7 @@ static _RPTTrackingManager *_trackingManager = nil;
     [self waitForExpectationsWithTimeout:3 handler:nil];
 }
 
-- (void)testThatTrackingStoppedWhenUpdatedConfigActivationRatioIsLowerThanPreviousValue
+- (void)testIrrespectiveOfConfigActivationRatioDebugBuildsAlwaysSendData
 {
     [self stubConfigResponseWithActivationRatio:100];
     
@@ -179,12 +179,12 @@ static _RPTTrackingManager *_trackingManager = nil;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         
         XCTAssertFalse(((MockSender *)_trackingManager.sender).stopped);
-        [self stubConfigResponseWithActivationRatio:60];
+        [self stubConfigResponseWithActivationRatio:10];
         [_trackingManager updateConfiguration];
         
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         
-            XCTAssert(((MockSender *)_trackingManager.sender).stopped);
+            XCTAssertFalse(((MockSender *)_trackingManager.sender).stopped);
             [waitForResponse fulfill];
         });
     });

@@ -195,8 +195,9 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
 #if DEBUG
     NSAssert(subscriptionKey.length, @"Your application's Info.plist file must contain a key 'RPTSubscriptionKey' which should be set to your 'Ocp-Apim-Subscription-Key' from the API Portal");
 #endif
-    
-    _forceTrackingEnabled = [[appBundle objectForInfoDictionaryKey:@"RPTForceTrackingEnabledKey"] boolValue];
+#if DEBUG
+    _forceTrackingEnabled = [[appBundle objectForInfoDictionaryKey:@"RPTForceTrackingEnabled"] boolValue];
+#endif
     _disableProtocolWebviewObserving = [[appBundle objectForInfoDictionaryKey:@"RPTDisableProtocolWebviewObserving"] boolValue];
     
     NSURL *url = [base URLByAppendingPathComponent:path];

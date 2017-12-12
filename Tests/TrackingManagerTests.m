@@ -157,7 +157,7 @@ static const NSUInteger     TRACKING_DATA_LIMIT  = 100u;
     
     id mockBundle = OCMPartialMock([NSBundle mainBundle]);
     OCMStub([mockBundle bundleIdentifier]).andReturn(@"jp.co.rakuten.HostApp");
-    OCMStub([mockBundle objectForInfoDictionaryKey:@"RPTForceTrackingEnabled"]).andReturn(NO);
+    OCMStub([mockBundle objectForInfoDictionaryKey:@"RPTForceTrackingEnabled"]).andReturn(@NO);
     
     _RPTTrackingManager *trackingManager = [_RPTTrackingManager.alloc init];
     
