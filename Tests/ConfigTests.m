@@ -15,6 +15,8 @@
 @property (nonatomic) _RPTEventWriter       *eventWriter;
 
 - (void)updateConfiguration;
+- (BOOL)disableTracking;
+
 @end
 
 @interface MockSender: _RPTSender
@@ -165,7 +167,7 @@ static _RPTTrackingManager *_trackingManager = nil;
     [self waitForExpectationsWithTimeout:3 handler:nil];
 }
 
-- (void)testIrrespectiveOfConfigActivationRatioDebugBuildsAlwaysSendData
+- (void)testThatIrrespectiveOfConfigActivationRatioSenderIsRunningInDebugBuilds
 {
     [self stubConfigResponseWithActivationRatio:100];
     
@@ -188,6 +190,46 @@ static _RPTTrackingManager *_trackingManager = nil;
     });
     
     [self waitForExpectationsWithTimeout:3 handler:nil];
+}
+
+- (void)testThatSenderIsNotRunningWhenActivationRatioIsCloseToZero
+{
+    XCTestExpectation *waitForResponse = [self expectationWithDescription:@"wait"];
+    
+    [self stubConfigResponseWithActivationRatio:0.01];
+    
+    id mockBundle = OCMPartialMock([NSBundle mainBundle]);
+    OCMStub([mockBundle objectForInfoDictionaryKey:@"RPTForceTrackingEnabled"]).andReturn(@NO);
+    
+    [_trackingManager updateConfiguration];
+    
+    // Wait for fetched configuration
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        XCTAssert(((MockSender *)_trackingManager.sender).stopped);
+        [waitForResponse fulfill];
+    });
+    [self waitForExpectationsWithTimeout:3 handler:nil];
+    [mockBundle stopMocking];
+}
+
+- (void)testThatSenderIsRunningWhenConfigResponseIsValid
+{
+    XCTestExpectation *waitForResponse = [self expectationWithDescription:@"wait"];
+    
+    [self stubConfigResponseWithActivationRatio:1];
+    
+    id mockBundle = OCMPartialMock([NSBundle mainBundle]);
+    OCMStub([mockBundle objectForInfoDictionaryKey:@"RPTForceTrackingEnabled"]).andReturn(@YES);
+    
+    [_trackingManager updateConfiguration];
+    
+    // Wait for fetched configuration
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        XCTAssertFalse(((MockSender *)_trackingManager.sender).stopped);
+        [waitForResponse fulfill];
+    });
+    [self waitForExpectationsWithTimeout:3 handler:nil];
+    [mockBundle stopMocking];
 }
 
 - (void)testThatTrackingStoppedWhenConfigIsInvalid
