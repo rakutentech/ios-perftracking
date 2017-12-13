@@ -202,6 +202,12 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
     
     NSURL *url = [base URLByAppendingPathComponent:path];
     
+    if (!url || !baseURLString.length || !subscriptionKey.length || !relayAppID.length)
+    {
+        // Fail safely in a release build if the info.plist doesn't have the expected key-values
+        return;
+    }
+    
     NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
     components.query = [NSString stringWithFormat:@"sdk=%@&country=%@", thisVersion, country];
     
@@ -277,6 +283,8 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
 #if DEBUG
     NSAssert(locationURL, @"Your application's Info.plist must contain a key 'RPTLocationAPIEndpoint' set to the endpoint URL of your Location API");
 #endif
+    
+    if (!locationURL) return;
 	
 	if (subscriptionKey) { sessionConfiguration.HTTPAdditionalHeaders = @{@"Ocp-Apim-Subscription-Key":subscriptionKey}; }
 	
