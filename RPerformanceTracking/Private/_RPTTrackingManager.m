@@ -92,6 +92,7 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
         [[NSRunLoop mainRunLoop] addTimer:_refreshConfigTimer forMode:NSRunLoopCommonModes];
         
         NSBundle *appBundle = NSBundle.mainBundle;
+      
 #if DEBUG
         _forceTrackingEnabled = [[appBundle objectForInfoDictionaryKey:@"RPTForceTrackingEnabled"] boolValue];
 #endif
