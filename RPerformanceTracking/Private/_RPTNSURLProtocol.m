@@ -8,46 +8,10 @@
 static NSString *const RPTCustomProtocolKey = @"RPTCustomProtocolKey";
 extern NSURLCacheStoragePolicy CacheStoragePolicyForRequestAndResponse(NSURLRequest * request, NSHTTPURLResponse * response);
 
-static const void *_RPT_NSURLPROTOCOL_TRACKINGIDENTIFIER = &_RPT_NSURLPROTOCOL_TRACKINGIDENTIFIER;
-
-static void endTrackingWithNSURLSessionTask(NSURLSessionTask *task)
-{
-    _RPTTrackingManager *manager = [_RPTTrackingManager sharedInstance];
-    
-    uint_fast64_t trackingIdentifier = [objc_getAssociatedObject(task, _RPT_NSURLPROTOCOL_TRACKINGIDENTIFIER) unsignedLongLongValue];
-    
-    if (trackingIdentifier)
-    {
-        [manager.tracker end:trackingIdentifier];
-    }
-    objc_setAssociatedObject(task, _RPT_NSURLPROTOCOL_TRACKINGIDENTIFIER, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-static void startTrackingRequestOnNSURLSessionTask(NSURLRequest *request, NSURLSessionTask *task)
-{
-    _RPTTrackingManager *manager = [_RPTTrackingManager sharedInstance];
-    
-    NSString *redirectURLString = request.URL.absoluteString;
-    
-    if (!redirectURLString.length) return;
-    
-    uint_fast64_t trackingIdentifier = [objc_getAssociatedObject(task, _RPT_NSURLPROTOCOL_TRACKINGIDENTIFIER) unsignedLongLongValue];
-    
-    // if trackingId is non-zero it means there is already a request being tracked
-    if (!trackingIdentifier)
-    {
-        trackingIdentifier = [manager.tracker startRequest:request];
-        if (trackingIdentifier)
-        {
-            objc_setAssociatedObject(task, _RPT_NSURLPROTOCOL_TRACKINGIDENTIFIER, [NSNumber numberWithUnsignedLongLong:trackingIdentifier], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-        }
-    }
-}
-
 @interface _RPTNSURLProtocol()<NSURLSessionDelegate, NSURLSessionTaskDelegate>
 @property (nonatomic, strong) NSURLSessionDataTask *connection;
-
 @end
+
 @implementation _RPTNSURLProtocol
 
 // FIXME : fix "-Wnullable-to-nonnull-conversion" && "-Wunused-parameter" warning, then remove pragma
@@ -65,7 +29,7 @@ static void startTrackingRequestOnNSURLSessionTask(NSURLRequest *request, NSURLS
     // if config response is invalid the eventHubURL string below will be nil, which causes an exception in containsString, so make sure len > 0
     BOOL isRPTURL = eventHubURLString.length && [request.URL.absoluteString containsString:eventHubURLString];
 
-    if (!isRPTURL && isHTTP && ![NSURLProtocol propertyForKey:RPTCustomProtocolKey inRequest:request])
+    if (!isRPTURL && isHTTP && ![[NSURLProtocol propertyForKey:RPTCustomProtocolKey inRequest:request] boolValue])
     {
         return YES;
     }
@@ -82,9 +46,17 @@ static void startTrackingRequestOnNSURLSessionTask(NSURLRequest *request, NSURLS
 {
     NSMutableURLRequest *newRequest = [self.request mutableCopy];
     [NSURLProtocol setProperty:@YES forKey:RPTCustomProtocolKey inRequest:newRequest];
+    
     NSURLSessionConfiguration* config = NSURLSessionConfiguration.defaultSessionConfiguration;
     NSURLSession* session = [NSURLSession sessionWithConfiguration:config  delegate:self delegateQueue:nil];
-    self.connection = [session dataTaskWithRequest:newRequest];
+    
+    NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:newRequest];
+    if (!dataTask) return;
+    
+    self.connection = dataTask;
+    
+    // we are generating a NSURLSessionTask to load this request therefore tracking loading
+    // state will be handled by NSURLSessionTask+RPerformanceTracking#_rpt_setState:
     [self.connection resume];
 }
 
@@ -92,7 +64,6 @@ static void startTrackingRequestOnNSURLSessionTask(NSURLRequest *request, NSURLS
 {
     [self.connection cancel];
 }
-
 
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data
 {
@@ -121,15 +92,22 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
         newRequest:(NSURLRequest *)request
  completionHandler:(void (^)(NSURLRequest *))completionHandler
 {
-    // Start the redirect tracking
-    startTrackingRequestOnNSURLSessionTask(request, task);
-    completionHandler(request);
+    if (!response)
+    {
+        completionHandler(request);
+        return;
+    }
+    
+    // Remove the property so that the redirect is treated as a new request
+    NSMutableURLRequest *newRequest = [request mutableCopy];
+    [NSURLProtocol removePropertyForKey:RPTCustomProtocolKey inRequest:newRequest];
+    
+    [self.client URLProtocol:self wasRedirectedToRequest:newRequest redirectResponse:response];
+    completionHandler(nil);
 }
-
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
-    endTrackingWithNSURLSessionTask(task);
     if (error)
     {
         [self.client URLProtocol:self didFailWithError:error];
