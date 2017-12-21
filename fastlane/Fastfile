@@ -8,6 +8,15 @@ platform :ios do
     )
   end
 
+  desc 'Run Static Code Analzer'
+  lane :analyzer do |options|
+    # Installing infer
+    sh "brew install infer"
+    #sh "infer run -- xcodebuild ../RPerformanceTracking.xcworkspace -scheme RPerformanceTracking"
+    #sh "infer run -- xcodebuild -workspace ../RPerformanceTracking.xcworkspace -scheme HostApp"
+    sh "infer run --keep-going -- xcodebuild -workspace ../RPerformanceTracking.xcworkspace -scheme RPerformanceTracking -sdk iphonesimulator -configuration Release clean build"
+  end
+
   desc 'Run all the tests'
   lane :tests do |options|
     cocoapods
