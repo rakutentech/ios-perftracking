@@ -7,6 +7,12 @@
 
 + (void)load
 {
+    if(![_RPTTrackingManager sharedInstance].disableProtocolWebviewObserving)
+    {
+        [NSURLProtocol registerClass:[_RPTNSURLProtocol class]];
+        return;
+    }
+    
     [_RPTClassManipulator addMethodFromClass:UIWebView.class
                                 withSelector:@selector(_rpt_webViewLoadRequest:)
                                      toClass:UIWebView.class
@@ -45,11 +51,6 @@
                                          toClass:recipient
                                        replacing:@selector(webView:didFailLoadWithError:)
                                    onlyIfPresent:NO];
-
-    if(![_RPTTrackingManager sharedInstance].disableProtocolWebviewObserving)
-    {
-        [NSURLProtocol registerClass:[_RPTNSURLProtocol class]];
-    }
 }
 
 @end

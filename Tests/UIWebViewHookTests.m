@@ -42,6 +42,11 @@
 
 @implementation UIWebViewHookTests
 
+NS_INLINE BOOL usingSwizzleObserving(void)
+{
+    return [[NSBundle.mainBundle objectForInfoDictionaryKey:@"RPTDisableProtocolWebviewObserving"] boolValue];
+}
+
 - (void)setUp
 {
     [super setUp];
@@ -62,34 +67,39 @@
 
 - (void)tearDown
 {
-    // Revert the swizzling that was set up when the WebView delegate was set
-    Class recipient = _webView.delegate.class;
-    [_RPTClassManipulator addMethodFromClass:recipient
-                                withSelector:@selector(webViewDidStartLoad:)
-                                     toClass:UIWebView.class
-                                   replacing:@selector(_rpt_webViewDidStartLoad:)
-                               onlyIfPresent:NO];
-    
-    [_RPTClassManipulator addMethodFromClass:recipient
-                                withSelector:@selector(webViewDidFinishLoad:)
-                                     toClass:UIWebView.class
-                                   replacing:@selector(_rpt_webViewDidFinishLoad:)
-                               onlyIfPresent:NO];
-    
-    [_RPTClassManipulator addMethodFromClass:recipient
-                                withSelector:@selector(webView:didFailLoadWithError:)
-                                     toClass:UIWebView.class
-                                   replacing:@selector(_rpt_webView:didFailLoadWithError:)
-                               onlyIfPresent:NO];
+    if (usingSwizzleObserving())
+    {
+        // Revert the swizzling that was set up when the WebView delegate was set
+        Class recipient = _webView.delegate.class;
+        [_RPTClassManipulator addMethodFromClass:recipient
+                                    withSelector:@selector(webViewDidStartLoad:)
+                                         toClass:UIWebView.class
+                                       replacing:@selector(_rpt_webViewDidStartLoad:)
+                                   onlyIfPresent:NO];
+        
+        [_RPTClassManipulator addMethodFromClass:recipient
+                                    withSelector:@selector(webViewDidFinishLoad:)
+                                         toClass:UIWebView.class
+                                       replacing:@selector(_rpt_webViewDidFinishLoad:)
+                                   onlyIfPresent:NO];
+        
+        [_RPTClassManipulator addMethodFromClass:recipient
+                                    withSelector:@selector(webView:didFailLoadWithError:)
+                                         toClass:UIWebView.class
+                                       replacing:@selector(_rpt_webView:didFailLoadWithError:)
+                                   onlyIfPresent:NO];
+    }
 
     [_webView stopLoading];
     _webView.delegate = nil;
     _webView = nil;
 }
 
+#pragma MARK: swizzling tests
+
 - (void)testSwizzlingMethodLoadRequestIsAddedToUIWebViewClass
 {
-    XCTAssert([_webView respondsToSelector:@selector(_rpt_webViewLoadRequest:)]);
+    if (usingSwizzleObserving()) XCTAssert([_webView respondsToSelector:@selector(_rpt_webViewLoadRequest:)]);
 }
 
 - (void)testOriginalMethodLoadRequestIsPresentInUIWebviewClass
@@ -99,7 +109,7 @@
 
 - (void)testSwizzlingMethodSetDelegateIsAddedToUIWebViewClass
 {
-    XCTAssert([_webView respondsToSelector:@selector(_rpt_setDelegate:)]);
+    if (usingSwizzleObserving()) XCTAssert([_webView respondsToSelector:@selector(_rpt_setDelegate:)]);
 }
 
 - (void)testOriginalMethodSetDelegateIsPresentInUIWebviewClass
@@ -109,12 +119,12 @@
 
 - (void)testSwizzledSetDelegateCallsOriginalMethod
 {
-    XCTAssert([_webView.delegate isKindOfClass:[self class]]);
+    if (usingSwizzleObserving()) XCTAssert([_webView.delegate isKindOfClass:[self class]]);
 }
 
 - (void)testSwizzlingMethodDidStartLoadIsAddedToUIWebViewDelegate
 {
-    XCTAssert([_webView.delegate respondsToSelector:@selector(_rpt_webViewDidStartLoad:)]);
+    if (usingSwizzleObserving()) XCTAssert([_webView.delegate respondsToSelector:@selector(_rpt_webViewDidStartLoad:)]);
 }
 
 - (void)testOriginalMethodDidStartLoadIsPresentInUIWebViewDelegate
@@ -124,7 +134,7 @@
 
 - (void)testSwizzlingMethodDidFinishLoadIsAddedToUIWebViewDelegate
 {
-    XCTAssert([_webView.delegate respondsToSelector:@selector(_rpt_webViewDidFinishLoad:)]);
+    if (usingSwizzleObserving()) XCTAssert([_webView.delegate respondsToSelector:@selector(_rpt_webViewDidFinishLoad:)]);
 }
 
 - (void)testOriginalMethodDidFinishLoadIsPresentInUIWebViewDelegate
@@ -134,7 +144,7 @@
 
 - (void)testSwizzlingMethodDidFailLoadIsAddedToUIWebViewDelegate
 {
-    XCTAssert([_webView.delegate respondsToSelector:@selector(_rpt_webView:didFailLoadWithError:)]);
+    if (usingSwizzleObserving()) XCTAssert([_webView.delegate respondsToSelector:@selector(_rpt_webView:didFailLoadWithError:)]);
 }
 
 - (void)testOriginalMethodDidFailLoadIsPresentInUIWebViewDelegate
@@ -144,6 +154,8 @@
 
 - (void)testProlongMetricIsCalledOnLoadRequest
 {
+    if (!usingSwizzleObserving()) return;
+    
     id mockTracker = OCMPartialMock(_trackingManager.tracker);
     [_webView loadRequest:_defaultRequest];
     OCMVerify([mockTracker prolongMetric]);
@@ -152,6 +164,8 @@
 
 - (void)testProlongMetricIsCalledOnDidStartLoad
 {
+    if (!usingSwizzleObserving()) return;
+    
     id mockTracker = OCMPartialMock(_trackingManager.tracker);
     [_webView.delegate webViewDidStartLoad:_webView];
     OCMVerify([mockTracker prolongMetric]);
@@ -160,6 +174,8 @@
 
 - (void)testProlongEndMetricIsCalledOnDidFinishLoad
 {
+    if (!usingSwizzleObserving()) return;
+    
     id mockTracker = OCMPartialMock(_trackingManager.tracker);
     [_webView.delegate webViewDidFinishLoad:_webView];
     OCMVerify([mockTracker prolongMetric]);
@@ -169,6 +185,8 @@
 
 - (void)testProlongEndMetricIsCalledOnDidFailLoad
 {
+    if (!usingSwizzleObserving()) return;
+    
     id mockTracker = OCMPartialMock(_trackingManager.tracker);
     [_webView.delegate webView:_webView didFailLoadWithError:[NSError errorWithDomain:NSCocoaErrorDomain code:1 userInfo:nil]];
     OCMVerify([mockTracker prolongMetric]);
@@ -176,8 +194,12 @@
     [mockTracker stopMocking];
 }
 
+#pragma MARK: custom NSURLProtocol tests
+
 - (void)testCanInitWithRequestCalledOnWebViewLoadRequest
 {
+    if (usingSwizzleObserving()) return;
+    
     XCTestExpectation *wait = [self expectationWithDescription:@"wait"];
     id mockCustomProtocol = OCMClassMock([_RPTNSURLProtocol class]);
     
@@ -191,8 +213,10 @@
     [mockCustomProtocol stopMocking];
 }
 
-- (void)testCannonicalRequestCalledOnWebViewLoadRequest
+- (void)testCanonicalRequestCalledOnWebViewLoadRequest
 {
+    if (usingSwizzleObserving()) return;
+    
     XCTestExpectation *wait = [self expectationWithDescription:@"wait"];
     id mockCustomProtocol = OCMClassMock([_RPTNSURLProtocol class]);
     
@@ -208,6 +232,8 @@
 
 - (void)DISABLED_testStartLoadingCanBeCalled
 {
+    if (usingSwizzleObserving()) return;
+    
     XCTestExpectation *wait = [self expectationWithDescription:@"wait"];
     _RPTNSURLProtocol *customProtocol = [[_RPTNSURLProtocol alloc] initWithRequest:_defaultRequest cachedResponse:nil client:nil];
 
@@ -227,6 +253,8 @@
 }
 - (void)DISABLED_testStopLoadingCanBeCalled
 {
+    if (usingSwizzleObserving()) return;
+    
     XCTestExpectation *wait = [self expectationWithDescription:@"wait"];
     
     _RPTNSURLProtocol *customProtocol = [[_RPTNSURLProtocol alloc] initWithRequest:_defaultRequest cachedResponse:nil client:nil];
@@ -243,6 +271,8 @@
 }
 - (void)DISABLED_testNSURLSessionChallegeCalledOnWebViewLoadRequest
 {
+    if (usingSwizzleObserving()) return;
+    
     id mockProtocol = OCMProtocolMock(@protocol(NSURLSessionDelegate));
     XCTestExpectation *wait = [self expectationWithDescription:@"wait"];
     
@@ -258,6 +288,8 @@
 
 - (void)DISABLED_testNSURLSessionDidCompleteCalledOnWebViewLoadRequest
 {
+    if (usingSwizzleObserving()) return;
+    
     id mockProtocol = OCMProtocolMock(@protocol(NSURLSessionTaskDelegate));
     XCTestExpectation *wait = [self expectationWithDescription:@"wait"];
     
