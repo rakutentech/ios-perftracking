@@ -16,6 +16,7 @@ platform :ios do
     #sh "infer run -- xcodebuild -workspace ../RPerformanceTracking.xcworkspace -scheme HostApp"
     sh "infer run --keep-going -- xcodebuild -workspace ../RPerformanceTracking.xcworkspace -scheme RPerformanceTracking -sdk iphonesimulator -configuration Release clean build"
   end
+  
 
   desc 'Run all the tests'
   lane :tests do |options|
