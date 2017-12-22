@@ -45,7 +45,7 @@ RPT_EXPORT @interface _RPTClassManipulator : NSObject
 // makes us compatible with 3rd party SDK swizzlers e.g. New Relic)
 + (void)swizzleSelector:(SEL)sel onClass:(Class)recipient newImplementation:(IMP)newImp types:(const char *)types;
 
-+ (IMP)implementationForOriginalSelector:(SEL)selector;
++ (IMP)implementationForOriginalSelector:(SEL)selector class:(Class)className;
 @end
 
 NS_ASSUME_NONNULL_END

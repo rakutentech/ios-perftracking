@@ -58,7 +58,7 @@ static void endTrackingWithWKWebView(WKWebView *webView)
         if (request.URL) { [[_RPTTrackingManager sharedInstance].tracker prolongMetric]; }
         
         SEL selector = @selector(loadRequest:);
-        IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector];
+        IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:((Class)selfRef).class];
         
         if (originalImp)
         {
@@ -93,14 +93,18 @@ static void endTrackingWithWKWebView(WKWebView *webView)
         RPTLog(@"setNavDelegate_swizzle_blockImp called");
         
         SEL selector = @selector(setNavigationDelegate:);
-        IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector];
+        IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:((Class)selfRef).class];
         if (originalImp)
         {
-            ((void(*)(id, SEL, id))originalImp)(selfRef, selector, delegate);
             if (delegate)
             {
                 [_RPTClassManipulator _swizzleWKWebViewNavDelegate:delegate];
             }
+            
+            // We must swizzle the WKWebView delegate before calling the original method
+            // because WebKit appears to save the delegate selectors that the delegate
+            // can respond to at the time of the setDelegate: call
+            ((void(*)(id, SEL, id))originalImp)(selfRef, selector, delegate);
         }
     };
     [self swizzleSelector:@selector(setNavigationDelegate:)
@@ -118,7 +122,7 @@ static void endTrackingWithWKWebView(WKWebView *webView)
         RPTLog(@"didStart_swizzle_blockImp called");
         
         SEL selector = @selector(webView:didStartProvisionalNavigation:);
-        IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector];
+        IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:((Class)selfRef).class];
         if (originalImp)
         {
             ((void(*)(id, SEL, id, id))originalImp)(selfRef, selector, webView, navigation);
@@ -136,7 +140,7 @@ static void endTrackingWithWKWebView(WKWebView *webView)
         RPTLog(@"didFinishNavigation_swizzle_blockImp called");
         
         SEL selector = @selector(webView:didFinishNavigation:);
-        IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector];
+        IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:((Class)selfRef).class];
         if (originalImp)
         {
             ((void(*)(id, SEL, id, id))originalImp)(selfRef, selector, webView, navigation);
@@ -154,7 +158,7 @@ static void endTrackingWithWKWebView(WKWebView *webView)
         RPTLog(@"didFailNavigation_swizzle_blockImp called");
         
         SEL selector = @selector(webView:didFailNavigation:withError:);
-        IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector];
+        IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:((Class)selfRef).class];
         if (originalImp)
         {
             ((void(*)(id, SEL, id, id, id))originalImp)(selfRef, selector, webView, navigation, error);
@@ -172,7 +176,7 @@ static void endTrackingWithWKWebView(WKWebView *webView)
         RPTLog(@"didFailProvisionalNavigation_swizzle_blockImp called");
         
         SEL selector = @selector(webView:didFailProvisionalNavigation:withError:);
-        IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector];
+        IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:((Class)selfRef).class];
         if (originalImp)
         {
             ((void(*)(id, SEL, id, id, id))originalImp)(selfRef, selector, webView, navigation, error);
@@ -190,7 +194,7 @@ static void endTrackingWithWKWebView(WKWebView *webView)
         RPTLog(@"webContentProcessDidTerminate_swizzle_blockImp called");
         
         SEL selector = @selector(webViewWebContentProcessDidTerminate:);
-        IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector];
+        IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:((Class)selfRef).class];
         if (originalImp)
         {
             ((void(*)(id, SEL, id))originalImp)(selfRef, selector, webView);
@@ -208,7 +212,7 @@ static void endTrackingWithWKWebView(WKWebView *webView)
         RPTLog(@"didReceiveServerRedirect_swizzle_blockImp called");
         
         SEL selector = @selector(webView:didReceiveServerRedirectForProvisionalNavigation:);
-        IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector];
+        IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:((Class)selfRef).class];
         if (originalImp)
         {
             ((void(*)(id, SEL, id, id))originalImp)(selfRef, selector, webView, navigation);
