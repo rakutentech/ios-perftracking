@@ -8,6 +8,23 @@ platform :ios do
     )
   end
 
+  desc 'Run Static Code Analzer'
+  lane :analyzer do |options|
+    # Installing infer
+    sh "brew install infer"
+    #sh "infer run -- xcodebuild ../RPerformanceTracking.xcworkspace -scheme RPerformanceTracking"
+    #sh "infer run -- xcodebuild -workspace ../RPerformanceTracking.xcworkspace -scheme HostApp"
+    sh "infer run --keep-going -- xcodebuild -workspace ../RPerformanceTracking.xcworkspace -scheme RPerformanceTracking -sdk iphonesimulator -configuration Release clean build"
+  end
+  
+  desc 'Run OCLint Analyzer'
+  lane :oclinttest do |options|
+    sh "brew tap oclint/formulae"
+    sh "brew install oclint"
+    sh "set -o pipefail && xcodebuild -workspace ../RPerformanceTracking.xcworkspace -configuration Debug -scheme RPerformanceTracking clean build | xcpretty -s | tee oclint_result.log "
+  
+  end
+
   desc 'Run all the tests'
   lane :tests do |options|
     cocoapods

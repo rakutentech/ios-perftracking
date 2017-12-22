@@ -1,0 +1,232 @@
+Found 28 issues
+
+/Users/shivaiah.mahesha/Desktop/Projects/SDK/ReviewKit/ios-perftracking/RPerformanceTracking/Private/_RPTMainThreadWatcher.m:39: error: DEAD_STORE
+  The value written to &__objc_anonymous_block__RPTMainThreadWatcher_main______1 is never used.
+  37.           // <= blockThreshold seconds then we consider the main
+  38.           // thread blocked
+  39. >         dispatch_async(dispatch_get_main_queue(), ^{
+  40.               self.watcherRunning = NO; // reset watcher
+  41.               dispatch_semaphore_signal(self.semaphore);
+
+/Users/shivaiah.mahesha/Desktop/Projects/SDK/ReviewKit/ios-perftracking/RPerformanceTracking/Private/_RPTClassManipulator+WKWebView.m:92: error: DEAD_STORE
+  The value written to &__objc_anonymous_block__RPTClassManipulator__swizzleWKWebView______1 is never used.
+  90.       
+  91.       //  MARK: WKWebView setNavigationDelegate:
+  92. >     id setNavDelegate_swizzle_blockImp = ^void (id selfRef, id<WKNavigationDelegate> delegate) {
+  93.           RPTLog(@"setNavDelegate_swizzle_blockImp called");
+  94.           
+
+/Users/shivaiah.mahesha/Desktop/Projects/SDK/ReviewKit/ios-perftracking/RPerformanceTracking/Private/_RPTClassManipulator+WKWebView.m:55: error: DEAD_STORE
+  The value written to &__objc_anonymous_block__RPTClassManipulator__swizzleWKWebView______2 is never used.
+  53.        * Unlike Obj-C method calls a _cmd selector is not passed to a block.
+  54.        */
+  55. >     id loadRequest_swizzle_blockImp = ^id (id selfRef, NSURLRequest *request) {
+  56.           RPTLog(@"loadRequest_swizzle_blockImp called");
+  57.           
+
+/Users/shivaiah.mahesha/Desktop/Projects/SDK/ReviewKit/ios-perftracking/RPerformanceTracking/Private/_RPTEventWriter.m:104: error: DEAD_STORE
+  The value written to &__objc_anonymous_block__RPTEventWriter_begin______2 is never used.
+  102.       });
+  103.   
+  104. >     void (^assignCarrierName)(CTCarrier *) = ^(CTCarrier *carrier) {
+  105.           if(carrier.carrierName)
+  106.           {
+
+/Users/shivaiah.mahesha/Desktop/Projects/SDK/ReviewKit/ios-perftracking/RPerformanceTracking/Private/_RPTEventWriter.m:81: error: DEAD_STORE
+  The value written to &__objc_anonymous_block__RPTEventWriter_begin______3 is never used.
+  79.   
+  80.       static dispatch_once_t once;
+  81. >     dispatch_once(&once, ^{
+  82.           NSBundle *bundle = NSBundle.mainBundle;
+  83.           appIdentifier = bundle.bundleIdentifier;
+
+/Users/shivaiah.mahesha/Desktop/Projects/SDK/ReviewKit/ios-perftracking/RPerformanceTracking/Private/_RPTClassManipulator.m:156: error: DEAD_STORE
+  The value written to &__objc_anonymous_block__RPTClassManipulator_swizzleMethodFromClass:withSelector:toClass:replacing:onlyIfPresent:______1 is never used.
+  154.               {
+  155.                   static dispatch_once_t onceToken;
+  156. >                 dispatch_once(&onceToken, ^{
+  157.                       
+  158.                       class_replaceMethod(recipient,
+
+/Users/shivaiah.mahesha/Desktop/Projects/SDK/ReviewKit/ios-perftracking/RPerformanceTracking/Private/_RPTNSURLProtocol.m:116: warning: PARAMETER_NOT_NULL_CHECKED
+  Parameter `completionHandler` is not checked for null, there could be a null pointer dereference: pointer `completionHandler` could be null and is dereferenced at line 116, column 5.
+  114.       
+  115.       [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:cacheStoragePolicy];
+  116. >     completionHandler(NSURLSessionResponseAllow);
+  117.   }
+  118.   
+
+/Users/shivaiah.mahesha/Desktop/Projects/SDK/ReviewKit/ios-perftracking/RPerformanceTracking/Private/_RPTEventWriter.m:107: error: DEAD_STORE
+  The value written to &carrierName is never used.
+  105.           if(carrier.carrierName)
+  106.           {
+  107. >             carrierName = carrier.carrierName.copy;
+  108.           }
+  109.       };
+
+/Users/shivaiah.mahesha/Desktop/Projects/SDK/ReviewKit/ios-perftracking/RPerformanceTracking/Private/_RPTClassManipulator+WKWebView.m:207: error: DEAD_STORE
+  The value written to &__objc_anonymous_block__RPTClassManipulator__swizzleWKWebViewNavDelegate:______3 is never used.
+  205.       
+  206.       // MARK: WKNavigationDelegate webView:didReceiveServerRedirectForProvisionalNavigation:
+  207. >     id didReceiveServerRedirect_swizzle_blockImp = ^(id selfRef, WKWebView *webView, WKNavigation *navigation) {
+  208.           RPTLog(@"didReceiveServerRedirect_swizzle_blockImp called");
+  209.           
+
+/Users/shivaiah.mahesha/Desktop/Projects/SDK/ReviewKit/ios-perftracking/RPerformanceTracking/Private/_RPTClassManipulator+WKWebView.m:189: error: DEAD_STORE
+  The value written to &__objc_anonymous_block__RPTClassManipulator__swizzleWKWebViewNavDelegate:______4 is never used.
+  187.       
+  188.       // MARK: WKNavigationDelegate webViewWebContentProcessDidTerminate:
+  189. >     id webContentProcessDidTerminate_swizzle_blockImp = ^(id selfRef, WKWebView *webView) {
+  190.           RPTLog(@"webContentProcessDidTerminate_swizzle_blockImp called");
+  191.           
+
+/Users/shivaiah.mahesha/Desktop/Projects/SDK/ReviewKit/ios-perftracking/RPerformanceTracking/Private/_RPTClassManipulator+WKWebView.m:171: error: DEAD_STORE
+  The value written to &__objc_anonymous_block__RPTClassManipulator__swizzleWKWebViewNavDelegate:______5 is never used.
+  169.       
+  170.       // MARK: WKNavigationDelegate webView:didFailProvisionalNavigation:withError:
+  171. >     id didFailProvisionalNavigation_swizzle_blockImp = ^(id selfRef, WKWebView *webView, WKNavigation *navigation, NSError *error) {
+  172.           RPTLog(@"didFailProvisionalNavigation_swizzle_blockImp called");
+  173.           
+
+/Users/shivaiah.mahesha/Desktop/Projects/SDK/ReviewKit/ios-perftracking/RPerformanceTracking/Private/_RPTClassManipulator+WKWebView.m:153: error: DEAD_STORE
+  The value written to &__objc_anonymous_block__RPTClassManipulator__swizzleWKWebViewNavDelegate:______6 is never used.
+  151.       
+  152.       // MARK: WKNavigationDelegate webView:didFailNavigation:withError:
+  153. >     id didFailNavigation_swizzle_blockImp = ^(id selfRef, WKWebView *webView, WKNavigation *navigation, NSError *error) {
+  154.           RPTLog(@"didFailNavigation_swizzle_blockImp called");
+  155.           
+
+/Users/shivaiah.mahesha/Desktop/Projects/SDK/ReviewKit/ios-perftracking/RPerformanceTracking/Private/_RPTClassManipulator+WKWebView.m:135: error: DEAD_STORE
+  The value written to &__objc_anonymous_block__RPTClassManipulator__swizzleWKWebViewNavDelegate:______7 is never used.
+  133.       
+  134.       // MARK: WKNavigationDelegate webView:didFinishNavigation:
+  135. >     id didFinishNavigation_swizzle_blockImp = ^(id selfRef, WKWebView *webView, WKNavigation *navigation) {
+  136.           RPTLog(@"didFinishNavigation_swizzle_blockImp called");
+  137.           
+
+/Users/shivaiah.mahesha/Desktop/Projects/SDK/ReviewKit/ios-perftracking/RPerformanceTracking/Private/_RPTClassManipulator+WKWebView.m:117: error: DEAD_STORE
+  The value written to &__objc_anonymous_block__RPTClassManipulator__swizzleWKWebViewNavDelegate:______8 is never used.
+  115.       
+  116.       // MARK: WKNavigationDelegate webView:didStartProvisionalNavigation:
+  117. >     id didStart_swizzle_blockImp = ^(id selfRef, WKWebView *webView, WKNavigation *navigation) {
+  118.           RPTLog(@"didStart_swizzle_blockImp called");
+  119.           
+
+/Users/shivaiah.mahesha/Desktop/Projects/SDK/ReviewKit/ios-perftracking/RPerformanceTracking/Private/_RPTSender.m:132: error: DEAD_STORE
+  The value written to &returnIndex is never used.
+  130.       // Enable the log below for extra debug output
+  131.       //RPTLog(@"RPTSender sendWithStartIndex %ld endIndex %ld", (long)startIndex, (long)endIndex);
+  132. >     NSInteger returnIndex = startIndex;
+  133.       NSTimeInterval now             = [NSDate.date timeIntervalSince1970];
+  134.       _sentCount                     = 0;
+
+/Users/shivaiah.mahesha/Desktop/Projects/SDK/ReviewKit/ios-perftracking/RPerformanceTracking/Private/_RPTTrackingManager.m:149: error: DEAD_STORE
+  The value written to &__objc_anonymous_block__RPTTrackingManager_sharedInstance______1 is never used.
+  147.       static id instance;
+  148.       static dispatch_once_t onceToken;
+  149. >     dispatch_once(&onceToken, ^{
+  150.           instance = [self new];
+  151.       });
+
+/Users/shivaiah.mahesha/Desktop/Projects/SDK/ReviewKit/ios-perftracking/RPerformanceTracking/Private/_RPTTrackingManager.m:269: error: DEAD_STORE
+  The value written to &__objc_anonymous_block__RPTTrackingManager_stopTracking______3 is never used.
+  267.   {
+  268.       // async in background because the sender stop is blocking
+  269. >     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+  270.           [self.sender stop];
+  271.           self.tracker = nil;
+
+/Users/shivaiah.mahesha/Desktop/Projects/SDK/ReviewKit/ios-perftracking/RPerformanceTracking/Private/_RPTTrackingManager.m:322: error: DEAD_STORE
+  The value written to &__objc_anonymous_block__RPTTrackingManager_invalidateRefreshConfigTimer______5 is never used.
+  320.   {
+  321.       // The timer is added on the main thread, ensure timer is invalidated on the same thread that it was added.
+  322. >     dispatch_async(dispatch_get_main_queue(), ^{
+  323.           if ([self.refreshConfigTimer isValid])
+  324.           {
+
+/Users/shivaiah.mahesha/Desktop/Projects/SDK/ReviewKit/ios-perftracking/RPerformanceTracking/Private/_RPTMeasurement.m:19: warning: DIRECT_ATOMIC_PROPERTY_ACCESS
+  Direct access to ivar `_kind` of an atomic property at line 19, column 5. Accessing an ivar of an atomic property makes the property nonatomic.
+  17.   - (void)clear
+  18.   {
+  19. >     _kind               = 0;
+  20.       _trackingIdentifier = 0ull;
+  21.       _startTime          = 0;
+
+/Users/shivaiah.mahesha/Desktop/Projects/SDK/ReviewKit/ios-perftracking/RPerformanceTracking/Private/_RPTMeasurement.m:22: warning: DIRECT_ATOMIC_PROPERTY_ACCESS
+  Direct access to ivar `_endTime` of an atomic property at line 22, column 5. Accessing an ivar of an atomic property makes the property nonatomic.
+  20.       _trackingIdentifier = 0ull;
+  21.       _startTime          = 0;
+  22. >     _endTime            = [NSDate.distantPast timeIntervalSinceDate:NSDate.date];
+  23.       _receiver           = nil;
+  24.       _method             = nil;
+
+/Users/shivaiah.mahesha/Desktop/Projects/SDK/ReviewKit/ios-perftracking/RPerformanceTracking/Private/_RPTMeasurement.m:20: warning: DIRECT_ATOMIC_PROPERTY_ACCESS
+  Direct access to ivar `_trackingIdentifier` of an atomic property at line 20, column 5. Accessing an ivar of an atomic property makes the property nonatomic.
+  18.   {
+  19.       _kind               = 0;
+  20. >     _trackingIdentifier = 0ull;
+  21.       _startTime          = 0;
+  22.       _endTime            = [NSDate.distantPast timeIntervalSinceDate:NSDate.date];
+
+/Users/shivaiah.mahesha/Desktop/Projects/SDK/ReviewKit/ios-perftracking/RPerformanceTracking/Private/_RPTMeasurement.m:21: warning: DIRECT_ATOMIC_PROPERTY_ACCESS
+  Direct access to ivar `_startTime` of an atomic property at line 21, column 5. Accessing an ivar of an atomic property makes the property nonatomic.
+  19.       _kind               = 0;
+  20.       _trackingIdentifier = 0ull;
+  21. >     _startTime          = 0;
+  22.       _endTime            = [NSDate.distantPast timeIntervalSinceDate:NSDate.date];
+  23.       _receiver           = nil;
+
+/Users/shivaiah.mahesha/Desktop/Projects/SDK/ReviewKit/ios-perftracking/RPerformanceTracking/Private/_RPTMeasurement.m:31: warning: DIRECT_ATOMIC_PROPERTY_ACCESS
+  Direct access to ivar `_trackingIdentifier` of an atomic property at line 31, column 189. Accessing an ivar of an atomic property makes the property nonatomic.
+  29.   - (NSString *)description
+  30.   {
+  31. >     return [NSString stringWithFormat:@"Measurement<%p>: kind %lu trackingId %llu startTime %f endTime %f receiver %@ method %@ screen %@", self, (unsigned long)_kind, (unsigned long long)_trackingIdentifier, _startTime, _endTime, _receiver, _method, _screen];
+  32.   }
+  33.   @end
+
+/Users/shivaiah.mahesha/Desktop/Projects/SDK/ReviewKit/ios-perftracking/RPerformanceTracking/Private/_RPTMeasurement.m:31: warning: DIRECT_ATOMIC_PROPERTY_ACCESS
+  Direct access to ivar `_endTime` of an atomic property at line 31, column 222. Accessing an ivar of an atomic property makes the property nonatomic.
+  29.   - (NSString *)description
+  30.   {
+  31. >     return [NSString stringWithFormat:@"Measurement<%p>: kind %lu trackingId %llu startTime %f endTime %f receiver %@ method %@ screen %@", self, (unsigned long)_kind, (unsigned long long)_trackingIdentifier, _startTime, _endTime, _receiver, _method, _screen];
+  32.   }
+  33.   @end
+
+/Users/shivaiah.mahesha/Desktop/Projects/SDK/ReviewKit/ios-perftracking/RPerformanceTracking/Private/_RPTMeasurement.m:31: warning: DIRECT_ATOMIC_PROPERTY_ACCESS
+  Direct access to ivar `_kind` of an atomic property at line 31, column 162. Accessing an ivar of an atomic property makes the property nonatomic.
+  29.   - (NSString *)description
+  30.   {
+  31. >     return [NSString stringWithFormat:@"Measurement<%p>: kind %lu trackingId %llu startTime %f endTime %f receiver %@ method %@ screen %@", self, (unsigned long)_kind, (unsigned long long)_trackingIdentifier, _startTime, _endTime, _receiver, _method, _screen];
+  32.   }
+  33.   @end
+
+/Users/shivaiah.mahesha/Desktop/Projects/SDK/ReviewKit/ios-perftracking/RPerformanceTracking/Private/_RPTMeasurement.m:31: warning: DIRECT_ATOMIC_PROPERTY_ACCESS
+  Direct access to ivar `_startTime` of an atomic property at line 31, column 210. Accessing an ivar of an atomic property makes the property nonatomic.
+  29.   - (NSString *)description
+  30.   {
+  31. >     return [NSString stringWithFormat:@"Measurement<%p>: kind %lu trackingId %llu startTime %f endTime %f receiver %@ method %@ screen %@", self, (unsigned long)_kind, (unsigned long long)_trackingIdentifier, _startTime, _endTime, _receiver, _method, _screen];
+  32.   }
+  33.   @end
+
+/Users/shivaiah.mahesha/Desktop/Projects/SDK/ReviewKit/ios-perftracking/RPerformanceTracking/Private/_RPTTrackingManager.m:392: warning: BAD_POINTER_COMPARISON
+  Implicitly checking whether NSNumber pointer is nil at line 392, column 17. Did you mean to compare against the unboxed value instead? Please either explicitly compare the NSNumber instance to nil, or use one of the NSNumber accessors before the comparison.
+  390.               _RPTTrackingKey *key = [_RPTTrackingKey.alloc initWithIdentifier:measurement object:object];
+  391.               NSNumber *item = _trackingData[key];
+  392. >             if (item)
+  393.               {
+  394.                   [_tracker end:(uint_fast64_t) item.unsignedLongLongValue];
+
+/Users/shivaiah.mahesha/Desktop/Projects/SDK/ReviewKit/ios-perftracking/RPerformanceTracking/Private/_RPTTrackingManager.m:374: warning: BAD_POINTER_COMPARISON
+  Implicitly checking whether NSNumber pointer is nil at line 374, column 18. Did you mean to compare against the unboxed value instead? Please either explicitly compare the NSNumber instance to nil, or use one of the NSNumber accessors before the comparison.
+  372.               _RPTTrackingKey *key = [_RPTTrackingKey.alloc initWithIdentifier:measurement object:object];
+  373.               NSNumber *item = _trackingData[key];
+  374. >             if (!item)
+  375.               {
+  376.                   if (_trackingData.count == TRACKING_DATA_LIMIT) [_trackingData removeAllObjects];
+
+Summary of the reports
+
+                     DEAD_STORE: 17
+  DIRECT_ATOMIC_PROPERTY_ACCESS: 8
+         BAD_POINTER_COMPARISON: 2
+     PARAMETER_NOT_NULL_CHECKED: 1
