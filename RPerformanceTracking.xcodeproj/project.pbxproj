@@ -26,6 +26,7 @@
 		6D64251D1EB8611C00755DA3 /* ConfigTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D64251C1EB8611C00755DA3 /* ConfigTests.m */; };
 		6DA30F6B1FAAF501006A4DE6 /* MainThreadWatcherTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6DA30F6A1FAAF501006A4DE6 /* MainThreadWatcherTests.m */; };
 		6DA949E31E94E09600856C95 /* SenderIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6DA949E21E94E09600856C95 /* SenderIntegrationTests.m */; };
+		6DDD80CB1FF22BC7002DED2E /* SwizzleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6DDD80CA1FF22BC7002DED2E /* SwizzleTests.m */; };
 		C80E064C1EA876FF00FD22D2 /* TrackingManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C80E064B1EA876FF00FD22D2 /* TrackingManagerTests.m */; };
 		C83BA7A01EDEA2150048D5C5 /* UITableViewCellTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C83BA79F1EDEA2150048D5C5 /* UITableViewCellTests.m */; };
 		C85DC3EA1EA084B800F79E52 /* RingBufferTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C85DC3E91EA084B800F79E52 /* RingBufferTests.m */; };
@@ -71,6 +72,7 @@
 		6D64251C1EB8611C00755DA3 /* ConfigTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConfigTests.m; sourceTree = "<group>"; };
 		6DA30F6A1FAAF501006A4DE6 /* MainThreadWatcherTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MainThreadWatcherTests.m; sourceTree = "<group>"; };
 		6DA949E21E94E09600856C95 /* SenderIntegrationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SenderIntegrationTests.m; sourceTree = "<group>"; };
+		6DDD80CA1FF22BC7002DED2E /* SwizzleTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SwizzleTests.m; sourceTree = "<group>"; };
 		C80E064B1EA876FF00FD22D2 /* TrackingManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TrackingManagerTests.m; sourceTree = "<group>"; };
 		C83BA79F1EDEA2150048D5C5 /* UITableViewCellTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UITableViewCellTests.m; sourceTree = "<group>"; };
 		C85DC3E91EA084B800F79E52 /* RingBufferTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RingBufferTests.m; sourceTree = "<group>"; };
@@ -147,6 +149,7 @@
 				C8D982DE1F18D83C0088EBEC /* LocationTests.m */,
 				6D64251C1EB8611C00755DA3 /* ConfigTests.m */,
 				6DA30F6A1FAAF501006A4DE6 /* MainThreadWatcherTests.m */,
+				6DDD80CA1FF22BC7002DED2E /* SwizzleTests.m */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -283,6 +286,7 @@
 				C8D893921EBAF8AE001A6CEC /* WKWebViewHookTests.m in Sources */,
 				5A91BD641EB096210048689C /* UICollectionViewTests.m in Sources */,
 				C8B86DF71EC1749A00C7B8DD /* UIWebViewHookTests.m in Sources */,
+				6DDD80CB1FF22BC7002DED2E /* SwizzleTests.m in Sources */,
 				5AC8DD3C1E95E3B80067995E /* UIViewControllerTests.m in Sources */,
 				5AC8DDC81E96354D0067995E /* TestViewController.m in Sources */,
 				6DA30F6B1FAAF501006A4DE6 /* MainThreadWatcherTests.m in Sources */,
