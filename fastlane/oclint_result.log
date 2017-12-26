@@ -1,0 +1,158 @@
+▸ Cleaning Pods/RPerformanceTracking [Debug]
+▸ Check Dependencies
+▸ Clean Succeeded
+▸ Building Pods/RPerformanceTracking [Debug]
+▸ Check Dependencies
+▸ Processing Info.plist
+▸ Compiling _RPTClassManipulator+NSURLSessionTask.m
+▸ Compiling _RPTClassManipulator+UITableViewCell.m
+▸ Compiling _RPTClassManipulator+UICollectionViewCell.m
+▸ Compiling _RPTClassManipulator+UIControl.m
+▸ Compiling _RPTClassManipulator+UIViewController.m
+▸ Compiling _RPTClassManipulator+UIWebView.m
+▸ Compiling _RPTClassManipulator+WKWebView.m
+▸ Compiling _RPTClassManipulator.m
+▸ Compiling _RPTConfiguration.m
+▸ Compiling _RPTEventWriter.m
+▸ Compiling _RPTLocation.m
+▸ Compiling _RPTMainThreadWatcher.m
+▸ Compiling _RPTMeasurement.m
+▸ Compiling _RPTMetric.m
+▸ Compiling _RPTNSURLProtocol.m
+▸ Compiling _RPTRingBuffer.m
+▸ Compiling _RPTSender.m
+▸ Compiling _RPTSessionChallengeSender.m
+▸ Compiling _RPTTracker.m
+▸ Compiling _RPTTrackingManager.m
+▸ Compiling NSURLSessionTask+RPerformanceTracking.m
+▸ Compiling RPerformanceTracking-dummy.m
+▸ Compiling RPerformanceTracking.m
+▸ Compiling RPTPerformanceMeasurement.m
+▸ Compiling RPTPerformanceMetric.m
+▸ Compiling UICollectionViewCell+RPerformanceTracking.m
+▸ Compiling UIControl+RPerformanceTracking.m
+
+⚠️  /Users/shivaiah.mahesha/Desktop/Projects/SDK/ReviewKit/ios-perftracking/RPerformanceTracking/Private/UIControl+RPerformanceTracking.m:15:10: incompatible pointer to integer conversion initializing 'BOOL' (aka 'signed char') with an expression of type 'Class' [-Wint-conversion]
+
+    BOOL primaryActionTriggeredAvailable = [UIStackView class];
+         ^                                 ~~~~~~~~~~~~~~~~~~~
+
+
+▸ Compiling UIDevice+RPerformanceTracking.m
+▸ Compiling UITableViewCell+RPerformanceTracking.m
+▸ Compiling UIViewController+RPerformanceTracking.m
+▸ Compiling UIWebView+RPerformanceTracking.m
+▸ Compiling RPerformanceTracking_vers.c
+▸ Compiling _RPTClassManipulator+NSURLSessionTask.m
+▸ Compiling _RPTClassManipulator+UICollectionViewCell.m
+▸ Compiling _RPTClassManipulator+UIControl.m
+▸ Compiling _RPTClassManipulator+UITableViewCell.m
+▸ Compiling _RPTClassManipulator+UIViewController.m
+▸ Compiling _RPTClassManipulator+WKWebView.m
+▸ Compiling _RPTClassManipulator+UIWebView.m
+▸ Compiling _RPTClassManipulator.m
+▸ Compiling _RPTConfiguration.m
+▸ Compiling _RPTEventWriter.m
+▸ Compiling _RPTMainThreadWatcher.m
+▸ Compiling _RPTLocation.m
+▸ Compiling _RPTMeasurement.m
+▸ Compiling _RPTMetric.m
+▸ Compiling _RPTNSURLProtocol.m
+▸ Compiling _RPTRingBuffer.m
+▸ Compiling _RPTSender.m
+▸ Compiling _RPTSessionChallengeSender.m
+▸ Compiling _RPTTracker.m
+▸ Compiling _RPTTrackingManager.m
+▸ Compiling NSURLSessionTask+RPerformanceTracking.m
+▸ Compiling RPerformanceTracking-dummy.m
+▸ Compiling RPerformanceTracking.m
+▸ Compiling RPTPerformanceMeasurement.m
+▸ Compiling RPTPerformanceMetric.m
+▸ Compiling UICollectionViewCell+RPerformanceTracking.m
+▸ Compiling UIControl+RPerformanceTracking.m
+▸ Compiling UIDevice+RPerformanceTracking.m
+▸ Compiling UITableViewCell+RPerformanceTracking.m
+▸ Compiling UIViewController+RPerformanceTracking.m
+▸ Compiling UIWebView+RPerformanceTracking.m
+▸ Compiling RPerformanceTracking_vers.c
+▸ Analyzing _RPTClassManipulator+NSURLSessionTask.m
+▸ Analyzing _RPTClassManipulator+UICollectionViewCell.m
+▸ Analyzing _RPTClassManipulator+UIControl.m
+▸ Analyzing _RPTClassManipulator+UITableViewCell.m
+▸ Analyzing _RPTClassManipulator+WKWebView.m
+▸ Analyzing _RPTClassManipulator+UIWebView.m
+▸ Analyzing _RPTClassManipulator+UIViewController.m
+▸ Analyzing _RPTClassManipulator.m
+▸ Analyzing _RPTConfiguration.m
+▸ Analyzing _RPTEventWriter.m
+▸ Analyzing _RPTLocation.m
+▸ Analyzing _RPTMainThreadWatcher.m
+▸ Analyzing _RPTMeasurement.m
+▸ Analyzing _RPTMetric.m
+▸ Analyzing _RPTNSURLProtocol.m
+▸ Analyzing _RPTRingBuffer.m
+▸ Analyzing _RPTSender.m
+▸ Analyzing _RPTSessionChallengeSender.m
+▸ Analyzing _RPTTracker.m
+▸ Analyzing _RPTTrackingManager.m
+▸ Analyzing NSURLSessionTask+RPerformanceTracking.m
+▸ Analyzing RPerformanceTracking-dummy.m
+▸ Analyzing RPerformanceTracking.m
+▸ Analyzing RPTPerformanceMeasurement.m
+
+⚠️  /Users/shivaiah.mahesha/Desktop/Projects/SDK/ReviewKit/ios-perftracking/RPerformanceTracking/RPTPerformanceMeasurement.m:23:5: nil passed to a callee that requires a non-null 2nd parameter
+
+    [_RPTTrackingManager.sharedInstance startMeasurement:identifier object:object];
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+⚠️  /Users/shivaiah.mahesha/Desktop/Projects/SDK/ReviewKit/ios-perftracking/RPerformanceTracking/RPTPerformanceMeasurement.m:28:5: nil passed to a callee that requires a non-null 2nd parameter
+
+    [_RPTTrackingManager.sharedInstance endMeasurement:identifier object:object];
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▸ Analyzing RPTPerformanceMetric.m
+▸ Analyzing UICollectionViewCell+RPerformanceTracking.m
+▸ Analyzing UIControl+RPerformanceTracking.m
+▸ Analyzing UIDevice+RPerformanceTracking.m
+▸ Analyzing UITableViewCell+RPerformanceTracking.m
+▸ Analyzing UIViewController+RPerformanceTracking.m
+▸ Analyzing UIWebView+RPerformanceTracking.m
+▸ Linking RPerformanceTracking
+▸ Linking RPerformanceTracking
+▸ Copying _RPTClassManipulator+NSURLSessionTask.h
+▸ Copying _RPTClassManipulator+UIControl.h
+▸ Copying _RPTClassManipulator+UICollectionViewCell.h
+▸ Copying _RPTClassManipulator+UITableViewCell.h
+▸ Copying _RPTClassManipulator+UIViewController.h
+▸ Copying _RPTClassManipulator+UIWebView.h
+▸ Copying _RPTClassManipulator+WKWebView.h
+▸ Copying _RPTClassManipulator.h
+▸ Copying _RPTConfiguration.h
+▸ Copying _RPTEventWriter.h
+▸ Copying _RPTHelpers.h
+▸ Copying _RPTMainThreadWatcher.h
+▸ Copying _RPTLocation.h
+▸ Copying _RPTMeasurement.h
+▸ Copying _RPTMetric.h
+▸ Copying _RPTNSURLProtocol.h
+▸ Copying _RPTRingBuffer.h
+▸ Copying _RPTSender.h
+▸ Copying _RPTSessionChallengeSender.h
+▸ Copying _RPTTracker.h
+▸ Copying _RPTTrackingManager.h
+▸ Copying NSURLSessionTask+RPerformanceTracking.h
+▸ Copying RPerformanceTracking.h
+▸ Copying RPTDefines.h
+▸ Copying RPTPerformanceMeasurement.h
+▸ Copying RPTPerformanceMetric.h
+▸ Copying UICollectionViewCell+RPerformanceTracking.h
+▸ Copying UIControl+RPerformanceTracking.h
+▸ Copying UIDevice+RPerformanceTracking.h
+▸ Copying UITableViewCell+RPerformanceTracking.h
+▸ Copying UIViewController+RPerformanceTracking.h
+▸ Copying UIWebView+RPerformanceTracking.h
+▸ Touching RPerformanceTracking.framework
+▸ Build Succeeded
