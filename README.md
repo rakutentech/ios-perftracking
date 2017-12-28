@@ -48,9 +48,11 @@ On first run of your app after integrating Performance Tracking the module will 
 
 ### Verify data is collected and sent
 
-Build and run your app in the debug configuration and in the Xcode console you will see debug logs prefixed with `[Performance Tracking]`. These show the data sent by the module for processing by the backend.
+ When you run your app in debug mode Xcode should display Performance Tracking debug logs prefixed with `[Performance Tracking]`. These logs show the measurements sent by the module to the backend for processing.
 
-There may be a log that contains '`Tracking disabled`' which will show the reason for tracking not running, either because the Configuration API response data was invalid (in this case double-check your API subscription key `RPTSubscriptionKey` in your info.plist) or because the result of the session's activation check is to disable tracking.
+There may be a log that contains '`Tracking disabled`' which will show the reason for tracking not running, either because the Configuration API response data was invalid (in this case double-check the configuration keys you added to your info.plist) or because the result of that session's activation check was to disable tracking.
+
+To help verify that tracking works in your app you can add a boolean flag `RPTForceTrackingEnabled` to your app's `info.plist` set to YES/true. This bypasses the activation check. After adding the flag run the app in debug mode and tracking should be enabled (as long as the Configuration API response was valid).
 
 ## Contributing
 
