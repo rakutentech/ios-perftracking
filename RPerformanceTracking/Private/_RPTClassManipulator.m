@@ -192,7 +192,33 @@ static swizzleMappingDictionary *_swizzleMap = nil;
     [self _addSelectorMapping:sel class:recipient implementation:originalImplementation];
 }
 
-+ (IMP)implementationForOriginalSelector:(SEL)selector class:(Class)classObj
++ (void)_removeSwizzleSelector:(SEL)sel onClass:(Class)recipient types:(const char *)types
+{
+    if (!sel || !recipient || !types)
+    {
+        return;
+    }
+    
+    if (![[_RPTClassManipulator _classNameForSelector:sel class:recipient] isEqualToString:NSStringFromClass(recipient)])
+    {
+        // No swizzle has been added
+        return;
+    }
+    
+    Method m = class_getInstanceMethod(recipient, sel);
+    IMP originalImplementation = [self implementationForOriginalSelector:sel class:recipient];
+    IMP swizzleImplementation = NULL;
+    
+    // We can only safely reverse the swizzling if there was an original implementation
+    if (m && originalImplementation)
+    {
+        swizzleImplementation = method_setImplementation(m, originalImplementation);
+        imp_removeBlock(swizzleImplementation);
+        [self _removeSelectorMapping:sel class:recipient];
+    }
+}
+
++ (_Nullable IMP)implementationForOriginalSelector:(SEL)selector class:(Class)classObj
 {
     NSString *key = [self _keyForSelector:selector class:classObj];
     SwizzleDetail *swizzleDetail = _swizzleMap[key];
@@ -207,6 +233,14 @@ static swizzleMappingDictionary *_swizzleMap = nil;
         NSString *key = [self _keyForSelector:selector class:classObj];
         _swizzleMap[key] = swizzleDetail;
     }
+}
+
++ (void)_removeSelectorMapping:(SEL)selector class:(Class)classObj
+{
+    if (!selector || !classObj) return;
+
+    NSString *key = [self _keyForSelector:selector class:classObj];
+    [_swizzleMap removeObjectForKey:key];
 }
 
 + (NSString *)_classNameForSelector:(SEL)selector class:(Class)classObj
