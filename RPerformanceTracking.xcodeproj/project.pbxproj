@@ -21,6 +21,7 @@
 		5AC8DD3E1E9604CD0067995E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5AC8DD3D1E9604CD0067995E /* Main.storyboard */; };
 		5AC8DDC81E96354D0067995E /* TestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5AC8DDC61E96354D0067995E /* TestViewController.m */; };
 		5AC8DDC91E96354D0067995E /* TestViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5AC8DDC71E96354D0067995E /* TestViewController.xib */; };
+		5AEE76CD200C7FD600891D8E /* URLProtocolTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5AEE76CC200C7FD500891D8E /* URLProtocolTests.m */; };
 		6D312C621EA5D98D00467620 /* NetworkSessionHookTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D312C611EA5D98D00467620 /* NetworkSessionHookTests.m */; };
 		6D3DBD4A1E824A9B00B97E89 /* SenderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D3DBD491E824A9B00B97E89 /* SenderTests.m */; };
 		6D64251D1EB8611C00755DA3 /* ConfigTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D64251C1EB8611C00755DA3 /* ConfigTests.m */; };
@@ -65,6 +66,7 @@
 		5AC8DDC51E96354D0067995E /* TestViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestViewController.h; sourceTree = "<group>"; };
 		5AC8DDC61E96354D0067995E /* TestViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestViewController.m; sourceTree = "<group>"; };
 		5AC8DDC71E96354D0067995E /* TestViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TestViewController.xib; sourceTree = "<group>"; };
+		5AEE76CC200C7FD500891D8E /* URLProtocolTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = URLProtocolTests.m; sourceTree = "<group>"; };
 		69194F721CED9D3400879A11 /* Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		69194F761CED9D3500879A11 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6D312C611EA5D98D00467620 /* NetworkSessionHookTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NetworkSessionHookTests.m; sourceTree = "<group>"; };
@@ -150,6 +152,7 @@
 				6D64251C1EB8611C00755DA3 /* ConfigTests.m */,
 				6DA30F6A1FAAF501006A4DE6 /* MainThreadWatcherTests.m */,
 				6DDD80CA1FF22BC7002DED2E /* SwizzleTests.m */,
+				5AEE76CC200C7FD500891D8E /* URLProtocolTests.m */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -289,6 +292,7 @@
 				6DDD80CB1FF22BC7002DED2E /* SwizzleTests.m in Sources */,
 				5AC8DD3C1E95E3B80067995E /* UIViewControllerTests.m in Sources */,
 				5AC8DDC81E96354D0067995E /* TestViewController.m in Sources */,
+				5AEE76CD200C7FD600891D8E /* URLProtocolTests.m in Sources */,
 				6DA30F6B1FAAF501006A4DE6 /* MainThreadWatcherTests.m in Sources */,
 				C8D982DF1F18D83C0088EBEC /* LocationTests.m in Sources */,
 				C83BA7A01EDEA2150048D5C5 /* UITableViewCellTests.m in Sources */,
