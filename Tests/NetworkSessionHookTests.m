@@ -1,4 +1,4 @@
-@import OCMock;
+#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 #import <OHHTTPStubs/OHHTTPStubs.h>
 #import "_RPTTracker.h"
@@ -7,6 +7,7 @@
 #import "_RPTRingBuffer.h"
 #import "_RPTMetric.h"
 #import "_RPTMeasurement.h"
+#import "_RPTClassManipulator+NSURLSessionTask.h"
 
 @interface _RPTTrackingManager ()
 @property (nonatomic) _RPTTracker    *tracker;
@@ -15,8 +16,10 @@
 
 @interface NSURLSessionDataTask ()
 - (void)setState:(NSURLSessionTaskState)state;
-- (void)_rpt_setState:(NSURLSessionTaskState)state;
-- (void)_rpt_trackingIdentifier;
+@end
+
+@interface _RPTClassManipulator ()
+- (void)_rpt_sessionTask_trackingIdentifier;
 @end
 
 @interface NetworkSessionHookTests : XCTestCase <NSURLSessionTaskDelegate>
@@ -68,18 +71,6 @@ static _RPTTrackingManager *_trackingManager = nil;
 }
 
 #pragma mark - NSURLSessionDataTask tests
-
-- (void)testSwizzlingMethodIsAddedToDataTaskClass
-{
-    NSURLSessionDataTask *dataTask = [_session dataTaskWithURL:_defaultURL];
-    XCTAssert([dataTask respondsToSelector:@selector(_rpt_setState:)]);
-}
-
-- (void)testOriginalMethodIsPresentInDataTaskClass
-{
-    NSURLSessionDataTask *dataTask = [_session dataTaskWithURL:_defaultURL];
-    XCTAssert([dataTask respondsToSelector:@selector(setState:)]);
-}
 
 - (void)testThatTrackerStartsRequestWhenDataTaskResumed
 {
@@ -134,12 +125,13 @@ static _RPTTrackingManager *_trackingManager = nil;
 {
     [self setupStubsWithStatusCode:200];
     
-    _session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:nil];
-    NSURLSessionDataTask *dataTask = [_session dataTaskWithURL:_defaultURL];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:nil];
+    NSURLSessionDataTask *dataTask = [session dataTaskWithURL:_defaultURL];
     [dataTask resume];
     
     [self assertThatTrackerEndsRequestForSessionTask:dataTask];
     XCTAssert(_taskCompleteDelegateCalled);
+    [session invalidateAndCancel];
 }
 
 - (void)testThatTrackerEndsRequestWhenDataTaskFailed
@@ -178,18 +170,6 @@ static _RPTTrackingManager *_trackingManager = nil;
 }
 
 #pragma mark - NSURLSessionDownloadTask tests
-
-- (void)testSwizzlingMethodIsAddedToDownloadTaskClass
-{
-    NSURLSessionDownloadTask *downloadTask = [_session downloadTaskWithURL:_defaultURL];
-    XCTAssert([downloadTask respondsToSelector:@selector(_rpt_setState:)]);
-}
-
-- (void)testOriginalMethodIsPresentInDownloadTaskClass
-{
-    NSURLSessionDownloadTask *downloadTask = [_session downloadTaskWithURL:_defaultURL];
-    XCTAssert([downloadTask respondsToSelector:@selector(setState:)]);
-}
 
 - (void)testThatTrackerStartsRequestWhenDownloadTaskResumed
 {
@@ -245,12 +225,13 @@ static _RPTTrackingManager *_trackingManager = nil;
 {
     [self setupStubsWithStatusCode:200];
     
-    _session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:nil];
-    NSURLSessionDownloadTask *downloadTask = [_session downloadTaskWithURL:_defaultURL];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:nil];
+    NSURLSessionDownloadTask *downloadTask = [session downloadTaskWithURL:_defaultURL];
     [downloadTask resume];
     
     [self assertThatTrackerEndsRequestForSessionTask:downloadTask];
     XCTAssert(_taskCompleteDelegateCalled);
+    [session invalidateAndCancel];
 }
 
 - (void)testThatTrackerEndsRequestWhenDownloadTaskFailed
@@ -289,18 +270,6 @@ static _RPTTrackingManager *_trackingManager = nil;
 }
 
 #pragma mark - NSURLSessionUploadTask tests
-
-- (void)testSwizzlingMethodIsAddedToUploadTaskClass
-{
-    NSURLSessionUploadTask *uploadTask = [_session uploadTaskWithRequest:[NSURLRequest requestWithURL:_defaultURL] fromData:[@"Some data" dataUsingEncoding:NSUTF8StringEncoding]];
-    XCTAssert([uploadTask respondsToSelector:@selector(_rpt_setState:)]);
-}
-
-- (void)testOriginalMethodIsPresentInUploadTaskClass
-{
-    NSURLSessionUploadTask *uploadTask = [_session uploadTaskWithRequest:[NSURLRequest requestWithURL:_defaultURL] fromData:[@"Some data" dataUsingEncoding:NSUTF8StringEncoding]];
-    XCTAssert([uploadTask respondsToSelector:@selector(setState:)]);
-}
 
 - (void)testThatTrackerStartsRequestWhenUploadTaskResumed
 {
@@ -355,12 +324,13 @@ static _RPTTrackingManager *_trackingManager = nil;
 {
     [self setupStubsWithStatusCode:201];
     
-    _session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:nil];
-    NSURLSessionUploadTask *uploadTask = [_session uploadTaskWithRequest:[NSURLRequest requestWithURL:_defaultURL] fromData:[@"Some data" dataUsingEncoding:NSUTF8StringEncoding]];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:nil];
+    NSURLSessionUploadTask *uploadTask = [session uploadTaskWithRequest:[NSURLRequest requestWithURL:_defaultURL] fromData:[@"Some data" dataUsingEncoding:NSUTF8StringEncoding]];
     [uploadTask resume];
     
     [self assertThatTrackerEndsRequestForSessionTask:uploadTask];
     XCTAssert(_taskCompleteDelegateCalled);
+    [session invalidateAndCancel];
 }
 
 - (void)testThatTrackerEndsRequestWhenUploadTaskFailed
@@ -423,7 +393,7 @@ static _RPTTrackingManager *_trackingManager = nil;
     // Need to wait at least 'responseTime' for OHHTTPStubs response
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         
-        uint_fast64_t ti = [objc_getAssociatedObject(dataTask, @selector(_rpt_trackingIdentifier)) unsignedLongLongValue];
+        uint_fast64_t ti = [objc_getAssociatedObject(dataTask, @selector(_rpt_sessionTask_trackingIdentifier)) unsignedLongLongValue];
         XCTAssertNotEqual(ti, 0);
         
         OCMVerify([self.trackerMock end:ti]);
