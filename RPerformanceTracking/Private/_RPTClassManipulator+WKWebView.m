@@ -58,7 +58,7 @@ static void endTrackingWithWKWebView(WKWebView *webView)
         if (request.URL) { [[_RPTTrackingManager sharedInstance].tracker prolongMetric]; }
         
         SEL selector = @selector(loadRequest:);
-        IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:selfRef.class];
+        IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:WKWebView.class];
         
         if (originalImp)
         {
@@ -93,7 +93,7 @@ static void endTrackingWithWKWebView(WKWebView *webView)
         RPTLog(@"setNavDelegate_swizzle_blockImp called");
         
         SEL selector = @selector(setNavigationDelegate:);
-        IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:selfRef.class];
+        IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:WKWebView.class];
         if (originalImp)
         {
             if (delegate)
