@@ -1,7 +1,6 @@
 @import OCMock;
 #import <XCTest/XCTest.h>
 #import "TestViewController.h"
-#import "UIViewController+RPerformanceTracking.h"
 #import "_RPTRingBuffer.h"
 #import "_RPTTrackingManager.h"
 #import "_RPTTracker.h"
@@ -94,13 +93,6 @@ static _RPTTrackingManager *_trackingManager = nil;
     [_presentingViewController presentViewController:presentedVC animated:YES completion:nil];
     OCMVerify([mockVC viewDidLoad]);
     [mockVC stopMocking];
-}
-
-- (void)testTrackingIdentifierIsValid
-{
-    UIViewController *presentedVC = [[TestViewController alloc] initWithNibName:@"TestViewController" bundle:self.testBundle];
-    [self.presentingViewController presentViewController:presentedVC animated:YES completion:nil];
-    XCTAssertTrue(presentedVC._rpt_trackingIdentifier != 0);
 }
 
 - (void)testProlongMethodIsCalledWhenViewWillAppear

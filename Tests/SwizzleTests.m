@@ -6,6 +6,55 @@
 + (void)_removeSwizzleSelector:(SEL)sel onClass:(Class)recipient types:(const char *)types;
 @end
 
+@interface Parent : NSObject
+@property (nonatomic) int count;
+- (void)noOverrideMethod;
+- (void)overrideAndCallSuperMethod;
+- (void)overrideWithoutCallingSuperMethod;
+@end
+
+@implementation Parent
+- (instancetype)init
+{
+    if ((self = [super init]))
+    {
+        _count = 0;
+    }
+    return self;
+}
+
+- (void)noOverrideMethod
+{
+    _count ++;
+}
+
+- (void)overrideAndCallSuperMethod
+{
+    _count ++;
+}
+
+- (void)overrideWithoutCallingSuperMethod
+{
+    _count ++;
+}
+@end
+
+@interface Child : Parent
+@end
+
+@implementation Child
+- (void)overrideAndCallSuperMethod
+{
+    [super overrideAndCallSuperMethod];
+    self.count ++;
+}
+
+- (void)overrideWithoutCallingSuperMethod
+{
+    self.count ++;
+}
+@end
+
 @interface SwizzleTests : XCTestCase
 @property (nonatomic) BOOL originalCalled;
 @property (nonatomic) BOOL swizzleCalled;
@@ -110,6 +159,78 @@
     [self setupSwizzleNoOriginalMethod];
     [self performSelector:@selector(aMethodThatDoesntExist:) withObject:@1];
     XCTAssert(_swizzleCalled);
+}
+
+- (void)testThatSwizzleBlockAndOriginalMethodInParentClassAreCalled
+{
+    id swizzle_blockImp = ^(Parent *selfRef) {
+        selfRef.count ++;
+        SEL selector = @selector(noOverrideMethod);
+        IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:Parent.class];
+        if (originalImp)
+        {
+            return ((void(*)(id, SEL))originalImp)(selfRef, selector);
+        }
+    };
+    [_RPTClassManipulator swizzleSelector:@selector(noOverrideMethod)
+                                  onClass:Parent.class
+                        newImplementation:imp_implementationWithBlock(swizzle_blockImp)
+                                    types:"v@:"];
+    Child *child = [[Child alloc] init];
+    XCTAssertEqual(child.count, 0);
+    [child noOverrideMethod];
+    /*
+     * Verify that count is increased twice (once in swizzle block, once in original method in Parent class).
+     */
+    XCTAssertEqual(child.count, 2);
+}
+
+- (void)testThatSwizzleBlockAndOriginalMethodInParentClassAndOverrideMethodInChildClassAreCalled
+{
+    id swizzle_blockImp = ^(Parent *selfRef) {
+        selfRef.count ++;
+        SEL selector = @selector(overrideAndCallSuperMethod);
+        IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:Parent.class];
+        if (originalImp)
+        {
+            return ((void(*)(id, SEL))originalImp)(selfRef, selector);
+        }
+    };
+    [_RPTClassManipulator swizzleSelector:@selector(overrideAndCallSuperMethod)
+                                  onClass:Parent.class
+                        newImplementation:imp_implementationWithBlock(swizzle_blockImp)
+                                    types:"v@:"];
+    Child *child = [[Child alloc] init];
+    XCTAssertEqual(child.count, 0);
+    [child overrideAndCallSuperMethod];
+    /*
+     * Verify that count is increased three times (once in swizzle block, once in original method in Parent class and once in override method in Child class).
+     */
+    XCTAssertEqual(child.count, 3);
+}
+
+- (void)testThatSwizzleBlockAndOriginalMethodInParentClassAreNotCalled
+{
+    id swizzle_blockImp = ^(Parent *selfRef) {
+        selfRef.count ++;
+        SEL selector = @selector(overrideWithoutCallingSuperMethod);
+        IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:Parent.class];
+        if (originalImp)
+        {
+            return ((void(*)(id, SEL))originalImp)(selfRef, selector);
+        }
+    };
+    [_RPTClassManipulator swizzleSelector:@selector(overrideWithoutCallingSuperMethod)
+                                  onClass:Parent.class
+                        newImplementation:imp_implementationWithBlock(swizzle_blockImp)
+                                    types:"v@:"];
+    Child *child = [[Child alloc] init];
+    XCTAssertEqual(child.count, 0);
+    [child overrideWithoutCallingSuperMethod];
+    /*
+     * Verify that count is increased only once in overrid method in Child class.
+     */
+    XCTAssertEqual(child.count, 1);
 }
 #pragma clang diagnostic pop
 @end
