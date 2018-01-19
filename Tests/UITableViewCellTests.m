@@ -46,11 +46,6 @@ static _RPTTrackingManager *_trackingManager = nil;
     XCTAssert([_cell respondsToSelector:@selector(setSelected:)]);
 }
 
-- (void)testSwizzlingMethodIsAddedToUITableViewCellClass
-{
-    XCTAssert([_cell respondsToSelector:@selector(_rpt_setSelected:)]);
-}
-
 - (void)testEndMetricIsCalledWhenTableViewCellIsSelected
 {
     id mockTracker = OCMPartialMock(_trackingManager.tracker);

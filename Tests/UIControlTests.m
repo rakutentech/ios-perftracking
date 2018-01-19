@@ -1,6 +1,5 @@
 @import OCMock;
 #import <XCTest/XCTest.h>
-#import "UIControl+RPerformanceTracking.h"
 #import "_RPTTracker.h"
 #import "_RPTTrackingManager.h"
 #import "_RPTRingBuffer.h"
@@ -36,7 +35,7 @@ static _RPTTrackingManager *_trackingManager = nil;
     [super setUp];
     _trackingManager							= [_RPTTrackingManager sharedInstance];
     _trackingManager.tracker					= [_RPTTracker.alloc initWithRingBuffer:[_RPTRingBuffer.alloc initWithSize:512]
-                                                                       currentMetric:_RPTMetric.new];
+                                                           currentMetric:_RPTMetric.new];
 }
 
 + (void)tearDown
@@ -52,11 +51,6 @@ static _RPTTrackingManager *_trackingManager = nil;
 }
 
 #pragma mark - UIControl's unit tests
-
-- (void)testSwizzlingMethodIsAddedToClass
-{
-    XCTAssert([UIControl.new respondsToSelector:@selector(_rpt_sendAction:to:forEvent:)]);
-}
 
 - (void)testOriginalMethodIsPresentInClass
 {

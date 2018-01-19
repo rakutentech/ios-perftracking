@@ -52,11 +52,6 @@ static _RPTTrackingManager *_trackingManager = nil;
     XCTAssert([_cell respondsToSelector:@selector(setSelected:)]);
 }
 
-- (void)testSwizzlingMethodIsAddedToUICollectionViewCellClass
-{
-    XCTAssert([_cell respondsToSelector:@selector(_rpt_setSelected:)]);
-}
-
 - (void)testEndMetricMethodIsCalledWhenCollectionViewCellIsSelected
 {
     id mockTracker = OCMPartialMock(_trackingManager.tracker);
