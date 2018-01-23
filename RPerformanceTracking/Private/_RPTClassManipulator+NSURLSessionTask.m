@@ -91,7 +91,7 @@ void _handleChangedState(NSURLSessionTask *task, NSURLSessionTaskState state)
     [self swizzleSelector:@selector(setState:)
                   onClass:dataTaskClass
         newImplementation:imp_implementationWithBlock(setState_swizzle_blockImp)
-                    types:"@@:l"];
+                    types:"v@:l"];
     
     [session invalidateAndCancel];
 }
