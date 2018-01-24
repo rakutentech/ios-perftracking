@@ -1,70 +1,99 @@
 #import "_RPTClassManipulator+NSURLSessionTask.h"
-#import "NSURLSessionTask+RPerformanceTracking.h"
+#import "_RPTTrackingManager.h"
+#import "_RPTTracker.h"
+#import "_RPTHelpers.h"
+#import <objc/runtime.h>
+
+void _handleChangedState(NSURLSessionTask *task, NSURLSessionTaskState state);
 
 @implementation _RPTClassManipulator (NSURLSessionTask)
 
-// FIXME : fix "-Wnullable-to-nonnull-conversion" warning, then remove pragma
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
 + (void)load
 {
-    NSURLSession *session = [NSURLSession sessionWithConfiguration:NSURLSessionConfiguration.defaultSessionConfiguration];
-    
-    NSURL *url = [NSURL URLWithString:@"https://www.rakuten.co.jp"];
-    
-    /* 
-     * We need to create NSURLSessionXxxxxTask instance to find out the underlying class
-     * e.g. NSURLSessionDataTask is a __NSCFLocalDataTask
-     */
-    
-    NSURLSessionDataTask *dataTask  = [session dataTaskWithURL:url];
-    Class dataTaskClass             = dataTask.class;
-    Class taskClass                 = NSURLSessionTask.class;
-    [dataTask cancel];
-    
-    /* The 'from' class below is the public NSURLSessionXxxxxTask because we have created a category on that class
-     * so we can get access to the task's NSURLRequest `originalRequest`, see NSURLSessionTask+RPerformanceTracking.h
-     *
-     * The 'to' class below is the underlying class of NSURLSessionTask, which is the common superclass
-     * of DataTask (which is the superclass of UploadTask) and DownloadTask
-     */
-    
-    [self addSwizzledSelectorFromClass:taskClass toClass:dataTaskClass];
-    
-    /*
-     * For safety we check that instances of DownloadTask and UploadTask respond to our added selector.
-     * If they don't we need to swizzle those classes too.
-     */
-    
-    if (![NSURLSessionDownloadTask instancesRespondToSelector:@selector(_rpt_setState:)])
-    {
-        NSURLSessionDownloadTask *downloadTask  = [session downloadTaskWithURL:url];
-        [self addSwizzledSelectorFromClass:taskClass toClass:downloadTask.class];
-        [downloadTask cancel];
-    }
-    
-    if (![NSURLSessionUploadTask instancesRespondToSelector:@selector(_rpt_setState:)])
-    {
-        NSURLRequest *request                   = [NSURLRequest requestWithURL:url];
-        NSURLSessionUploadTask *uploadTask      = [session uploadTaskWithRequest:request
-                                                                        fromData:[@"Data" dataUsingEncoding:NSUTF8StringEncoding]];
-        [self addSwizzledSelectorFromClass:taskClass toClass:uploadTask.class];
-        [uploadTask cancel];
-    }
-    
-    [session invalidateAndCancel];
+    [self _swizzleTaskSetState];
 }
-#pragma clang diagnostic pop
+
+/*
+ * Provide a unique key for associated object
+ */
+- (void)_rpt_sessionTask_trackingIdentifier
+{
+}
+
+void _handleChangedState(NSURLSessionTask *task, NSURLSessionTaskState state)
+{
+    if (!task) { return; }
+    
+    NSURLRequest *request = nil;
+    if ([task respondsToSelector:@selector(originalRequest)])
+    {
+        request = task.originalRequest;
+    }
+    
+    if (!request) return;
+    
+    if (state == NSURLSessionTaskStateRunning)
+    {
+        // We can get more than 1 StateRunning calls for each task. We should only start
+        // the request if it is not already tracked
+        uint_fast64_t trackingIdentifier = [objc_getAssociatedObject(task, @selector(_rpt_sessionTask_trackingIdentifier)) unsignedLongLongValue];
+        
+        if (!trackingIdentifier)
+        {
+            trackingIdentifier = [_RPTTrackingManager.sharedInstance.tracker startRequest:request];
+            
+            if (trackingIdentifier)
+            {
+                objc_setAssociatedObject(task, @selector(_rpt_sessionTask_trackingIdentifier), [NSNumber numberWithUnsignedLongLong:trackingIdentifier], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+            }
+        }
+    }
+    else if (state == NSURLSessionTaskStateCompleted)
+    {
+        uint_fast64_t trackingIdentifier = [objc_getAssociatedObject(task, @selector(_rpt_sessionTask_trackingIdentifier)) unsignedLongLongValue];
+        if (trackingIdentifier)
+        {
+            [_RPTTrackingManager.sharedInstance.tracker end:trackingIdentifier];
+        }
+    }
+}
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
-+ (void)addSwizzledSelectorFromClass:(Class)sender toClass:(Class)recipient
++ (void)_swizzleTaskSetState
 {
-    [_RPTClassManipulator addMethodFromClass:sender
-                                withSelector:@selector(_rpt_setState:)
-                                     toClass:recipient
-                                   replacing:@selector(setState:)
-                               onlyIfPresent:YES];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:NSURLSessionConfiguration.defaultSessionConfiguration];
+    NSURL *testURL = [NSURL URLWithString:@"https://www.rakuten.co.jp"];
+    
+    // We need to create NSURLSessionXxxxxTask instance to find out the underlying class
+    // e.g. NSURLSessionDataTask is a __NSCFLocalDataTask
+    NSURLSessionDataTask *dataTask  = [session dataTaskWithURL:testURL];
+    Class dataTaskClass             = dataTask.class;
+    [dataTask cancel];
+    
+    // The 'from' class below is the public NSURLSessionXxxxxTask and the 'to' class
+    // below is the underlying class of NSURLSessionTask, which is the common superclass
+    // of DataTask (which is the superclass of UploadTask) and DownloadTask
+    id setState_swizzle_blockImp = ^void (id<NSObject> selfRef, NSURLSessionTaskState state) {
+        RPTLog(@"setState_swizzle_blockImp called : %ld", (long)state);
+
+        _handleChangedState((NSURLSessionTask *)selfRef, state);
+        
+        SEL selector = @selector(setState:);
+        IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:dataTaskClass];
+        
+        if (originalImp)
+        {
+            ((void(*)(id, SEL, NSURLSessionTaskState))originalImp)(selfRef, selector, state);
+        }
+    };
+    
+    [self swizzleSelector:@selector(setState:)
+                  onClass:dataTaskClass
+        newImplementation:imp_implementationWithBlock(setState_swizzle_blockImp)
+                    types:"v@:l"];
+    
+    [session invalidateAndCancel];
 }
 #pragma clang diagnostic pop
 @end
