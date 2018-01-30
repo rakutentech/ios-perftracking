@@ -1,14 +1,14 @@
 Pod::Spec.new do |s|
   s.name         = "RPerformanceTracking"
-  s.version      = "1.0.0"
+  s.version      = "1.1.0"
   s.authors      = "Rakuten Ecosystem Mobile"
   s.summary      = "Automatic performance tracking for all your applications."
-  s.homepage     = "https://github.com/rakutentech/"
+  s.homepage     = "https://github.com/rakutentech/ios-perftracking"
   s.license      = { :type => 'MIT', :file => 'LICENSE' }
   s.source       = { :git => "https://github.com/rakutentech/ios-perftracking.git", :tag => s.version.to_s+'-github' }
   s.platform     = :ios, '8.0'
   s.requires_arc = true
-  s.documentation_url = "https://github.com/rakutentech/ios-perftracking"  
+  s.documentation_url = "https://github.com/rakutentech/ios-perftracking"
   s.pod_target_xcconfig = {
     'CLANG_ENABLE_MODULES'                                  => 'YES',
     'CLANG_MODULES_AUTOLINK'                                => 'YES',
