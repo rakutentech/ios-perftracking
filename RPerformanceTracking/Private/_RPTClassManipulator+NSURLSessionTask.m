@@ -75,7 +75,7 @@ void _handleChangedState(NSURLSessionTask *task, NSURLSessionTaskState state)
     // below is the underlying class of NSURLSessionTask, which is the common superclass
     // of DataTask (which is the superclass of UploadTask) and DownloadTask
     id setState_swizzle_blockImp = ^void (id<NSObject> selfRef, NSURLSessionTaskState state) {
-        RPTLog(@"setState_swizzle_blockImp called : %ld", (long)state);
+        RPTLogVerbose(@"setState_swizzle_blockImp called : %ld", (long)state);
 
         _handleChangedState((NSURLSessionTask *)selfRef, state);
         

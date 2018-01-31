@@ -14,7 +14,7 @@
 + (void)_swizzleUITableViewCell
 {
     id setSelected_swizzle_blockImp = ^void (id<NSObject> selfRef, BOOL selected) {
-        RPTLog(@"UITableViewCell setSelected_swizzle_blockImp called");
+        RPTLogVerbose(@"UITableViewCell setSelected_swizzle_blockImp called");
 
         if (selected)
         {

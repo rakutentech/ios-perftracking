@@ -258,6 +258,7 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
           else
           {
               // config is valid and tracking enabled
+              RPTLog(@"Valid config received. Tracking is active.");
               if (self.tracker) [self refreshLocation];
           }
       }] resume];

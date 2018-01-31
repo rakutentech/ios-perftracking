@@ -16,7 +16,7 @@ static const void *_RPT_UIVIEWCONTROLLER_TRACKINGIDENTIFIER = &_RPT_UIVIEWCONTRO
 + (void)_swizzleUIViewController
 {
     id loadView_swizzle_blockImp = ^void (id<NSObject> selfRef) {
-        RPTLog(@"UIViewController loadView_swizzle_blockImp called");
+        RPTLogVerbose(@"UIViewController loadView_swizzle_blockImp called");
 
         _RPTTrackingManager.sharedInstance.currentScreen = NSStringFromClass([selfRef class]);
         uint_fast64_t trackingIdentifier = [[_RPTTrackingManager sharedInstance].tracker startMethod:@"loadView" receiver:selfRef];
@@ -39,7 +39,7 @@ static const void *_RPT_UIVIEWCONTROLLER_TRACKINGIDENTIFIER = &_RPT_UIVIEWCONTRO
                     types:"v@:"];
 
     id viewDidLoad_swizzle_blockImp = ^void (id<NSObject> selfRef) {
-        RPTLog(@"UIViewController viewDidLoad_swizzle_blockImp called");
+        RPTLogVerbose(@"UIViewController viewDidLoad_swizzle_blockImp called");
 
         uint_fast64_t trackingIdentifier = [objc_getAssociatedObject(selfRef, _RPT_UIVIEWCONTROLLER_TRACKINGIDENTIFIER) unsignedLongLongValue];
         if (trackingIdentifier)
@@ -60,7 +60,7 @@ static const void *_RPT_UIVIEWCONTROLLER_TRACKINGIDENTIFIER = &_RPT_UIVIEWCONTRO
                     types:"v@:"];
 
     id viewWillAppear_swizzle_blockImp = ^void (id<NSObject> selfRef, BOOL animated) {
-        RPTLog(@"UIViewController viewWillAppear_swizzle_blockImp called");
+        RPTLogVerbose(@"UIViewController viewWillAppear_swizzle_blockImp called");
 
         _RPTTrackingManager.sharedInstance.currentScreen = NSStringFromClass([selfRef class]);
         uint_fast64_t trackingIdentifier = [[_RPTTrackingManager sharedInstance].tracker startMethod:@"displayView" receiver:selfRef];
@@ -84,7 +84,7 @@ static const void *_RPT_UIVIEWCONTROLLER_TRACKINGIDENTIFIER = &_RPT_UIVIEWCONTRO
                     types:"v@:B"];
 
     id viewDidAppear_swizzle_blockImp = ^void (id<NSObject> selfRef, BOOL animated) {
-        RPTLog(@"UIViewController viewDidAppear_swizzle_blockImp called");
+        RPTLogVerbose(@"UIViewController viewDidAppear_swizzle_blockImp called");
 
         uint_fast64_t trackingIdentifier = [objc_getAssociatedObject(selfRef, _RPT_UIVIEWCONTROLLER_TRACKINGIDENTIFIER) unsignedLongLongValue];
         if (trackingIdentifier)

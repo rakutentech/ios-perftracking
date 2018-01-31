@@ -127,8 +127,7 @@ static const NSTimeInterval SLEEP_MAX_INTERVAL          = 1800; // 30 minutes
 #pragma clang diagnostic ignored "-Wsign-conversion"
 - (NSInteger)sendWithStartIndex:(NSInteger)startIndex endIndex:(NSInteger)endIndex
 {
-    // Enable the log below for extra debug output
-    //RPTLog(@"RPTSender sendWithStartIndex %ld endIndex %ld", (long)startIndex, (long)endIndex);
+    RPTLogVerbose(@"RPTSender sendWithStartIndex %ld endIndex %ld", (long)startIndex, (long)endIndex);
     NSInteger returnIndex = startIndex;
     NSTimeInterval now             = [NSDate.date timeIntervalSince1970];
     _sentCount                     = 0;
