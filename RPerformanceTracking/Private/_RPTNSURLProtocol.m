@@ -56,7 +56,7 @@ extern NSURLCacheStoragePolicy CacheStoragePolicyForRequestAndResponse(NSURLRequ
     self.connection = dataTask;
     
     // we are generating a NSURLSessionTask to load this request therefore tracking loading
-    // state will be handled by NSURLSessionTask+RPerformanceTracking#_rpt_setState:
+    // state will be handled by NSURLSessionTask swizzling
     [self.connection resume];
 }
 

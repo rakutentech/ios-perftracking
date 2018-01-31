@@ -96,7 +96,7 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
 #if DEBUG
         _forceTrackingEnabled = [[appBundle objectForInfoDictionaryKey:@"RPTForceTrackingEnabled"] boolValue];
 #endif
-        _disableProtocolWebviewObserving = [[appBundle objectForInfoDictionaryKey:@"RPTDisableProtocolWebviewObserving"] boolValue];
+        _enableProtocolWebviewTracking = [[appBundle objectForInfoDictionaryKey:@"RPTEnableProtocolWebviewTracking"] boolValue];
         
         do
         {
