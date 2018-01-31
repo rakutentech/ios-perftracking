@@ -17,7 +17,7 @@ static void startTrackingWithUIWebView(UIWebView *webView)
     NSURLRequest *request = webView.request;
 
     // bail out if there's no URL or if tracking is already done by _RPTNSURLProtocol
-    if (!request || !manager.disableProtocolWebviewObserving) return;
+    if (!request || manager.enableProtocolWebviewTracking) { return; }
 
     uint_fast64_t trackingIdentifier = [objc_getAssociatedObject(webView, _RPT_UIWEBVIEW_TRACKINGIDENTIFIER) unsignedLongLongValue];
 
@@ -40,7 +40,7 @@ static void endTrackingWithUIWebView(UIWebView *webView)
 
     uint_fast64_t trackingIdentifier = [objc_getAssociatedObject(webView, _RPT_UIWEBVIEW_TRACKINGIDENTIFIER) unsignedLongLongValue];
 
-    if (trackingIdentifier && manager.disableProtocolWebviewObserving)
+    if (trackingIdentifier)
     {
         [manager.tracker end:trackingIdentifier];
     }
@@ -51,7 +51,7 @@ static void endTrackingWithUIWebView(UIWebView *webView)
 
 + (void)load
 {
-    if(![_RPTTrackingManager sharedInstance].disableProtocolWebviewObserving)
+    if([_RPTTrackingManager sharedInstance].enableProtocolWebviewTracking)
     {
         [NSURLProtocol registerClass:[_RPTNSURLProtocol class]];
         return;

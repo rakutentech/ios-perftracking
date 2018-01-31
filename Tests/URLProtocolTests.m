@@ -33,8 +33,10 @@
 
 @implementation URLProtocolTests
 
-- (void)setUp {
+- (void)setUp
+{
     [super setUp];
+    
     _urlProtocolTrackingManager             = [[_RPTTrackingManager alloc] init];
     _RPTRingBuffer *ringBuffer             = [_RPTRingBuffer.alloc initWithSize:12];
     _urlProtocolTrackingManager.ringBuffer  = ringBuffer;
@@ -42,7 +44,6 @@
     currentMetric.identifier                = @"metric";
     _urlProtocolTrackingManager.tracker     = [_RPTTracker.alloc initWithRingBuffer:ringBuffer
                                                                       currentMetric:currentMetric];
-    _urlProtocolTrackingManager.disableProtocolWebviewObserving = NO;
 
     _managerClassMock = OCMClassMock(_RPTTrackingManager.class);
     OCMStub([_managerClassMock sharedInstance]).andReturn(_urlProtocolTrackingManager);
@@ -78,6 +79,25 @@
     [mockCustomProtocol stopMocking];
 }
 
+- (void)testCanInitWithRequestNotCalledOnWebViewLoadRequestWhenProtocolDisabled
+{
+    [NSURLProtocol unregisterClass:[_RPTNSURLProtocol class]];
+    
+    XCTestExpectation *wait = [self expectationWithDescription:@"wait"];
+    id mockCustomProtocol = OCMClassMock([_RPTNSURLProtocol class]);
+    
+    OCMStub([mockCustomProtocol canInitWithRequest:[OCMArg any]]).andDo(^ (__unused NSInvocation * inv){
+        XCTFail(@"_RPTNSURLProtocol#canInitWithRequest should not be called");
+    });
+    
+    [_webView loadRequest:_defaultRequest];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [wait fulfill];
+    });
+    [self waitForExpectationsWithTimeout:3 handler:nil];
+    [mockCustomProtocol stopMocking];
+}
+
 - (void)testCanonicalRequestCalledOnWebViewLoadRequest
 {
     XCTestExpectation *wait = [self expectationWithDescription:@"wait"];
@@ -95,21 +115,15 @@
 - (void)DISABLED_testStartLoadingCanBeCalled
 {
     XCTestExpectation *wait = [self expectationWithDescription:@"wait"];
-    _RPTNSURLProtocol *customProtocol = [[_RPTNSURLProtocol alloc] initWithRequest:_defaultRequest cachedResponse:nil client:nil];
-
-    id mock = OCMClassMock([NSURLProtocol class]);
-    OCMStub([NSURLProtocol alloc]).andReturn(mock);
-    OCMStub([mock initWithRequest:[OCMArg any] cachedResponse:[OCMArg any] client:[OCMArg any]]).andReturn(customProtocol);
-    id mockCustomProtocol = OCMPartialMock(customProtocol);
-
+    id mockCustomProtocol = OCMClassMock([_RPTNSURLProtocol class]);
+    
     [_webView loadRequest:_defaultRequest];
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        OCMVerify([mock startLoading]);
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        OCMVerify([mockCustomProtocol startLoading]);
         [wait fulfill];
     });
-    [self waitForExpectationsWithTimeout:10 handler:nil];
+    [self waitForExpectationsWithTimeout:6 handler:nil];
     [mockCustomProtocol stopMocking];
-    [mock stopMocking];
 }
     
 - (void)DISABLED_testStopLoadingCanBeCalled
@@ -159,3 +173,4 @@
 }
 
 @end
+
