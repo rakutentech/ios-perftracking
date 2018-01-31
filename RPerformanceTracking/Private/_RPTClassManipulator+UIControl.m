@@ -14,7 +14,7 @@
 + (void)_swizzleUIControl
 {
     id sendAction_swizzle_blockImp = ^void (UIControl *selfRef, SEL action, id target, UIEvent *event) {
-        RPTLog(@"UIControl sendAction_swizzle_blockImp called");
+        RPTLogVerbose(@"UIControl sendAction_swizzle_blockImp called");
 
         NSString *actionName = NSStringFromSelector(action);
 

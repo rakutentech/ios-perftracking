@@ -68,7 +68,7 @@ static void endTrackingWithUIWebView(UIWebView *webView)
      * Unlike Obj-C method calls a _cmd selector is not passed to a block.
      */
     id loadRequest_swizzle_blockImp = ^void (id<NSObject> selfRef, NSURLRequest *request) {
-        RPTLog(@"UIWebView loadRequest_swizzle_blockImp called");
+        RPTLogVerbose(@"UIWebView loadRequest_swizzle_blockImp called");
 
         if (request.URL) { [[_RPTTrackingManager sharedInstance].tracker prolongMetric]; }
 
@@ -88,7 +88,7 @@ static void endTrackingWithUIWebView(UIWebView *webView)
 
     //  MARK: UIWebView setDelegate:
     id setDelegate_swizzle_blockImp = ^void (id<NSObject> selfRef, id<UIWebViewDelegate> delegate) {
-        RPTLog(@"UIWebView setDelegate_swizzle_blockImp called");
+        RPTLogVerbose(@"UIWebView setDelegate_swizzle_blockImp called");
 
         SEL selector = @selector(setDelegate:);
         IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:UIWebView.class];
@@ -114,7 +114,7 @@ static void endTrackingWithUIWebView(UIWebView *webView)
 
     // MARK: UIWebViewDelegate webViewDidStartLoad:
     id webViewDidStartLoad_swizzle_blockImp = ^(id<NSObject> selfRef, UIWebView *webView) {
-        RPTLog(@"UIWevView webViewDidStartLoad_swizzle_blockImp called");
+        RPTLogVerbose(@"UIWevView webViewDidStartLoad_swizzle_blockImp called");
 
         SEL selector = @selector(webViewDidStartLoad:);
         IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:selfRef.class];
@@ -132,7 +132,7 @@ static void endTrackingWithUIWebView(UIWebView *webView)
 
     // MARK: UIWebViewDelegate webViewDidFinishLoad:
     id webViewDidFinishLoad_swizzle_blockImp = ^(id<NSObject> selfRef, UIWebView *webView) {
-        RPTLog(@"UIWevView webViewDidFinishLoad_swizzle_blockImp called");
+        RPTLogVerbose(@"UIWevView webViewDidFinishLoad_swizzle_blockImp called");
 
         SEL selector = @selector(webViewDidFinishLoad:);
         IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:selfRef.class];
@@ -150,7 +150,7 @@ static void endTrackingWithUIWebView(UIWebView *webView)
 
     // MARK: UIWebViewDelegate webView:didFailLoadWithError:
     id webViewDidFailLoadWithError_swizzle_blockImp = ^(id<NSObject> selfRef, UIWebView *webView, NSError *error) {
-        RPTLog(@"UIWevView webViewDidFailLoadWithError_swizzle_blockImp called");
+        RPTLogVerbose(@"UIWevView webViewDidFailLoadWithError_swizzle_blockImp called");
 
         SEL selector = @selector(webView:didFailLoadWithError:);
         IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:selfRef.class];
