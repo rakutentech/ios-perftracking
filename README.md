@@ -56,4 +56,8 @@ To help verify that tracking works in your app you can add a boolean flag `RPTFo
 
 ## Contributing
 
-See the [contributing guide](CONTRIBUTING.md) for details of how to partipate in development of the module.
+See the [contributing guide](CONTRIBUTING.md) for details of how to participate in development of the module.
+
+## Changelog
+
+See the [changelog](CHANGELOG.md) for the new features, changes and bug fixes of the module versions.
