@@ -19,6 +19,8 @@ The **Performance Tracking** module is a tool that lets you measure the performa
 
 ## Getting started
 
+This module supports iOS 8.0 and above. It has been tested on iOS 8.4 and above.
+
 ### Installing as CocoaPods pod
 
 To use the module your `Podfile` should contain:
