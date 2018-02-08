@@ -1,6 +1,6 @@
 ## Changelog
 
-### 1.1.0 (in progress)
+### 1.1.0 (2018-02-08)
 - REM-25644 By default use swizzling to track UIWebViews instead of a custom NSURLProtocol.
 - REM-25242 Fix a bug with redirect handling by informing the custom protocol's client of redirect requests.
 - REM-25138 Debug builds now always send performance data if config API response is valid and force tracking plist flag `RPTForceTrackingEnabled` is set true.
