@@ -149,6 +149,15 @@
     XCTAssertLessThan(measurement.endTime, 0);
 }
 
+- (void)testStartRequestWithEmptyURL
+{
+    _RPTTracker *tracker = [self defaultTracker];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL.alloc initWithString:@""]];
+    request.HTTPMethod = @"GET";
+    uint_fast64_t trackingIdentifier = [tracker startRequest:request];
+    XCTAssertFalse(trackingIdentifier);
+}
+
 - (void)testStartCustom
 {
     _RPTTracker *tracker = [self defaultTracker];

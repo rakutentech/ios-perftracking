@@ -70,7 +70,7 @@
 - (uint_fast64_t)startRequest:(NSURLRequest *)request
 {
     NSString *urlString = request.URL.absoluteString;
-    if (!urlString) return 0;
+    if (!urlString.length) return 0;
 
     NSString *method    = request.HTTPMethod.uppercaseString ?: @"GET";
     _RPTMeasurement *measurement = [self _startWithKind:_RPTURLMeasurementKind receiver:urlString method:method];
