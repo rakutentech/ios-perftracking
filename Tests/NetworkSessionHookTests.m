@@ -388,23 +388,7 @@ static _RPTTrackingManager *_trackingManager = nil;
 
 - (void)assertThatTrackerEndsRequestForSessionTask:(NSURLSessionTask *)dataTask
 {
-    XCTestExpectation *wait = [self expectationWithDescription:@"wait"];
-
-    // Need to wait at least 'responseTime' for OHHTTPStubs response
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-
-        uint_fast64_t ti = [objc_getAssociatedObject(dataTask, @selector(_rpt_sessionTask_trackingIdentifier)) unsignedLongLongValue];
-        XCTAssertNotEqual(ti, 0);
-
-        OCMVerify([self.trackerMock end:ti]);
-
-        _RPTMeasurement *measurement = [_trackingManager.ringBuffer measurementWithTrackingIdentifier:ti];
-        XCTAssertNotNil(measurement);
-        XCTAssert(measurement.endTime > measurement.startTime);
-        [wait fulfill];
-    });
-
-    [self waitForExpectationsWithTimeout:1 handler:nil];
+    [self assertThatTrackerEndsRequestForSessionTask:dataTask statusCode:0];
 }
 
 - (void)assertThatTrackerEndsRequestForSessionTask:(NSURLSessionTask *)dataTask statusCode:(NSInteger)statusCode

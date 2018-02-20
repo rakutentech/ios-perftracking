@@ -59,14 +59,7 @@ void _handleChangedState(NSURLSessionTask *task, NSURLSessionTaskState state)
                 NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)task.response;
                 statusCode = httpResponse.statusCode;
             }
-            if (statusCode)
-            {
-                [_RPTTrackingManager.sharedInstance.tracker end:trackingIdentifier statusCode:statusCode];
-            }
-            else
-            {
-                [_RPTTrackingManager.sharedInstance.tracker end:trackingIdentifier];
-            }
+            [_RPTTrackingManager.sharedInstance.tracker end:trackingIdentifier statusCode:statusCode];
         }
     }
 }
