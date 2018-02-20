@@ -102,6 +102,16 @@
     }
 }
 
+- (void)end:(uint_fast64_t)trackingIdentifier statusCode:(NSInteger)statusCode
+{
+    if (trackingIdentifier)
+    {
+        _RPTMeasurement *measurement = [_ringBuffer measurementWithTrackingIdentifier:trackingIdentifier];
+        measurement.statusCode = statusCode;
+        measurement.endTime = [NSDate.date timeIntervalSince1970];
+    }
+}
+
 - (_RPTMeasurement *)_startWithKind:(_RPTMeasurementKind)kind receiver:(NSObject *)receiver method:(nullable NSString *)method
 {
     _RPTMeasurement *measurement = _ringBuffer.nextMeasurement;

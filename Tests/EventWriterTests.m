@@ -105,6 +105,7 @@
     measurement.method             = @"POST";
     measurement.startTime          = 0.001;
     measurement.endTime            = 0.0014;
+    measurement.statusCode         = 200;
     return measurement;
 }
 
@@ -226,7 +227,7 @@
     [eventWriter begin];
     [eventWriter writeWithMeasurement:[self defaultURLMeasurement] metricIdentifier:@"default_metric"];
     XCTAssertNotNil(eventWriter.writer);
-	NSString *responseString = [NSString stringWithFormat:@"%@{\"url\":\"https://performance-endpoint.com\",\"verb\":\"POST\",\"metric\":\"default_metric\",\"time\":1,\"start\":1}", _fixedPrefix]; // duration is round to 1ms
+	NSString *responseString = [NSString stringWithFormat:@"%@{\"url\":\"https://performance-endpoint.com\",\"verb\":\"POST\",\"status_code\":200,\"metric\":\"default_metric\",\"time\":1,\"start\":1}", _fixedPrefix]; // duration is round to 1ms
     XCTAssertEqualObjects(eventWriter.writer.copy, responseString);
 	
     XCTAssertEqual(eventWriter.measurementCount, 1);

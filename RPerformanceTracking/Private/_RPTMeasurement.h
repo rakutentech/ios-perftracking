@@ -21,6 +21,8 @@ RPT_EXPORT @interface _RPTMeasurement : NSObject
 @property (nonatomic, nullable)       NSObject           *receiver;
 @property (nonatomic, copy, nullable) NSString           *method;
 @property (nonatomic, copy, nullable) NSString           *screen;
+@property (nonatomic)                 NSUInteger          statusCode;
+
 
 - (void)clear;
 @end
