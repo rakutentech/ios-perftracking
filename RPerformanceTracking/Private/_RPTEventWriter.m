@@ -277,6 +277,12 @@ NSString *_RPTJSONFormatWithFloatValue(NSString *key, float value)
         [_writer appendString:_RPTJSONFormatWithStringValue(@"screen", measurement.screen)];
     }
 
+    if (measurement.statusCode > 0)
+    {
+        [_writer appendString:@","];
+        [_writer appendString:_RPTJSONFormatWithIntegerValue(@"status_code", measurement.statusCode)];
+    }
+
     if (metricIdentifier.length)
     {
         [_writer appendString:@","];

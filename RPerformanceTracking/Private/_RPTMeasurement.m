@@ -8,6 +8,7 @@ const NSTimeInterval _RPT_MEASUREMENT_MAXTIME = 30.0;
     if (self = [super init])
     {
         _endTime = [NSDate.distantPast timeIntervalSinceDate:NSDate.date];
+        _statusCode = 0;
     }
     return self;
 }
@@ -23,11 +24,12 @@ const NSTimeInterval _RPT_MEASUREMENT_MAXTIME = 30.0;
     _receiver           = nil;
     _method             = nil;
     _screen             = nil;
+    _statusCode         = 0;
 }
 #pragma clang diagnostic pop
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"Measurement<%p>: kind %lu trackingId %llu startTime %f endTime %f receiver %@ method %@ screen %@", self, (unsigned long)_kind, (unsigned long long)_trackingIdentifier, _startTime, _endTime, _receiver, _method, _screen];
+    return [NSString stringWithFormat:@"Measurement<%p>: kind %lu trackingId %llu startTime %f endTime %f receiver %@ method %@ screen %@ statusCode %d", self, (unsigned long)_kind, (unsigned long long)_trackingIdentifier, _startTime, _endTime, _receiver, _method, _screen, _statusCode];
 }
 @end

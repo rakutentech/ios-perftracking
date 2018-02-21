@@ -18,6 +18,7 @@ RPT_EXPORT @interface _RPTMeasurement : NSObject
 @property (atomic)                    uint_fast64_t       trackingIdentifier;
 @property (atomic)                    NSTimeInterval      startTime;
 @property (atomic)                    NSTimeInterval      endTime;
+@property (nonatomic)                 NSInteger           statusCode;
 @property (nonatomic, nullable)       NSObject           *receiver;
 @property (nonatomic, copy, nullable) NSString           *method;
 @property (nonatomic, copy, nullable) NSString           *screen;

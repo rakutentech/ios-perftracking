@@ -105,7 +105,7 @@ static _RPTTrackingManager *_trackingManager = nil;
     NSURLSessionDataTask *dataTask = [_session dataTaskWithURL:_defaultURL];
     [dataTask resume];
     
-    [self assertThatTrackerEndsRequestForSessionTask:dataTask];
+    [self assertThatTrackerEndsRequestForSessionTask:dataTask statusCode:200];
 }
 
 - (void)testThatTrackerEndsRequestWhenDataTaskHasCompletionHandler
@@ -118,7 +118,7 @@ static _RPTTrackingManager *_trackingManager = nil;
     }];
     [dataTask resume];
     
-    [self assertThatTrackerEndsRequestForSessionTask:dataTask];
+    [self assertThatTrackerEndsRequestForSessionTask:dataTask statusCode:200];
 }
 
 - (void)testThatTrackerEndsRequestWhenDataTaskHasDelegate
@@ -129,7 +129,7 @@ static _RPTTrackingManager *_trackingManager = nil;
     NSURLSessionDataTask *dataTask = [session dataTaskWithURL:_defaultURL];
     [dataTask resume];
     
-    [self assertThatTrackerEndsRequestForSessionTask:dataTask];
+    [self assertThatTrackerEndsRequestForSessionTask:dataTask statusCode:200];
     XCTAssert(_taskCompleteDelegateCalled);
     [session invalidateAndCancel];
 }
@@ -141,7 +141,7 @@ static _RPTTrackingManager *_trackingManager = nil;
     NSURLSessionDataTask *dataTask = [_session dataTaskWithURL:_defaultURL];
     [dataTask resume];
     
-    [self assertThatTrackerEndsRequestForSessionTask:dataTask];
+    [self assertThatTrackerEndsRequestForSessionTask:dataTask statusCode:500];
 }
 
 - (void)testThatTrackerEndsRequestWhenDataTaskCancelled
@@ -204,7 +204,7 @@ static _RPTTrackingManager *_trackingManager = nil;
     NSURLSessionDownloadTask *downloadTask = [_session downloadTaskWithURL:_defaultURL];
     [downloadTask resume];
     
-    [self assertThatTrackerEndsRequestForSessionTask:downloadTask];
+    [self assertThatTrackerEndsRequestForSessionTask:downloadTask statusCode:200];
 }
 
 - (void)testThatTrackerEndsRequestWhenDownloadTaskHasCompletionHandler
@@ -218,7 +218,7 @@ static _RPTTrackingManager *_trackingManager = nil;
     }];
     [downloadTask resume];
     
-    [self assertThatTrackerEndsRequestForSessionTask:downloadTask];
+    [self assertThatTrackerEndsRequestForSessionTask:downloadTask statusCode:200];
 }
 
 - (void)testThatTrackerEndsRequestWhenDownloadTaskHasDelegate
@@ -229,7 +229,7 @@ static _RPTTrackingManager *_trackingManager = nil;
     NSURLSessionDownloadTask *downloadTask = [session downloadTaskWithURL:_defaultURL];
     [downloadTask resume];
     
-    [self assertThatTrackerEndsRequestForSessionTask:downloadTask];
+    [self assertThatTrackerEndsRequestForSessionTask:downloadTask statusCode:200];
     XCTAssert(_taskCompleteDelegateCalled);
     [session invalidateAndCancel];
 }
@@ -241,7 +241,7 @@ static _RPTTrackingManager *_trackingManager = nil;
     NSURLSessionDownloadTask *downloadTask = [_session downloadTaskWithURL:_defaultURL];
     [downloadTask resume];
     
-    [self assertThatTrackerEndsRequestForSessionTask:downloadTask];
+    [self assertThatTrackerEndsRequestForSessionTask:downloadTask statusCode:500];
 }
 
 - (void)testThatTrackerEndsRequestWhenDownloadTaskCancelled
@@ -304,7 +304,7 @@ static _RPTTrackingManager *_trackingManager = nil;
     NSURLSessionUploadTask *uploadTask = [_session uploadTaskWithRequest:[NSURLRequest requestWithURL:_defaultURL] fromData:[@"Some data" dataUsingEncoding:NSUTF8StringEncoding]];
     [uploadTask resume];
     
-    [self assertThatTrackerEndsRequestForSessionTask:uploadTask];
+    [self assertThatTrackerEndsRequestForSessionTask:uploadTask statusCode:201];
 }
 
 - (void)testThatTrackerEndsRequestWhenUploadTaskHasCompletionHandler
@@ -317,7 +317,7 @@ static _RPTTrackingManager *_trackingManager = nil;
     }];
     [uploadTask resume];
     
-    [self assertThatTrackerEndsRequestForSessionTask:uploadTask];
+    [self assertThatTrackerEndsRequestForSessionTask:uploadTask statusCode:201];
 }
 
 - (void)testThatTrackerEndsRequestWhenUploadTaskHasDelegate
@@ -328,7 +328,7 @@ static _RPTTrackingManager *_trackingManager = nil;
     NSURLSessionUploadTask *uploadTask = [session uploadTaskWithRequest:[NSURLRequest requestWithURL:_defaultURL] fromData:[@"Some data" dataUsingEncoding:NSUTF8StringEncoding]];
     [uploadTask resume];
     
-    [self assertThatTrackerEndsRequestForSessionTask:uploadTask];
+    [self assertThatTrackerEndsRequestForSessionTask:uploadTask statusCode:201];
     XCTAssert(_taskCompleteDelegateCalled);
     [session invalidateAndCancel];
 }
@@ -340,7 +340,7 @@ static _RPTTrackingManager *_trackingManager = nil;
     NSURLSessionUploadTask *uploadTask = [_session uploadTaskWithRequest:[NSURLRequest requestWithURL:_defaultURL] fromData:[@"Some data" dataUsingEncoding:NSUTF8StringEncoding]];
     [uploadTask resume];
     
-    [self assertThatTrackerEndsRequestForSessionTask:uploadTask];
+    [self assertThatTrackerEndsRequestForSessionTask:uploadTask statusCode:500];
 }
 
 - (void)testThatTrackerEndsRequestWhenUploadTaskCancelled
@@ -388,22 +388,28 @@ static _RPTTrackingManager *_trackingManager = nil;
 
 - (void)assertThatTrackerEndsRequestForSessionTask:(NSURLSessionTask *)dataTask
 {
+    [self assertThatTrackerEndsRequestForSessionTask:dataTask statusCode:0];
+}
+
+- (void)assertThatTrackerEndsRequestForSessionTask:(NSURLSessionTask *)dataTask statusCode:(NSInteger)statusCode
+{
     XCTestExpectation *wait = [self expectationWithDescription:@"wait"];
-    
+
     // Need to wait at least 'responseTime' for OHHTTPStubs response
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        
+
         uint_fast64_t ti = [objc_getAssociatedObject(dataTask, @selector(_rpt_sessionTask_trackingIdentifier)) unsignedLongLongValue];
         XCTAssertNotEqual(ti, 0);
-        
-        OCMVerify([self.trackerMock end:ti]);
-        
+
+        OCMVerify([self.trackerMock end:ti statusCode:statusCode]);
+
         _RPTMeasurement *measurement = [_trackingManager.ringBuffer measurementWithTrackingIdentifier:ti];
         XCTAssertNotNil(measurement);
+        XCTAssertEqual(measurement.statusCode, statusCode);
         XCTAssert(measurement.endTime > measurement.startTime);
         [wait fulfill];
     });
-    
+
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 

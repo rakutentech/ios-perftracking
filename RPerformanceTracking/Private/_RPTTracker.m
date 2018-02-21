@@ -95,9 +95,15 @@
 
 - (void)end:(uint_fast64_t)trackingIdentifier
 {
+    [self end:trackingIdentifier statusCode:0];
+}
+
+- (void)end:(uint_fast64_t)trackingIdentifier statusCode:(NSInteger)statusCode
+{
     if (trackingIdentifier)
     {
         _RPTMeasurement *measurement = [_ringBuffer measurementWithTrackingIdentifier:trackingIdentifier];
+        measurement.statusCode = statusCode;
         measurement.endTime = [NSDate.date timeIntervalSince1970];
     }
 }
