@@ -31,7 +31,7 @@
     while (!self.isCancelled)
     {
         _watcherRunning = YES;
-        _startTime = [NSDate timeIntervalSinceReferenceDate];
+        _startTime = [NSDate.date timeIntervalSince1970];
         
         // If this block doesn't get to run on the main thread in
         // <= blockThreshold seconds then we consider the main
@@ -46,7 +46,7 @@
         if (_watcherRunning)
         {
             // Main thread has been blocked for at least 'threshold' seconds
-            _endTime = [NSDate timeIntervalSinceReferenceDate];
+            _endTime = [NSDate.date timeIntervalSince1970];
             RPTLog(@"Thread watcher: main thread blocked");
 
             uint_fast64_t ti = [_RPTTrackingManager.sharedInstance.tracker addDevice:@"main_thread_blocked" start:_startTime end:_endTime];

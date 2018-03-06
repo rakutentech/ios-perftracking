@@ -16,6 +16,11 @@ static const NSTimeInterval BLOCK_THRESHOLD = 0.4;
 - (void)updateConfiguration;
 @end
 
+@interface _RPTMainThreadWatcher ()
+@property (nonatomic) NSTimeInterval       startTime;
+@property (nonatomic) NSTimeInterval       endTime;
+@end
+
 @interface MainThreadWatcherTests : XCTestCase
 @property (nonatomic) _RPTMainThreadWatcher *watcher;
 @property (nonatomic) id trackerMock;
@@ -44,38 +49,42 @@ static const NSTimeInterval BLOCK_THRESHOLD = 0.4;
 
 - (void)testThatMeasurementIsAddedWhenMainThreadIsBlockedLongerThanThreshold
 {
-    XCTestExpectation *expectation = [self expectationWithDescription:@"wait"];
+    [self blockMainThreadForTimeInterval:1.0];
+    OCMVerify([[_trackerMock ignoringNonObjectArgs] addDevice:OCMOCK_ANY start:0 end:0]);
+}
+
+- (void)testThatMeasurementAddedUsesSince1970WhenMainThreadIsBlockedLongerThanThreshold
+{
+    [self blockMainThreadForTimeInterval:1.0];
+    NSTimeInterval anHourAgo = NSDate.date.timeIntervalSince1970 - (60.0 * 60.0);
     
-    dispatch_async(dispatch_get_main_queue(), ^{
-       [NSThread sleepForTimeInterval:1.0];
-    });
-    
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        
-        OCMVerify([[self.trackerMock ignoringNonObjectArgs] addDevice:OCMOCK_ANY start:0 end:0]);
-        [expectation fulfill];
-    });
-    
-    [self waitForExpectationsWithTimeout:2.0 handler:nil];
+    // Measurements created in this test run should have start/end dates more recent than an hour ago
+    XCTAssertGreaterThan([NSDate dateWithTimeIntervalSince1970:_watcher.startTime].timeIntervalSince1970, anHourAgo);
+    XCTAssertGreaterThan([NSDate dateWithTimeIntervalSince1970:_watcher.endTime].timeIntervalSince1970, anHourAgo);
 }
 
 - (void)testThatMeasurementIsNotAddedWhenMainThreadIsBlockedLessThanThreshold
 {
-    XCTestExpectation *expectation = [self expectationWithDescription:@"wait"];
-    
     OCMStub([[_trackerMock ignoringNonObjectArgs] addDevice:OCMOCK_ANY start:0 end:0]).andDo(^(NSInvocation *invocation){
         XCTFail(@"Main thread blocked measurement should not be added");
     });
+    [self blockMainThreadForTimeInterval:0.2];
+}
+
+- (void)blockMainThreadForTimeInterval:(NSTimeInterval)blockTime
+{
+    XCTestExpectation *expectation = [self expectationWithDescription:@"wait"];
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        [NSThread sleepForTimeInterval:0.2];
+        [NSThread sleepForTimeInterval:blockTime];
     });
     
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        
         [expectation fulfill];
     });
     
-    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+    [self waitForExpectationsWithTimeout:2.0 handler:nil];
 }
 
 - (void)testThatWatcherIsCancelledWhenTrackingIsStopped
