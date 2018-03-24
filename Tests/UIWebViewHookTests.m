@@ -26,6 +26,44 @@
 @property (nonatomic) NSURLRequest          *defaultRequest;
 @end
 
+@interface WebViewController : NSObject <UIWebViewDelegate>
+@property (nonatomic) UIWebView             *webView;
+@end
+
+@interface WebViewControllerChild : WebViewController <UIWebViewDelegate>
+@property (nonatomic) UIWebView             *webViewInChild;
+@end
+
+@implementation WebViewController
+- (void)webViewDidStartLoad:(UIWebView *)webView
+{
+}
+
+- (void)webViewDidFinishLoad:(UIWebView *)webView
+{
+}
+
+- (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
+{
+}
+@end
+
+@implementation WebViewControllerChild
+- (void)webViewDidStartLoad:(UIWebView *)webView
+{
+    [super webViewDidStartLoad:webView];
+}
+
+- (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
+{
+    // intentionally do not call super
+}
+
+- (void)methodNotImplementedInSuperclass
+{
+}
+@end
+
 @implementation UIWebViewHookTests
 
 - (void)setUp
@@ -106,6 +144,43 @@
     [mockTracker stopMocking];
 }
 
+// MARK: Delegate inheritance tests
+
+- (void)testWebViewDelegateSubclassedMethodCallsSuper
+{
+    id mockTracker = OCMPartialMock(self.trackingManager.tracker);
+    
+    WebViewControllerChild *child = [self childWebViewController];
+    [child.webViewInChild.delegate webViewDidStartLoad:child.webViewInChild];
+    
+    OCMVerify([mockTracker prolongMetric]);
+    [mockTracker stopMocking];
+}
+
+- (void)testWebViewDelegateSubclassedMethodIsForwardedToParent
+{
+    id mockTracker = OCMPartialMock(self.trackingManager.tracker);
+    
+    WebViewControllerChild *child = [self childWebViewController];
+    [child.webViewInChild.delegate webViewDidFinishLoad:child.webViewInChild];
+    
+    OCMVerify([mockTracker endMetric]);
+    [mockTracker stopMocking];
+}
+
+// Current swizzle approach doesn't support this case. However, if a subclass
+// overrides a method it is usual practice to call super
+- (void)DISABLE_testWebViewDelegateSubclassedMethodDoesNotCallSuper
+{
+    id mockTracker = OCMPartialMock(self.trackingManager.tracker);
+    
+    WebViewControllerChild *child = [self childWebViewController];
+    [child.webViewInChild.delegate webView:child.webViewInChild didFailLoadWithError:[NSError errorWithDomain:NSCocoaErrorDomain code:NSURLErrorNotConnectedToInternet userInfo:nil]];
+    
+    OCMVerify([mockTracker endMetric]);
+    [mockTracker stopMocking];
+}
+
 // MARK: UIWebViewDelegate
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
@@ -119,4 +194,18 @@
 {
 }
 
+- (WebViewControllerChild *)childWebViewController
+{
+    WebViewController *parent = WebViewController.new;
+    parent.webView = [UIWebView.alloc initWithFrame:CGRectMake(0, 0, 200, 300)];
+    parent.webView.delegate = parent;
+    
+    WebViewControllerChild *child = WebViewControllerChild.new;
+    child.webViewInChild = [UIWebView.alloc initWithFrame:CGRectMake(0, 0, 200, 300)];
+    child.webViewInChild.delegate = child;
+    
+    return child;
+}
+
 @end
+

@@ -232,5 +232,32 @@
      */
     XCTAssertEqual(child.count, 1);
 }
+
+- (void)testThatSwizzlingParentAndChildClassDoesNotCauseOverflowCrash
+{
+    id swizzle_blockImp = ^(Parent *selfRef) {
+        selfRef.count ++;
+        SEL selector = @selector(overrideAndCallSuperMethod);
+        IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:selfRef.class];
+        if (originalImp)
+        {
+            return ((void(*)(id, SEL))originalImp)(selfRef, selector);
+        }
+    };
+    [_RPTClassManipulator swizzleSelector:@selector(overrideAndCallSuperMethod)
+                                  onClass:Parent.class
+                        newImplementation:imp_implementationWithBlock(swizzle_blockImp)
+                                    types:"v@:"];
+    
+    [_RPTClassManipulator swizzleSelector:@selector(overrideAndCallSuperMethod)
+                                  onClass:Child.class
+                        newImplementation:imp_implementationWithBlock(swizzle_blockImp)
+                                    types:"v@:"];
+    
+    Child *child = [[Child alloc] init];
+    XCTAssertEqual(child.count, 0);
+    [child overrideAndCallSuperMethod];
+    XCTAssertEqual(child.count, 3); // swizzle + parent + child
+}
 #pragma clang diagnostic pop
 @end
