@@ -142,10 +142,10 @@ static swizzleMappingDictionary *_swizzleMap = nil;
     }
 }
 
-+ (_Nullable IMP)implementationForOriginalSelector:(SEL)selector class:(Class)classObj
++ (_Nullable IMP)implementationForOriginalSelector:(SEL)selector class:(Class)clazz
 {
-    classObj = [self furthestAncestorOfRecipient:classObj
-                            implementingSelector:selector];
+    Class classObj = [self furthestAncestorOfRecipient:clazz
+                                  implementingSelector:selector];
     NSString *key = [self _keyForSelector:selector class:classObj];
     SwizzleDetail *swizzleDetail = _swizzleMap[key];
     return [swizzleDetail.originalImplementation pointerValue];
