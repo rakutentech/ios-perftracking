@@ -48,120 +48,35 @@ static swizzleMappingDictionary *_swizzleMap = nil;
 
 + (void)load
 {
-    if (!self.swizzleMap) _swizzleMap = NSMutableDictionary.new;
+    if (!self.swizzleMap)
+    {
+        _swizzleMap = NSMutableDictionary.new;
+    }
 }
 
-+ (BOOL)addMethodFromClass:(Class)sender
-              withSelector:(SEL)newSelector
-                   toClass:(Class)recipient
-                 replacing:(SEL)originalSelector
-             onlyIfPresent:(BOOL)onlyIfPresent
++ (Class)furthestAncestorOfRecipient:(Class)recipient implementingSelector:(SEL)sel
 {
-    NSParameterAssert(newSelector);
-    NSParameterAssert(originalSelector);
-    if (!recipient) return NO;
-
-    Method newMethod      = class_getInstanceMethod(sender,    newSelector);
-    Method originalMethod = class_getInstanceMethod(recipient, originalSelector);
-    SEL resultSelector    = originalSelector;
-
-    /*
-     * If the target method exists, we exchange its implementation with our new one and
-     * update originalSelector to still point to the original implementation.
-     */
-    if (originalMethod)
-    {
-        method_exchangeImplementations(newMethod, originalMethod);
-        resultSelector = newSelector;
-    }
-    /*
-     * If the target method doesn't exist but was required, we don't do anything.
-     */
-    else if (onlyIfPresent)
-    {
-        return NO;
-    }
-
-    /*
-     * If at this point no method exists for the selector, it means that either:
-     * - The original method didn't exist, so we need to add the new method in its place; or
-     * - The original method was replaced, so we need to add back its original implementation (that now
-     *   uses what was passed as `newSelector`).
-     */
-    if (!class_getInstanceMethod(recipient, resultSelector))
-    {
-        class_addMethod(recipient,
-                        resultSelector,
-                        method_getImplementation(newMethod),
-                        method_getTypeEncoding(newMethod));
-    }
-
-    return YES;
-}
-
-+ (BOOL)swizzleMethodFromClass:(Class)sender
-                  withSelector:(SEL)newSelector
-                       toClass:(Class)recipient
-                     replacing:(SEL)originalSelector
-                 onlyIfPresent:(BOOL)onlyIfPresent
-{
-    NSParameterAssert(newSelector);
-    NSParameterAssert(originalSelector);
-    if (!recipient) return NO;
-
-    Method newMethod      = class_getInstanceMethod(sender,    newSelector);
-    Method originalMethod = class_getInstanceMethod(recipient, originalSelector);
-    IMP newImp            = method_getImplementation(newMethod);
-
-    /*
-     * If the originalMethod doesn't exist
-     */
-    if (!originalMethod)
-    {
-        /*
-         * Don't add if not present.
-         */
-        if (onlyIfPresent)
-        {
-            return NO;
-        }
-
-        /*
-         * Add the newMethod to the originalSelector in recipient class
-         */
-        class_addMethod(recipient,
-                        originalSelector,
-                        method_getImplementation(newMethod),
-                        method_getTypeEncoding(newMethod));
-    }
-    else
-    {
-        IMP originalImp = method_getImplementation(originalMethod);
-
-        /*
-         * If originalMethod exists and the implementation of the originalMethod is same to the implementation of the newMethod,
-         * it means that the originalMethod has already been added or swizzled, so do nothing.
-         * Otherwise, we need to add the newMethod with the newSelector to the recipient class and exchange the implementation of them.
-         */
-        if (originalImp != newImp)
-        {
-            if (!class_respondsToSelector(recipient, newSelector))
-            {
-                class_addMethod(recipient,
-                                newSelector,
-                                method_getImplementation(newMethod),
-                                method_getTypeEncoding(newMethod));
-            }
-            Method newMethodInRecipient = class_getInstanceMethod(recipient, newSelector);
-
-            if (originalMethod && newMethodInRecipient)
-            {
-                method_exchangeImplementations(newMethodInRecipient, originalMethod);
-            }
-        }
-    }
+    IMP recipientMethod = [recipient methodForSelector:sel];
+    Class clazz = recipient;
+    Class objSuperClass = [recipient superclass];
     
-    return YES;
+    while (objSuperClass != NULL)
+    {
+        IMP superClassMethod = [objSuperClass instanceMethodForSelector:sel];
+        if (recipientMethod &&
+            superClassMethod &&
+            recipientMethod != superClassMethod)
+        {
+            clazz = objSuperClass;
+            objSuperClass = [objSuperClass superclass];
+        }
+        else
+        {
+            // IMPs are the same - we found the furthest implementor
+            break;
+        }
+    }
+    return clazz;
 }
 
 + (void)swizzleSelector:(SEL)sel onClass:(Class)recipient newImplementation:(IMP)newImp types:(const char *)types
@@ -170,6 +85,15 @@ static swizzleMappingDictionary *_swizzleMap = nil;
     {
         return;
     }
+    
+    // If both class and superclass are swizzled on the same selector and the replacement
+    // implementation is the same then we will end up in a stack overflow crash if
+    // the class calls the super implementation, or doesn't implement the selector and the
+    // message just gets forwarded to the superclass.
+    //
+    // Therefore we should only swizzle on the furthest ancestor
+    recipient = [self furthestAncestorOfRecipient:recipient
+                             implementingSelector:sel];
     
     if ([[_RPTClassManipulator _classNameForSelector:sel class:recipient] isEqualToString:NSStringFromClass(recipient)])
     {
@@ -218,8 +142,10 @@ static swizzleMappingDictionary *_swizzleMap = nil;
     }
 }
 
-+ (_Nullable IMP)implementationForOriginalSelector:(SEL)selector class:(Class)classObj
++ (_Nullable IMP)implementationForOriginalSelector:(SEL)selector class:(Class)clazz
 {
+    Class classObj = [self furthestAncestorOfRecipient:clazz
+                                  implementingSelector:selector];
     NSString *key = [self _keyForSelector:selector class:classObj];
     SwizzleDetail *swizzleDetail = _swizzleMap[key];
     return [swizzleDetail.originalImplementation pointerValue];
