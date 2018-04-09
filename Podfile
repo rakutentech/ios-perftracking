@@ -4,6 +4,8 @@ platform :ios, '8.0'
 use_frameworks!
 
 target 'Tests' do
+  pod 'Kiwi',            '~> 3.0.0'
+  pod 'Underscore.m',    '~> 0.3.0'
   pod 'OCMock',          '~> 3.2'
   pod 'OHHTTPStubs',     '~> 4.7.0'
   pod 'OHHTTPStubs/HTTPMessage'

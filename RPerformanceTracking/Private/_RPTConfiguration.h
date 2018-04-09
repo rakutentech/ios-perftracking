@@ -19,6 +19,11 @@ RPT_EXPORT @interface _RPTConfiguration : NSObject
 @property (nonatomic, readonly) double activationRatio;
 
 /*
+ * Should track events when no metric available
+ */
+@property (nonatomic, readonly) BOOL shouldTrackNonMetricMeasurements;
+
+/*
  * Load configuration from disk if it exists there, or return the default configuration if not.
  */
 + (instancetype)loadConfiguration;

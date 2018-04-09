@@ -8,6 +8,27 @@
 #import "_RPTSender.h"
 #import "_RPTConfiguration.h"
 
+#import <Kiwi/Kiwi.h>
+#import <Underscore_m/Underscore.h>
+#import "TestUtils.h"
+
+SPEC_BEGIN(RPTTrackingManagerTests)
+
+describe(@"RPTTRackingManager", ^{
+    describe(@"init", ^{
+        it(@"should configure tracker to track non-metric measurements as described in config", ^{
+            _RPTConfiguration* config = mkConfigurationStub(@{@"shouldTrackNonMetricMeasurements": @(NO)});
+            [_RPTConfiguration stub:@selector(loadConfiguration) andReturn:config];
+            
+            _RPTTrackingManager* manager = [_RPTTrackingManager new];
+            
+            [[theValue(manager.tracker.shouldTrackNonMetricMeasurements) should] beNo];
+        });
+    });
+});
+
+SPEC_END
+
 @interface _RPTTrackingManager()
 @property (nonatomic) NSTimeInterval         refreshConfigInterval;
 @property (nonatomic, readwrite) _RPTSender *sender;
@@ -69,22 +90,23 @@ static _RPTTrackingManager *_trackingManager = nil;
     return [requestURL.host hasPrefix:@"perf"];  // PROD
 }
 
-- (void)stubConfigResponseWithActivationRatio:(NSInteger)ratio
+- (void)stubConfigResponse:(NSDictionary*)params
 {
+    params = Underscore.defaults(params ? params : @{}, @{
+        @"payload": mkConfigPayload_(nil),
+        @"statusCode": @(200),
+    });
+    
     [OHHTTPStubs stubRequestsPassingTest:^BOOL(NSURLRequest *request) {
         return [self isPerfConfigURL:request.URL];
     } withStubResponse:^OHHTTPStubsResponse*(NSURLRequest *request) {
-        NSDictionary* obj = @{ @"enablePercent": @(ratio),
-                               @"sendUrl": @"https://blah.blah",
-                               @"sendHeaders": @{@"header1": @"value1",
-                                                 @"header2": @"value2"} };
-        return [OHHTTPStubsResponse responseWithJSONObject:obj statusCode:200 headers:nil];
+        return [OHHTTPStubsResponse responseWithData:params[@"payload"] statusCode:[params[@"statusCode"] intValue] headers:@{@"Content-Type": @"application/json"}];
     }];
 }
 
 - (void)testThatTrackingIsRunningWhenStubbedConfigHasOneHundredPercentActivationRatio
 {
-    [self stubConfigResponseWithActivationRatio:100];
+    [self stubConfigResponse:nil];
     
     XCTestExpectation *waitForResponse = [self expectationWithDescription:@"wait"];
     
@@ -102,7 +124,9 @@ static _RPTTrackingManager *_trackingManager = nil;
 
 - (void)testThatTrackingStoppedWhenStubbedConfigHasZeroPercentActivationRatio
 {
-    [self stubConfigResponseWithActivationRatio:0];
+    [self stubConfigResponse:@{
+        @"payload": mkConfigPayload_(@{@"enablePercent": @(0)})
+    }];
     
     XCTestExpectation *waitForResponse = [self expectationWithDescription:@"wait"];
     
@@ -120,15 +144,7 @@ static _RPTTrackingManager *_trackingManager = nil;
 
 - (void)testThatTrackingStoppedWhenStubbedConfigHas500StatusCode
 {
-    [OHHTTPStubs stubRequestsPassingTest:^BOOL(NSURLRequest *request) {
-        return [self isPerfConfigURL:request.URL];
-    } withStubResponse:^OHHTTPStubsResponse*(NSURLRequest *request) {
-        NSDictionary* obj = @{ @"enablePercent": @(100),
-                               @"sendUrl": @"https://blah.blah",
-                               @"sendHeaders": @{@"header1": @"value1",
-                                                 @"header2": @"value2"} };
-        return [OHHTTPStubsResponse responseWithJSONObject:obj statusCode:500 headers:nil];
-    }];
+    [self stubConfigResponse:@{@"statusCode": @(500)}];
 
     XCTestExpectation *waitForResponse = [self expectationWithDescription:@"wait"];
 
@@ -146,11 +162,8 @@ static _RPTTrackingManager *_trackingManager = nil;
 
 - (void)testThatTrackingStoppedWhenStubbedInvalidConfig
 {
-    [OHHTTPStubs stubRequestsPassingTest:^BOOL(NSURLRequest *request) {
-        return [self isPerfConfigURL:request.URL];
-    } withStubResponse:^OHHTTPStubsResponse*(NSURLRequest *request) {
-        NSDictionary* obj = @{};
-        return [OHHTTPStubsResponse responseWithJSONObject:obj statusCode:200 headers:nil];
+    [self stubConfigResponse:@{
+        @"payload": [NSData data]
     }];
 
     XCTestExpectation *waitForResponse = [self expectationWithDescription:@"wait"];
@@ -169,7 +182,7 @@ static _RPTTrackingManager *_trackingManager = nil;
 
 - (void)testThatIrrespectiveOfConfigActivationRatioSenderIsRunningInDebugBuilds
 {
-    [self stubConfigResponseWithActivationRatio:100];
+    [self stubConfigResponse:nil];
     
     XCTestExpectation *waitForResponse = [self expectationWithDescription:@"wait"];
     
@@ -179,7 +192,9 @@ static _RPTTrackingManager *_trackingManager = nil;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         
         XCTAssertFalse(((MockSender *)_trackingManager.sender).stopped);
-        [self stubConfigResponseWithActivationRatio:10];
+        [self stubConfigResponse:@{
+            @"payload": mkConfigPayload_(@{@"enablePercent": @(10)})
+        }];
         [_trackingManager updateConfiguration];
         
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -196,16 +211,24 @@ static _RPTTrackingManager *_trackingManager = nil;
 {
     XCTestExpectation *waitForResponse = [self expectationWithDescription:@"wait"];
     
-    [self stubConfigResponseWithActivationRatio:0.01];
+    [self stubConfigResponse:@{
+        @"payload": mkConfigPayload_(@{@"enablePercent": @(0.00001)})
+    }];
     
     id mockBundle = OCMPartialMock([NSBundle mainBundle]);
     OCMStub([mockBundle objectForInfoDictionaryKey:@"RPTForceTrackingEnabled"]).andReturn(@NO);
     
-    [_trackingManager updateConfiguration];
+    _RPTTrackingManager* manager = [[_RPTTrackingManager alloc] init];
+    manager.sender = [MockSender.alloc initWithRingBuffer:_trackingManager.ringBuffer
+                                                     configuration:_trackingManager.configuration
+                                                     currentMetric:_trackingManager.currentMetric
+                                                       eventWriter:_trackingManager.eventWriter];
+    
+    [manager updateConfiguration];
     
     // Wait for fetched configuration
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        XCTAssert(((MockSender *)_trackingManager.sender).stopped);
+        XCTAssert(((MockSender *)manager.sender).stopped);
         [waitForResponse fulfill];
     });
     [self waitForExpectationsWithTimeout:3 handler:nil];
@@ -216,7 +239,7 @@ static _RPTTrackingManager *_trackingManager = nil;
 {
     XCTestExpectation *waitForResponse = [self expectationWithDescription:@"wait"];
     
-    [self stubConfigResponseWithActivationRatio:1];
+    [self stubConfigResponse:nil];
     
     id mockBundle = OCMPartialMock([NSBundle mainBundle]);
     OCMStub([mockBundle objectForInfoDictionaryKey:@"RPTForceTrackingEnabled"]).andReturn(@YES);
@@ -255,7 +278,14 @@ static _RPTTrackingManager *_trackingManager = nil;
 {
     _trackingManager.refreshConfigInterval = 2.0;
     
-    [self stubConfigResponseWithActivationRatio:100];
+    [self stubConfigResponse:@{
+        @"payload": mkConfigPayload_(@{
+            @"sendHeaders": @{
+                @"header1": @"value1",
+                @"header2": @"value2"
+            }
+        })
+    }];
     
     XCTestExpectation *waitForResponse = [self expectationWithDescription:@"wait"];
     
@@ -271,14 +301,17 @@ static _RPTTrackingManager *_trackingManager = nil;
         
         [OHHTTPStubs removeAllStubs];
         
-        [OHHTTPStubs stubRequestsPassingTest:^BOOL(NSURLRequest *request) {
-            return [self isPerfConfigURL:request.URL];
-        } withStubResponse:^OHHTTPStubsResponse*(NSURLRequest *request) {
-            NSDictionary* obj = @{ @"enablePercent": @(100),
-                                   @"sendUrl": @"https://blah.blah",
-                                   @"sendHeaders": @{@"header1": @"update1",
-                                                     @"header2": @"update2"} };
-            return [OHHTTPStubsResponse responseWithJSONObject:obj statusCode:200 headers:nil];
+        [self stubConfigResponse:@{
+            @"payload": mkConfigPayload_(@{@"enablePercent": @(0.01)})
+        }];
+        
+        [self stubConfigResponse:@{
+            @"payload": mkConfigPayload_(@{
+                @"sendHeaders": @{
+                    @"header1": @"update1",
+                    @"header2": @"update2"
+                }
+            })
         }];
         
         [_trackingManager updateConfiguration];
@@ -330,6 +363,7 @@ static _RPTTrackingManager *_trackingManager = nil;
 	} withStubResponse:^OHHTTPStubsResponse*(NSURLRequest *request) {
 		NSDictionary* obj = @{ @"enablePercent": @(10.0),
 							   @"sendUrl": @"https://test",
+                               @"enableNonMetricMeasurement": @"true",
 							   @"sendHeaders": @{@"header1": @"value1",
 												 @"header2": @"value2"} };
 		return [OHHTTPStubsResponse responseWithJSONObject:obj statusCode:200 headers:nil];

@@ -21,10 +21,10 @@
     @synchronized(self)
     {
         _currentMetric = nil;
-        _RPTMetric *metric = [_RPTMetric new];
+        _RPTMetric* metric = [_RPTMetric new];
         metric.identifier = metricIdentifier;
 
-        _RPTMeasurement *measurement = [self _startWithKind:_RPTMetricMeasurementKind receiver:metric method:nil];
+        _RPTMeasurement *measurement = [self _startWithKind:_RPTMetricMeasurementKind receiver:metric method:nil metric:metric];
         if (measurement)
         {
             metric.startTime = measurement.startTime;
@@ -110,6 +110,18 @@
 
 - (_RPTMeasurement *)_startWithKind:(_RPTMeasurementKind)kind receiver:(NSObject *)receiver method:(nullable NSString *)method
 {
+    return [self _startWithKind:kind
+                       receiver:receiver
+                         method:method
+                         metric:_currentMetric];
+}
+
+- (_RPTMeasurement *)_startWithKind:(_RPTMeasurementKind)kind receiver:(NSObject *)receiver method:(nullable NSString *)method metric:(_RPTMetric*)metric {
+    
+    if (!_shouldTrackNonMetricMeasurements && !metric) {
+        return nil;
+    }
+    
     _RPTMeasurement *measurement = _ringBuffer.nextMeasurement;
     if (measurement)
     {
@@ -131,6 +143,7 @@
     {
         _ringBuffer = ringBuffer;
         _currentMetric = currentMetric;
+        _shouldTrackNonMetricMeasurements = YES;
     }
     return self;
 }

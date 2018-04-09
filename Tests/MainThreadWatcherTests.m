@@ -91,6 +91,7 @@ static const NSTimeInterval BLOCK_THRESHOLD = 0.4;
 {
     NSDictionary* obj = @{ @"enablePercent": @(100),
                            @"sendUrl": @"https://blah.blah",
+                           @"enableNonMetricMeasurement": @"true",
                            @"sendHeaders": @{@"header1": @"update1",
                                              @"header2": @"update2"} };
     

@@ -1,6 +1,5 @@
 #import "_RPTConfiguration.h"
 
-
 static NSString *const KEY = @"com.rakuten.performancetracking";
 
 /* RPT_EXPORT */ @implementation _RPTConfiguration
@@ -30,6 +29,12 @@ static NSString *const KEY = @"com.rakuten.performancetracking";
 
         NSURL *url = [NSURL URLWithString:urlString];
         if (!url) break;
+        
+        NSString* enableNonMetricMeasurement = values[@"enableNonMetricMeasurement"];
+        BOOL shouldTrackNonMetricMeasurements = YES;
+        if ([enableNonMetricMeasurement isKindOfClass:NSNumber.class])  {
+            shouldTrackNonMetricMeasurements = [enableNonMetricMeasurement boolValue];
+        }
 
         NSDictionary *headerFields = values[@"sendHeaders"];
         if (![headerFields isKindOfClass:NSDictionary.class]) break;
@@ -56,6 +61,7 @@ static NSString *const KEY = @"com.rakuten.performancetracking";
             _activationRatio          = activationRatio;
             _eventHubURL              = url;
             _eventHubHTTPHeaderFields = headerFields;
+            _shouldTrackNonMetricMeasurements = shouldTrackNonMetricMeasurements;
         }
         return self;
     } while(0);

@@ -36,6 +36,7 @@ static const NSUInteger      MAX_MEASUREMENTS    = 512u;
     NSDictionary *dict = @{
                            @"enablePercent": @(100),
                            @"sendUrl": @"https://performance-endpoint.com/measurements/messages?timeout=60&api-version=2014-01",
+                           @"enableNonMetricMeasurement": @"true",
                            @"sendHeaders":@{@"Authorization": @"SharedAccessSignature sr=foo",
                                             @"Content-Type": @"application/atom+xml;type=entry;charset=utf-8",
                                             @"BrokerProperties": @"PartitionKey: ABC"
