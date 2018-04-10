@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1696C3CA207714D700288BB5 /* RPTConfigurationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1696C3C9207714D700288BB5 /* RPTConfigurationTests.m */; };
+		1696C3CD2077157200288BB5 /* TestUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 1696C3CC2077157200288BB5 /* TestUtils.m */; };
 		5A8CF0CD1E9C76A1006E7544 /* UIControlTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A8CF0CC1E9C76A1006E7544 /* UIControlTests.m */; };
 		5A8CF0D61E9CAECD006E7544 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A8CF0D51E9CAECD006E7544 /* main.m */; };
 		5A8CF0D91E9CAECD006E7544 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A8CF0D81E9CAECD006E7544 /* AppDelegate.m */; };
@@ -47,6 +49,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1696C3C9207714D700288BB5 /* RPTConfigurationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RPTConfigurationTests.m; sourceTree = "<group>"; };
+		1696C3CB2077157200288BB5 /* TestUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestUtils.h; sourceTree = "<group>"; };
+		1696C3CC2077157200288BB5 /* TestUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestUtils.m; sourceTree = "<group>"; };
 		5A8CF0CC1E9C76A1006E7544 /* UIControlTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIControlTests.m; sourceTree = "<group>"; };
 		5A8CF0D21E9CAECD006E7544 /* HostApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HostApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5A8CF0D51E9CAECD006E7544 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -153,6 +158,9 @@
 				6DA30F6A1FAAF501006A4DE6 /* MainThreadWatcherTests.m */,
 				6DDD80CA1FF22BC7002DED2E /* SwizzleTests.m */,
 				5AEE76CC200C7FD500891D8E /* URLProtocolTests.m */,
+				1696C3C9207714D700288BB5 /* RPTConfigurationTests.m */,
+				1696C3CB2077157200288BB5 /* TestUtils.h */,
+				1696C3CC2077157200288BB5 /* TestUtils.m */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -286,12 +294,14 @@
 				5A8CF0CD1E9C76A1006E7544 /* UIControlTests.m in Sources */,
 				6D64251D1EB8611C00755DA3 /* ConfigTests.m in Sources */,
 				5AB9C6641E8366300066C5CB /* EventWriterTests.m in Sources */,
+				1696C3CA207714D700288BB5 /* RPTConfigurationTests.m in Sources */,
 				C8D893921EBAF8AE001A6CEC /* WKWebViewHookTests.m in Sources */,
 				5A91BD641EB096210048689C /* UICollectionViewTests.m in Sources */,
 				C8B86DF71EC1749A00C7B8DD /* UIWebViewHookTests.m in Sources */,
 				6DDD80CB1FF22BC7002DED2E /* SwizzleTests.m in Sources */,
 				5AC8DD3C1E95E3B80067995E /* UIViewControllerTests.m in Sources */,
 				5AC8DDC81E96354D0067995E /* TestViewController.m in Sources */,
+				1696C3CD2077157200288BB5 /* TestUtils.m in Sources */,
 				5AEE76CD200C7FD600891D8E /* URLProtocolTests.m in Sources */,
 				6DA30F6B1FAAF501006A4DE6 /* MainThreadWatcherTests.m in Sources */,
 				C8D982DF1F18D83C0088EBEC /* LocationTests.m in Sources */,

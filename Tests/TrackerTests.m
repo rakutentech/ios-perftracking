@@ -6,6 +6,124 @@
 #import "_RPTMetric.h"
 #import "_RPTMeasurement.h"
 
+#import <Kiwi/Kiwi.h>
+#import <Underscore_m/Underscore.h>
+
+#import "TestUtils.h"
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+
+SPEC_BEGIN(RPTTRackerTests)
+
+describe(@"RPTTracker", ^{
+    describe(@"constructor", ^{
+        it(@"should enable tracking by default", ^{
+            _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:mkRingBufferStub(nil)
+                                                          currentMetric:mkMetricStub(nil)
+                                   ];
+            
+            [[theValue(tracker.shouldTrackNonMetricMeasurements) should] equal:theValue(YES)];
+        });
+    });
+    
+    describe(@"startMetric:", ^{        
+        it(@"should start metric if configured to not track non-metric measurements", ^{
+            _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:mkRingBufferStub(nil) currentMetric:nil];
+            tracker.shouldTrackNonMetricMeasurements = NO;
+            
+            [tracker startMetric:@"some_metric"];
+            
+            // measurements can be tracked only when metric started if `shouldTrackNonMetricMeasurements` == NO
+            [[theValue([tracker startCustom:@"some_measurement"]) shouldNot] equal:theValue(0)];
+        });
+    });
+    
+    describe(@"startMethod:receiver:", ^{
+        it(@"should not start tracking measurement if tracking non-metric measurements disabled and no active metric exists", ^{
+            _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:mkRingBufferStub(nil) currentMetric:nil];
+            tracker.shouldTrackNonMetricMeasurements = NO;
+            
+            uint_fast64_t measurementId = [tracker startMethod:@"some_method" receiver:[NSObject nullMock]];
+            
+            [[theValue(measurementId) should] equal:theValue(0)];
+        });
+        
+        it(@"should start tracking meaurement if tracking non-metric measurements enabled and no active metric exists", ^{
+            _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:mkRingBufferStub(nil) currentMetric:nil];
+            tracker.shouldTrackNonMetricMeasurements = YES;
+            
+            uint_fast64_t measurementId = [tracker startMethod:@"some_method" receiver:[NSObject nullMock]];
+            
+            [[theValue(measurementId) shouldNot] equal:theValue(0)];
+        });
+    });
+    
+    describe(@"startRequest", ^{
+        it(@"should not start tracking measurement if tracking non-metric measurements disabled and no active metric exists", ^{
+            _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:mkRingBufferStub(nil) currentMetric:nil];
+            tracker.shouldTrackNonMetricMeasurements = NO;
+            
+            uint_fast64_t measurementId = [tracker startRequest:[NSURLRequest nullMock]];
+            
+            [[theValue(measurementId) should] equal:theValue(0)];
+        });
+        
+        it(@"should start tracking meaurement if tracking non-metric measurements enabled and no active metric exists", ^{
+            _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:mkRingBufferStub(nil) currentMetric:nil];
+            tracker.shouldTrackNonMetricMeasurements = YES;
+            
+            uint_fast64_t measurementId = [tracker startRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://example.com"]]];
+            
+            [[theValue(measurementId) shouldNot] equal:theValue(0)];
+        });
+    });
+    
+    describe(@"startCustom:", ^{
+        it(@"should not start tracking measurement if tracking non-metric measurements disabled and no active metric exists", ^{
+            _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:mkRingBufferStub(nil) currentMetric:nil];
+            tracker.shouldTrackNonMetricMeasurements = NO;
+            
+            uint_fast64_t measurementId = [tracker startCustom:@"custrom_metric"];
+            
+            [[theValue(measurementId) should] equal:theValue(0)];
+        });
+        
+        it(@"should start tracking meaurement if tracking non-metric measurements enabled and no active metric exists", ^{
+            _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:mkRingBufferStub(nil) currentMetric:nil];
+            tracker.shouldTrackNonMetricMeasurements = YES;
+            
+            uint_fast64_t measurementId = [tracker startCustom:@"custrom_metric"];
+            
+            [[theValue(measurementId) shouldNot] equal:theValue(0)];
+        });
+    });
+    
+    describe(@"addDevice", ^{
+        it(@"should not start tracking measurement if tracking non-metric measurements disabled and no active metric exists", ^{
+            _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:mkRingBufferStub(nil) currentMetric:nil];
+            tracker.shouldTrackNonMetricMeasurements = NO;
+            
+            uint_fast64_t measurementId = [tracker addDevice:@"device_id" start:0 end:1];
+            
+            [[theValue(measurementId) should] equal:theValue(0)];
+        });
+        
+        it(@"should start tracking meaurement if tracking non-metric measurements enabled and no active metric exists", ^{
+            _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:mkRingBufferStub(nil) currentMetric:nil];
+            tracker.shouldTrackNonMetricMeasurements = YES;
+            
+            uint_fast64_t measurementId = [tracker addDevice:@"device_id" start:0 end:1];
+            
+            [[theValue(measurementId) shouldNot] equal:theValue(0)];
+        });
+    });
+});
+
+SPEC_END
+
+#pragma clang diagnostic pop
+
 @interface _RPTTracker ()
 @property (atomic) _RPTMetric *currentMetric;
 @end

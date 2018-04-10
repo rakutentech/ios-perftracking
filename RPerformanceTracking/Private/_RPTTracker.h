@@ -7,6 +7,8 @@ NS_ASSUME_NONNULL_BEGIN
 RPT_EXPORT @interface _RPTTracker : NSObject
 @property (nonatomic, readonly) _RPTRingBuffer *ringBuffer;
 
+@property (nonatomic) BOOL shouldTrackNonMetricMeasurements;
+
 - (void)startMetric:(NSString *)metric;
 - (void)prolongMetric;
 - (void)endMetric;

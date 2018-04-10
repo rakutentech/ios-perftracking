@@ -115,6 +115,7 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
             
             _tracker = [_RPTTracker.alloc initWithRingBuffer:_ringBuffer currentMetric:_currentMetric];
             if (!_tracker) return nil;
+            _tracker.shouldTrackNonMetricMeasurements = _configuration.shouldTrackNonMetricMeasurements;
             
             _eventWriter = [_RPTEventWriter.alloc initWithConfiguration:_configuration];
             if (!_eventWriter) return nil;
