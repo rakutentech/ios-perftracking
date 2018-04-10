@@ -30,7 +30,7 @@ static NSString *const KEY = @"com.rakuten.performancetracking";
         NSURL *url = [NSURL URLWithString:urlString];
         if (!url) break;
         
-        NSString* enableNonMetricMeasurement = values[@"enableNonMetricMeasurement"];
+        NSNumber* enableNonMetricMeasurement = values[@"enableNonMetricMeasurement"];
         BOOL shouldTrackNonMetricMeasurements = YES;
         if ([enableNonMetricMeasurement isKindOfClass:NSNumber.class])  {
             shouldTrackNonMetricMeasurements = [enableNonMetricMeasurement boolValue];
