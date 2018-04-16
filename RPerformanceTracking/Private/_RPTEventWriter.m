@@ -11,6 +11,7 @@
 #import "_RPTLocation.h"
 #import "_RPTTrackingManager.h"
 #import "UIDevice+RPerformanceTracking.h"
+#import "_RPTEnvironment.h"
 
 NSString *_RPTJSONFormatWithStringValue(NSString *key, NSString *value);
 NSString *_RPTJSONFormatWithIntegerValue(NSString *key, long long value);
@@ -44,6 +45,8 @@ NSString *_RPTJSONFormatWithFloatValue(NSString *key, float value)
 @property (nonatomic) NSMutableString					*writer;
 @property (nonatomic) NSInteger					 		 measurementCount;
 @property (nonatomic) _RPTLocation						*locationHelper;
+
+@property (nonatomic) _RPTEnvironment* environment;
 @end
 
 @implementation _RPTEventWriter
@@ -61,6 +64,7 @@ NSString *_RPTJSONFormatWithFloatValue(NSString *key, float value)
     if ((self = [super init]))
     {
         _configuration = configuration;
+        _environment = [_RPTEnvironment new];
         _telephonyNetworkInfo  = CTTelephonyNetworkInfo.new;
     }
     return self;
@@ -68,38 +72,9 @@ NSString *_RPTJSONFormatWithFloatValue(NSString *key, float value)
 
 - (void)begin
 {
-    static NSString *appIdentifier;
-    static NSString *appVersion;
-    static NSString *modelIdentifier;
-    static UIDevice *device;
-    static NSString *osVersion;
-    static NSString *relayAppID;
+    UIDevice* device = [UIDevice currentDevice];
     __block NSString *carrierName;
     static SCNetworkReachabilityRef reachability;
-
-    static dispatch_once_t once;
-    dispatch_once(&once, ^{
-        NSBundle *bundle = NSBundle.mainBundle;
-        appIdentifier = bundle.bundleIdentifier;
-        appVersion = [bundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
-        device = UIDevice.currentDevice;
-        osVersion = [NSString stringWithFormat:@"%@", device.systemVersion];
-        relayAppID = [bundle objectForInfoDictionaryKey:@"RPTRelayAppID"];
-
-        struct utsname systemInfo;
-        uname(&systemInfo);
-        BOOL isNullTerminated = NO;
-        for (int i = 0 ; i != sizeof(systemInfo.machine) ; i++) {
-            if (systemInfo.machine[i] == '\0') {
-                isNullTerminated = YES;
-                break;
-            }
-        }
-        if (isNullTerminated)
-        {
-            modelIdentifier = [NSString.alloc initWithUTF8String:systemInfo.machine];
-        }
-    });
 
     void (^assignCarrierName)(CTCarrier *) = ^(CTCarrier *carrier) {
         if(carrier.carrierName)
@@ -135,27 +110,27 @@ NSString *_RPTJSONFormatWithFloatValue(NSString *key, float value)
     }
     _writer = [NSMutableString string];
     [_writer appendString:@"{"];
-    if (appIdentifier)
+    if (_environment.appIdentifier)
     {
-        [_writer appendString:_RPTJSONFormatWithStringValue(@"app", appIdentifier)];
+        [_writer appendString:_RPTJSONFormatWithStringValue(@"app", _environment.appIdentifier)];
     }
     
-    if (relayAppID)
+    if (_environment.relayAppId)
     {
         [_writer appendString:@","];
-        [_writer appendString:_RPTJSONFormatWithStringValue(@"relay_app_id", relayAppID)];
+        [_writer appendString:_RPTJSONFormatWithStringValue(@"relay_app_id", _environment.relayAppId)];
     }
     
-    if (appVersion)
+    if (_environment.appVersion)
     {
         [_writer appendString:@","];
-        [_writer appendString:_RPTJSONFormatWithStringValue(@"version", appVersion)];
+        [_writer appendString:_RPTJSONFormatWithStringValue(@"version", _environment.appVersion)];
     }
 
-    if (modelIdentifier)
+    if (_environment.modelIdentifier)
     {
         [_writer appendString:@","];
-        [_writer appendString:_RPTJSONFormatWithStringValue(@"device", modelIdentifier)];
+        [_writer appendString:_RPTJSONFormatWithStringValue(@"device", _environment.modelIdentifier)];
     }
 	
     NSString *region = [_RPTLocation loadLocation].location;
@@ -165,7 +140,7 @@ NSString *_RPTJSONFormatWithFloatValue(NSString *key, float value)
         [_writer appendString:_RPTJSONFormatWithStringValue(@"region", region)];
     }
     
-	NSString *country = [_RPTLocation loadLocation].country ? : [[NSLocale currentLocale] objectForKey:NSLocaleCountryCode];
+	NSString *country = [_RPTLocation loadLocation].country ? : _environment.deviceCountry;
     if (country)
     {
         [_writer appendString:@","];
@@ -181,10 +156,10 @@ NSString *_RPTJSONFormatWithFloatValue(NSString *key, float value)
     [_writer appendString:@","];
     [_writer appendString:_RPTJSONFormatWithStringValue(@"os", @"ios")];
     
-    if (osVersion)
+    if (_environment.osVersion)
     {
         [_writer appendString:@","];
-        [_writer appendString:_RPTJSONFormatWithStringValue(@"os_version", osVersion)];
+        [_writer appendString:_RPTJSONFormatWithStringValue(@"os_version", _environment.osVersion)];
     }
 
     [_writer appendString:@","];

@@ -7,6 +7,7 @@
 #import "_RPTTracker.h"
 #import "_RPTSender.h"
 #import "_RPTConfiguration.h"
+#import "_RPTEnvironment.h"
 
 #import <Kiwi/Kiwi.h>
 #import <Underscore_m/Underscore.h>
@@ -19,10 +20,38 @@ describe(@"RPTTRackingManager", ^{
         it(@"should configure tracker to track non-metric measurements as described in config", ^{
             _RPTConfiguration* config = mkConfigurationStub(@{@"shouldTrackNonMetricMeasurements": @(NO)});
             [_RPTConfiguration stub:@selector(loadConfiguration) andReturn:config];
-            
+
             _RPTTrackingManager* manager = [_RPTTrackingManager new];
-            
+
             [[theValue(manager.tracker.shouldTrackNonMetricMeasurements) should] beNo];
+        });
+        
+        describe(@"config request", ^{
+            __block NSURLSession* configURLSession;
+            beforeEach(^{
+                configURLSession = [NSURLSession nullMock];
+                [NSURLSession stub:@selector(sessionWithConfiguration:) andReturn:configURLSession];
+            });
+
+            it(@"should append to config request os version as QS parameter", ^{
+                KWCaptureSpy *spy = [configURLSession captureArgument:@selector(dataTaskWithURL:completionHandler:) atIndex:0];
+                [_RPTEnvironment stub:@selector(new) andReturn:mkEnvironmentStub(@{@"osVersion": @"100500"})];
+                
+                [_RPTTrackingManager new];
+                NSURL* configURL = spy.argument;
+                
+                [[configURL.query should] containString:@"os_version=100500"];
+            });
+            
+            it(@"should append to config request device model name as QS parameter", ^{
+                KWCaptureSpy *spy = [configURLSession captureArgument:@selector(dataTaskWithURL:completionHandler:) atIndex:0];
+                [_RPTEnvironment stub:@selector(new) andReturn:mkEnvironmentStub(@{@"modelIdentifier": @"ios_device"})];
+                
+                [_RPTTrackingManager new];
+                NSURL* configURL = spy.argument;
+                
+                [[configURL.query should] containString:@"device_model=ios_device"];
+            });
         });
     });
 });
@@ -356,13 +385,13 @@ static _RPTTrackingManager *_trackingManager = nil;
 	
 	id mockBundle = OCMPartialMock([NSBundle mainBundle]);
 	OCMStub([mockBundle bundleIdentifier]).andReturn(@"jp.co.rakuten.HostApp");
-	OCMStub([mockBundle objectForInfoDictionaryKey:@"RPTConfigAPIEndpoint"]).andReturn(@"www.configuration.com");
+    OCMStub([mockBundle objectForInfoDictionaryKey:@"RPTConfigAPIEndpoint"]).andReturn(@"https://www.configuration.com");
 	
 	[OHHTTPStubs stubRequestsPassingTest:^BOOL(NSURLRequest *request) {
-		return [request.URL.absoluteString containsString:@"www.configuration.com"];
+		return [request.URL.absoluteString containsString:@"https://www.configuration.com"];
 	} withStubResponse:^OHHTTPStubsResponse*(NSURLRequest *request) {
 		NSDictionary* obj = @{ @"enablePercent": @(10.0),
-							   @"sendUrl": @"https://test",
+							   @"sendUrl": @"https://test.com",
                                @"enableNonMetricMeasurement": @"true",
 							   @"sendHeaders": @{@"header1": @"value1",
 												 @"header2": @"value2"} };
@@ -374,7 +403,7 @@ static _RPTTrackingManager *_trackingManager = nil;
 	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 		
 		XCTAssertNotNil(_trackingManager.configuration);
-		XCTAssertEqualObjects(_trackingManager.configuration.eventHubURL, [NSURL URLWithString:@"https://test"]);
+		XCTAssertEqualObjects(_trackingManager.configuration.eventHubURL, [NSURL URLWithString:@"https://test.com"]);
 		
 		NSDictionary *HTTPHeaders = _trackingManager.configuration.eventHubHTTPHeaderFields;
 		XCTAssertNotNil(HTTPHeaders);

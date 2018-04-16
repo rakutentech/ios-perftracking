@@ -6,11 +6,12 @@
 #import "_RPTMeasurement.h"
 #import "_RPTMetric.h"
 #import "_RPTConfiguration.h"
+#import "_RPTEnvironment.h"
 
 NSData* mkConfigPayload_(NSDictionary* params) {
     NSDictionary* payload = Underscore.defaults(params ? params : @{}, @{
         @"enablePercent": @(100),
-        @"sendUrl": @"https://blah.blah",
+        @"sendUrl": @"https://example.com",
         @"enableNonMetricMeasurement": @"true",
         @"sendHeaders": @{@"header1": @"value1", @"header2": @"value2"}
     });
@@ -63,4 +64,27 @@ _RPTConfiguration* mkConfigurationStub(NSDictionary* params) {
     [config stub:@selector(shouldTrackNonMetricMeasurements) andReturn:@"shouldTrackNonMetricMeasurements"];
     
     return config;
+}
+
+_RPTEnvironment* mkEnvironmentStub(NSDictionary* params) {
+    params = Underscore.defaults(params ? params : @{}, @{
+        @"appIdentifier": @"com.default.app.identifier",
+        @"appVersion": @"0.0.1",
+        @"modelIdentifier": @"default_iOS_device",
+        @"osVersion": @"0.0.1",
+        @"relayAppId": @"default_relay_app_id",
+        @"performanceTrackingBaseURL": [NSURL URLWithString:@"http://default_perftrack_base_url"],
+        @"performanceTrackingSubscriptionKey": @"default_performance_tracking_subscription_key",
+        @"deviceCountry": @"default_device_country"
+    });
+    
+    _RPTEnvironment* environment = [_RPTEnvironment nullMock];
+    
+    for (NSString* key in params) {
+        id value = [params objectForKey:key];
+        
+        [environment stub:NSSelectorFromString(key) andReturn:value];
+    }
+    
+    return environment;
 }

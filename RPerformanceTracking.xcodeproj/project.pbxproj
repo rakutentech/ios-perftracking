@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		16932AE92080508E00C91400 /* RPTEnvironmentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 16932AE82080508E00C91400 /* RPTEnvironmentTests.m */; };
 		1696C3CA207714D700288BB5 /* RPTConfigurationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1696C3C9207714D700288BB5 /* RPTConfigurationTests.m */; };
 		1696C3CD2077157200288BB5 /* TestUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 1696C3CC2077157200288BB5 /* TestUtils.m */; };
 		5A8CF0CD1E9C76A1006E7544 /* UIControlTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A8CF0CC1E9C76A1006E7544 /* UIControlTests.m */; };
@@ -49,6 +50,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		16932AE82080508E00C91400 /* RPTEnvironmentTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RPTEnvironmentTests.m; sourceTree = "<group>"; };
 		1696C3C9207714D700288BB5 /* RPTConfigurationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RPTConfigurationTests.m; sourceTree = "<group>"; };
 		1696C3CB2077157200288BB5 /* TestUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestUtils.h; sourceTree = "<group>"; };
 		1696C3CC2077157200288BB5 /* TestUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestUtils.m; sourceTree = "<group>"; };
@@ -161,6 +163,7 @@
 				1696C3C9207714D700288BB5 /* RPTConfigurationTests.m */,
 				1696C3CB2077157200288BB5 /* TestUtils.h */,
 				1696C3CC2077157200288BB5 /* TestUtils.m */,
+				16932AE82080508E00C91400 /* RPTEnvironmentTests.m */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -293,6 +296,7 @@
 				6DA949E31E94E09600856C95 /* SenderIntegrationTests.m in Sources */,
 				5A8CF0CD1E9C76A1006E7544 /* UIControlTests.m in Sources */,
 				6D64251D1EB8611C00755DA3 /* ConfigTests.m in Sources */,
+				16932AE92080508E00C91400 /* RPTEnvironmentTests.m in Sources */,
 				5AB9C6641E8366300066C5CB /* EventWriterTests.m in Sources */,
 				1696C3CA207714D700288BB5 /* RPTConfigurationTests.m in Sources */,
 				C8D893921EBAF8AE001A6CEC /* WKWebViewHookTests.m in Sources */,
