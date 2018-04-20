@@ -9,6 +9,7 @@
 #import "_RPTEventWriter.h"
 #import "_RPTLocation.h"
 #import "_RPTMainThreadWatcher.h"
+#import "_RPTEnvironment.h"
 
 static const NSUInteger      MAX_MEASUREMENTS           = 512u;
 static const NSUInteger      TRACKING_DATA_LIMIT        = 100u;
@@ -175,11 +176,12 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
     NSBundle *thisBundle    = [NSBundle bundleForClass:self.class];
     NSString *thisVersion   = [thisBundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
     
-    NSBundle *appBundle     = NSBundle.mainBundle;
-    NSString *relayAppID    = [appBundle objectForInfoDictionaryKey:@"RPTRelayAppID"];
-    NSString *appVersion    = [appBundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+    _RPTEnvironment* environment = [_RPTEnvironment new];
     
-    NSString *country       = [[NSLocale currentLocale] objectForKey:NSLocaleCountryCode];
+    NSString *relayAppID    = environment.relayAppId;
+    NSString *appVersion    = environment.appVersion;
+    
+    NSString *country       = environment.deviceCountry;
     
     NSString *path = [NSString stringWithFormat:@"/platform/ios/"];
     if (relayAppID.length){ path = [path stringByAppendingString:[NSString stringWithFormat:@"app/%@/", relayAppID]]; }
@@ -191,14 +193,12 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
     
     NSURLSessionConfiguration *sessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration;
     
-    NSURL *base = nil;
-    NSString *baseURLString = [appBundle objectForInfoDictionaryKey:@"RPTConfigAPIEndpoint"];
-    if (baseURLString.length) { base = [NSURL URLWithString:baseURLString]; }
+    NSURL *base = environment.performanceTrackingBaseURL;
 #if DEBUG
     NSAssert(base, @"Your application's Info.plist must contain a key 'RPTConfigAPIEndpoint' set to the endpoint URL of your Config API");
 #endif
 		
-    NSString *subscriptionKey = [appBundle objectForInfoDictionaryKey:@"RPTSubscriptionKey"];
+    NSString *subscriptionKey = environment.performanceTrackingSubscriptionKey;
     if (subscriptionKey.length) { sessionConfiguration.HTTPAdditionalHeaders = @{@"Ocp-Apim-Subscription-Key":subscriptionKey}; }
 #if DEBUG
     NSAssert(subscriptionKey.length, @"Your application's Info.plist file must contain a key 'RPTSubscriptionKey' which should be set to your 'Ocp-Apim-Subscription-Key' from the API Portal");
@@ -206,14 +206,14 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
     
     NSURL *url = [base URLByAppendingPathComponent:path];
     
-    if (!url || !baseURLString.length || !subscriptionKey.length || !relayAppID.length)
+    if (!url || !base || !subscriptionKey.length || !relayAppID.length)
     {
         // Fail safely in a release build if the info.plist doesn't have the expected key-values
         return;
     }
     
     NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
-    components.query = [NSString stringWithFormat:@"sdk=%@&country=%@", thisVersion, country];
+    components.query = [NSString stringWithFormat:@"sdk=%@&country=%@&os_version=%@&device_model=%@", thisVersion, country, environment.osVersion, environment.modelIdentifier];
     
     NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration];
     [[session dataTaskWithURL:components.URL completionHandler:^(NSData *data, __unused NSURLResponse *response, __unused NSError * error)
