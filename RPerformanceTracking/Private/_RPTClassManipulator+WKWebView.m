@@ -232,5 +232,35 @@ static void endTrackingWithWKWebView(WKWebView *webView)
                   onClass:recipient
         newImplementation:imp_implementationWithBlock(didReceiveServerRedirect_swizzle_blockImp)
                     types:"v@:@@"];
+
+    // MARK: WKNavigationDelegate webView:decidePolicyForNavigationResponse:decisionHandler:
+    id decidePolicyForNavigationResponse_swizzle_blockImp = ^(id<NSObject> selfRef, WKWebView *webView, WKNavigationResponse *navigationResponse, void (^decisionHandler)(WKNavigationResponsePolicy)) {
+        RPTLogVerbose(@"decidePolicyForNavigationResponse_swizzle_blockImp called");
+
+        SEL selector = @selector(webView:decidePolicyForNavigationResponse:decisionHandler:);
+        IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:selfRef.class];
+        if (originalImp)
+        {
+            ((void(*)(id, SEL, id, id, id))originalImp)(selfRef, selector, webView, navigationResponse, decisionHandler);
+        }
+        else
+        {
+            decisionHandler(WKNavigationResponsePolicyAllow);
+        }
+
+        if ([navigationResponse.response isKindOfClass:[NSHTTPURLResponse class]])
+        {
+            NSHTTPURLResponse *response = (NSHTTPURLResponse *)navigationResponse.response;
+            if (response.URL && [response.URL.absoluteString isEqualToString:webView.URL.absoluteString])
+            {
+                uint_fast64_t trackingIdentifier = [objc_getAssociatedObject(webView, _RPT_WKWEBVIEW_TRACKINGIDENTIFIER) unsignedLongLongValue];
+                [_RPTTrackingManager.sharedInstance.tracker end:trackingIdentifier statusCode:response.statusCode];
+            }
+        }
+    };
+    [self swizzleSelector:@selector(webView:decidePolicyForNavigationResponse:decisionHandler:)
+                  onClass:recipient
+        newImplementation:imp_implementationWithBlock(decidePolicyForNavigationResponse_swizzle_blockImp)
+                    types:"v@:@@@?"];
 }
 @end
