@@ -40,7 +40,7 @@ describe(@"RPTTRackingManager", ^{
                 [_RPTTrackingManager new];
                 NSURL* configURL = spy.argument;
                 
-                [[configURL.query should] containString:@"os_version=100500"];
+                [[configURL.query should] containString:@"osVersion=100500"];
             });
             
             it(@"should append to config request device model name as QS parameter", ^{
@@ -50,7 +50,7 @@ describe(@"RPTTRackingManager", ^{
                 [_RPTTrackingManager new];
                 NSURL* configURL = spy.argument;
                 
-                [[configURL.query should] containString:@"device_model=ios_device"];
+                [[configURL.query should] containString:@"device=ios_device"];
             });
         });
     });

@@ -213,7 +213,7 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
     }
     
     NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
-    components.query = [NSString stringWithFormat:@"sdk=%@&country=%@&os_version=%@&device_model=%@", thisVersion, country, environment.osVersion, environment.modelIdentifier];
+    components.query = [NSString stringWithFormat:@"sdk=%@&country=%@&osVersion=%@&device=%@", thisVersion, country, environment.osVersion, environment.modelIdentifier];
     
     NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration];
     [[session dataTaskWithURL:components.URL completionHandler:^(NSData *data, __unused NSURLResponse *response, __unused NSError * error)
