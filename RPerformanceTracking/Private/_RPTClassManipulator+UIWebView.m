@@ -141,6 +141,17 @@ static void endTrackingWithUIWebView(UIWebView *webView)
             ((void(*)(id, SEL, id))originalImp)(selfRef, selector, webView);
         }
 
+        NSCachedURLResponse *urlResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:webView.request];
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*)urlResponse.response;
+        if (httpResponse.URL)
+        {
+            uint_fast64_t trackingIdentifier = [objc_getAssociatedObject(webView, _RPT_UIWEBVIEW_TRACKINGIDENTIFIER) unsignedLongLongValue];
+            if (trackingIdentifier)
+            {
+                [_RPTTrackingManager.sharedInstance.tracker end:trackingIdentifier statusCode:httpResponse.statusCode];
+            }
+        }
+
         endTrackingWithUIWebView(webView);
     };
     [self swizzleSelector:@selector(webViewDidFinishLoad:)
