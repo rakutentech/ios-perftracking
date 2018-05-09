@@ -107,14 +107,14 @@ static void updateStatusCodeForWebView(NSInteger statusCode, WKWebView *webView)
         IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:WKWebView.class];
         if (originalImp)
         {
-            if (delegate)
+            if (delegate && !_RPTTrackingManager.sharedInstance.disableSwizzling)
             {
                 [_RPTClassManipulator _swizzleWKWebViewNavDelegate:delegate];
             }
             
             // We must swizzle the WKWebView delegate before calling the original method
             // because WebKit appears to save the delegate selectors that the delegate
-            // can respond to at the time of the setDelegate: call
+            // can respond to at the time of the setNavigationDelegate: call
             ((void(*)(id, SEL, id))originalImp)(selfRef, selector, delegate);
         }
     };

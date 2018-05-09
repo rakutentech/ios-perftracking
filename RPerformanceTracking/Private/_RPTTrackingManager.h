@@ -11,6 +11,7 @@ RPT_EXPORT @interface _RPTTrackingManager : NSObject
 @property (nonatomic, readonly) _RPTSender        *sender;
 @property (nonatomic)           BOOL               enableProtocolWebviewTracking;
 @property (nonatomic, copy)     NSString          *currentScreen;
+@property (nonatomic, readonly) BOOL               disableSwizzling;
 
 + (instancetype)sharedInstance;
 
