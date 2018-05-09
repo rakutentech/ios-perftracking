@@ -18,6 +18,7 @@
 @interface _RPTTrackingManager ()
 @property (nonatomic) _RPTTracker    *tracker;
 @property (nonatomic) _RPTRingBuffer *ringBuffer;
+@property (nonatomic) BOOL            disableSwizzling;
 @end
 
 @interface UIWebViewHookTests : XCTestCase <UIWebViewDelegate, NSURLSessionTaskDelegate, NSURLSessionDelegate>
@@ -77,6 +78,7 @@
     currentMetric.identifier                = @"metric";
     _trackingManager.tracker                = [_RPTTracker.alloc initWithRingBuffer:ringBuffer
                                                                       currentMetric:currentMetric];
+    _trackingManager.disableSwizzling       = NO;
     
     _webView                                = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, 200, 300)];
     _defaultRequest                         = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://www.google.com"]];

@@ -14,6 +14,7 @@
 @interface _RPTTrackingManager ()
 @property (nonatomic) _RPTTracker    *tracker;
 @property (nonatomic) _RPTRingBuffer *ringBuffer;
+@property (nonatomic) BOOL            disableSwizzling;
 @end
 
 @interface _RPTTracker ()
@@ -39,6 +40,7 @@ static _RPTTrackingManager *_trackingManager = nil;
     currentMetric.identifier               = @"metric";
     _trackingManager.tracker               = [_RPTTracker.alloc initWithRingBuffer:ringBuffer
                                                                      currentMetric:currentMetric];
+    _trackingManager.disableSwizzling      = NO;
     _webView                               = [[WKWebView alloc] initWithFrame:CGRectZero
                                                                 configuration:[[WKWebViewConfiguration alloc] init]];
     _webView.navigationDelegate            = self;
