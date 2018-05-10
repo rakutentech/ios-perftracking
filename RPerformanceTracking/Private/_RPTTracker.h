@@ -18,7 +18,7 @@ RPT_EXPORT @interface _RPTTracker : NSObject
 - (uint_fast64_t)startCustom:(NSString *)custom;
 - (uint_fast64_t)addDevice:(NSString *)name start:(NSTimeInterval)startTime end:(NSTimeInterval)endTime;
 - (void)end:(uint_fast64_t)trackingIdentifier;
-- (void)end:(uint_fast64_t)trackingIdentifier statusCode:(NSInteger)statusCode;
+- (void)updateStatusCode:(NSInteger)statusCode trackingIdentifier:(uint_fast64_t)trackingIdentifier;
 
 - (instancetype)initWithRingBuffer:(_RPTRingBuffer *)ringBuffer currentMetric:(_RPTMetric *)currentMetric NS_DESIGNATED_INITIALIZER;
 @end

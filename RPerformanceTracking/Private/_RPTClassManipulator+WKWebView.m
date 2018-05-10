@@ -39,6 +39,17 @@ static void endTrackingWithWKWebView(WKWebView *webView)
     objc_setAssociatedObject(webView, _RPT_WKWEBVIEW_TRACKINGIDENTIFIER, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
+static void updateStatusCodeForWebView(NSInteger statusCode, WKWebView *webView)
+{
+    [_RPTTrackingManager.sharedInstance.tracker prolongMetric];
+
+    uint_fast64_t trackingIdentifier = [objc_getAssociatedObject(webView, _RPT_WKWEBVIEW_TRACKINGIDENTIFIER) unsignedLongLongValue];
+    if (trackingIdentifier)
+    {
+        [_RPTTrackingManager.sharedInstance.tracker updateStatusCode:statusCode trackingIdentifier:trackingIdentifier];
+    }
+}
+
 @implementation _RPTClassManipulator (WKWebView)
 + (void)load
 {
@@ -254,7 +265,7 @@ static void endTrackingWithWKWebView(WKWebView *webView)
             if (response.URL && [response.URL.absoluteString isEqualToString:webView.URL.absoluteString])
             {
                 uint_fast64_t trackingIdentifier = [objc_getAssociatedObject(webView, _RPT_WKWEBVIEW_TRACKINGIDENTIFIER) unsignedLongLongValue];
-                [_RPTTrackingManager.sharedInstance.tracker end:trackingIdentifier statusCode:response.statusCode];
+                updateStatusCodeForWebView(response.statusCode, webView);
             }
         }
     };

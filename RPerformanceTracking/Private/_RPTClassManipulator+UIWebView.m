@@ -148,7 +148,7 @@ static void endTrackingWithUIWebView(UIWebView *webView)
             uint_fast64_t trackingIdentifier = [objc_getAssociatedObject(webView, _RPT_UIWEBVIEW_TRACKINGIDENTIFIER) unsignedLongLongValue];
             if (trackingIdentifier)
             {
-                [_RPTTrackingManager.sharedInstance.tracker end:trackingIdentifier statusCode:httpResponse.statusCode];
+                [_RPTTrackingManager.sharedInstance.tracker updateStatusCode:httpResponse.statusCode trackingIdentifier:trackingIdentifier];
             }
         }
 
