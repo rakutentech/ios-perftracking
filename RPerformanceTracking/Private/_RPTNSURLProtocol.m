@@ -14,11 +14,6 @@ extern NSURLCacheStoragePolicy CacheStoragePolicyForRequestAndResponse(NSURLRequ
 
 @implementation _RPTNSURLProtocol
 
-// FIXME : fix "-Wnullable-to-nonnull-conversion" && "-Wunused-parameter" warning, then remove pragma
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
-#pragma clang diagnostic ignored "-Wunused-parameter"
-
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
 {
     NSString *scheme = request.URL.scheme.lowercaseString;
@@ -65,6 +60,9 @@ extern NSURLCacheStoragePolicy CacheStoragePolicyForRequestAndResponse(NSURLRequ
     [self.connection cancel];
 }
 
+// URL Session passes extra params to CB which we do not process
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data
 {
     [self.client URLProtocol:self didLoadData:data];
@@ -125,6 +123,7 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
     NSURLAuthenticationChallenge* challengeWrapper = [[NSURLAuthenticationChallenge alloc] initWithAuthenticationChallenge:challenge sender:sender];
     [self.client URLProtocol:self didReceiveAuthenticationChallenge:challengeWrapper];
 }
+#pragma clang diagnostic pop
 
 // Based on https://developer.apple.com/library/content/samplecode/CustomHTTPProtocol/Listings/Read_Me_About_CustomHTTPProtocol_txt.html
 extern NSURLCacheStoragePolicy CacheStoragePolicyForRequestAndResponse(NSURLRequest * request, NSHTTPURLResponse * response)

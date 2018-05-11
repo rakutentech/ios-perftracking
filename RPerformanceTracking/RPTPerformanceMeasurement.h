@@ -23,13 +23,13 @@ RPT_EXPORT @interface RPTPerformanceMeasurement : NSObject
  * @param identifier Identifier of the measurement to start tracking.
  * @param object     Associated object for aggregating the measurement.
  */
-+ (void)startAggregated:(NSString *)identifier object:(NSObject *)object;
++ (void)startAggregated:(NSString *)identifier object:(nullable NSObject *)object;
 
 /**
  * @param identifier Identifier of the measurement to stop tracking.
  * @param object     Associated object for aggregating the measurement.
  */
-+ (void)endAggregated:(NSString *)identifier object:(NSObject *)object;
++ (void)endAggregated:(NSString *)identifier object:(nullable NSObject *)object;
 @end
 
 NS_ASSUME_NONNULL_END

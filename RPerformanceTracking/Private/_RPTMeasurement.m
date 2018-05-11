@@ -13,8 +13,6 @@ const NSTimeInterval _RPT_MEASUREMENT_MAXTIME = 30.0;
     return self;
 }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wassign-enum"
 - (void)clear
 {
     _kind               = 0;
@@ -26,10 +24,9 @@ const NSTimeInterval _RPT_MEASUREMENT_MAXTIME = 30.0;
     _screen             = nil;
     _statusCode         = 0;
 }
-#pragma clang diagnostic pop
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"Measurement<%p>: kind %lu trackingId %llu startTime %f endTime %f receiver %@ method %@ screen %@ statusCode %d", self, (unsigned long)_kind, (unsigned long long)_trackingIdentifier, _startTime, _endTime, _receiver, _method, _screen, _statusCode];
+    return [NSString stringWithFormat:@"Measurement<%p>: kind %lu trackingId %llu startTime %f endTime %f receiver %@ method %@ screen %@ statusCode %ld", self, (unsigned long)_kind, (unsigned long long)_trackingIdentifier, _startTime, _endTime, _receiver, _method, _screen, (long)_statusCode];
 }
 @end

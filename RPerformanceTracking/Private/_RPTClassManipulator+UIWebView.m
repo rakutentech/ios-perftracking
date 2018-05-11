@@ -43,7 +43,8 @@ static void endTrackingWithUIWebView(UIWebView *webView)
     if (trackingIdentifier)
     {
         // Update status code
-        NSCachedURLResponse *urlResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:webView.request];
+        NSURLRequest* request = webView.request;
+        NSCachedURLResponse *urlResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:request];
         NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*)urlResponse.response;
         if (httpResponse.URL)
         {

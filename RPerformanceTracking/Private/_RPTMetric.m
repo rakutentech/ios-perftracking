@@ -9,24 +9,22 @@ const NSTimeInterval _RPT_METRIC_MAXTIME = 10.0;
     return self.identifier.hash ^ [@(self.startTime) hash] ^ [@(self.endTime) hash] ^ [@(self.urlCount) hash];
 }
 
-
-//FIXME : fix "-Wnullable-to-nonnull-conversion" warning, then remove pragma
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
 - (BOOL)isEqual:(_RPTMetric *)other
 {
     // Only the identifier and the object participate in equality testing
     if (self == other) return YES;
 
     if (![other isMemberOfClass:self.class]) return NO;
+    
+    NSString* ownId = self.identifier;
+    NSString* otherId = other.identifier;
 
     return
-    ((!self.identifier && !other.identifier) || (self.identifier && other.identifier && [self.identifier isEqualToString:other.identifier]))
+    ((!ownId && !otherId) || (ownId && otherId && [ownId isEqualToString:otherId]))
     && (self.startTime == other.startTime)
     && (self.endTime == other.endTime)
     && (self.urlCount == other.urlCount);
 }
-#pragma clang diagnostic pop
 
 - (instancetype)copyWithZone:(NSZone *)zone
 {

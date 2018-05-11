@@ -90,7 +90,7 @@ static const NSTimeInterval SLEEP_MAX_INTERVAL          = 1800; // 30 minutes
 {
     assert(NSOperationQueue.currentQueue == _backgroundQueue);
 
-    NSInteger index = 1;
+    NSUInteger index = 1;
 
     while (true)
     {
@@ -99,14 +99,8 @@ static const NSTimeInterval SLEEP_MAX_INTERVAL          = 1800; // 30 minutes
             break;
         }
 
-        NSInteger idIndex = (NSInteger)([_ringBuffer nextMeasurement].trackingIdentifier % _ringBuffer.size);
-
-        if (idIndex < 0)
-        {
-            idIndex += _ringBuffer.size;
-        }
-
-        NSInteger count = idIndex - index;
+        NSUInteger idIndex = ([_ringBuffer nextMeasurement].trackingIdentifier % _ringBuffer.size);
+        NSInteger count = (NSInteger)(idIndex - index);
 
         if (count < 0)
         {
@@ -117,25 +111,23 @@ static const NSTimeInterval SLEEP_MAX_INTERVAL          = 1800; // 30 minutes
         {
             index = [self sendWithStartIndex:index endIndex:idIndex];
         }
+        
         NSTimeInterval sleepTime = MIN(SLEEP_MAX_INTERVAL, pow(2, MIN(10, _failures)) * _sleepInterval);
         [NSThread sleepForTimeInterval:sleepTime];
     }
 }
 
-// FIXME : fix "-Wsign-conversion" warning, then remove pragma
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wsign-conversion"
-- (NSInteger)sendWithStartIndex:(NSInteger)startIndex endIndex:(NSInteger)endIndex
+- (NSUInteger)sendWithStartIndex:(NSUInteger)startIndex endIndex:(NSUInteger)endIndex
 {
     RPTLogVerbose(@"RPTSender sendWithStartIndex %ld endIndex %ld", (long)startIndex, (long)endIndex);
-    NSInteger returnIndex = startIndex;
+    NSUInteger returnIndex = startIndex;
     NSTimeInterval now             = [NSDate.date timeIntervalSince1970];
     _sentCount                     = 0;
     _savedMetric = _metric ? _metric.copy : nil;
 
     @synchronized (self)
     {
-        for (NSInteger i = startIndex; i != endIndex; i = (i + 1) % _ringBuffer.size)
+        for (NSUInteger i = startIndex; i != endIndex; i = (i + 1) % _ringBuffer.size)
         {
             _RPTMeasurement *measurement = [_ringBuffer measurementAtIndex:(unsigned long)i];
 
@@ -198,7 +190,6 @@ static const NSTimeInterval SLEEP_MAX_INTERVAL          = 1800; // 30 minutes
 
     return returnIndex;
 }
-#pragma clang diagnostic pop
 
 - (void)writeMetric:(_RPTMetric *)metric
 {
@@ -220,11 +211,11 @@ static const NSTimeInterval SLEEP_MAX_INTERVAL          = 1800; // 30 minutes
     _sentCount++;
 }
 
-- (NSInteger)indexAfterSendingWithStartIndex:(NSInteger)startIndex endIndex:(NSInteger)endIndex
+- (NSUInteger)indexAfterSendingWithStartIndex:(NSUInteger)startIndex endIndex:(NSUInteger)endIndex
 {
-    NSInteger returnIndex = startIndex;
-    // if _sentCount <= 0, don't send metric.
-    if (_sentCount <= 0)
+    NSUInteger returnIndex = startIndex;
+    // if _sentCount == 0, don't send metric.
+    if (_sentCount == 0)
     {
         returnIndex = endIndex;
     }

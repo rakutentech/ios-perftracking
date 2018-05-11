@@ -262,7 +262,8 @@ static void updateStatusCodeForWebView(NSInteger statusCode, WKWebView *webView)
         if ([navigationResponse.response isKindOfClass:[NSHTTPURLResponse class]])
         {
             NSHTTPURLResponse *response = (NSHTTPURLResponse *)navigationResponse.response;
-            if (response.URL && [response.URL.absoluteString isEqualToString:webView.URL.absoluteString])
+            NSString* urlString = webView.URL.absoluteString;
+            if (response.URL && [response.URL.absoluteString isEqualToString:urlString])
             {
                 updateStatusCodeForWebView(response.statusCode, webView);
             }
