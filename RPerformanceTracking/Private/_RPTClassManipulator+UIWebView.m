@@ -42,6 +42,13 @@ static void endTrackingWithUIWebView(UIWebView *webView)
 
     if (trackingIdentifier)
     {
+        // Update status code
+        NSCachedURLResponse *urlResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:webView.request];
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*)urlResponse.response;
+        if (httpResponse.URL)
+        {
+            [_RPTTrackingManager.sharedInstance.tracker updateStatusCode:httpResponse.statusCode trackingIdentifier:trackingIdentifier];
+        }
         [manager.tracker end:trackingIdentifier];
     }
     objc_setAssociatedObject(webView, _RPT_UIWEBVIEW_TRACKINGIDENTIFIER, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
@@ -139,17 +146,6 @@ static void endTrackingWithUIWebView(UIWebView *webView)
         if (originalImp)
         {
             ((void(*)(id, SEL, id))originalImp)(selfRef, selector, webView);
-        }
-
-        NSCachedURLResponse *urlResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:webView.request];
-        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*)urlResponse.response;
-        if (httpResponse.URL)
-        {
-            uint_fast64_t trackingIdentifier = [objc_getAssociatedObject(webView, _RPT_UIWEBVIEW_TRACKINGIDENTIFIER) unsignedLongLongValue];
-            if (trackingIdentifier)
-            {
-                [_RPTTrackingManager.sharedInstance.tracker end:trackingIdentifier statusCode:httpResponse.statusCode];
-            }
         }
 
         endTrackingWithUIWebView(webView);

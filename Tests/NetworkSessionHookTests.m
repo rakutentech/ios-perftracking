@@ -401,7 +401,8 @@ static _RPTTrackingManager *_trackingManager = nil;
         uint_fast64_t ti = [objc_getAssociatedObject(dataTask, @selector(_rpt_sessionTask_trackingIdentifier)) unsignedLongLongValue];
         XCTAssertNotEqual(ti, 0);
 
-        OCMVerify([self.trackerMock end:ti statusCode:statusCode]);
+        OCMVerify([self.trackerMock updateStatusCode:statusCode trackingIdentifier:ti]);
+        OCMVerify([self.trackerMock end:ti]);
 
         _RPTMeasurement *measurement = [_trackingManager.ringBuffer measurementWithTrackingIdentifier:ti];
         XCTAssertNotNil(measurement);
