@@ -101,7 +101,7 @@ static void endTrackingWithUIWebView(UIWebView *webView)
         IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:UIWebView.class];
         if (originalImp)
         {
-            if (delegate)
+            if (delegate && !_RPTTrackingManager.sharedInstance.disableSwizzling)
             {
                 [_RPTClassManipulator _swizzleUIWebViewDelegate:delegate];
             }

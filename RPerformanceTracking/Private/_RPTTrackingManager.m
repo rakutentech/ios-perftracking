@@ -11,10 +11,10 @@
 #import "_RPTMainThreadWatcher.h"
 #import "_RPTEnvironment.h"
 
-static const NSUInteger      MAX_MEASUREMENTS           = 512u;
-static const NSUInteger      TRACKING_DATA_LIMIT        = 100u;
+static const NSUInteger      MAX_MEASUREMENTS               = 512u;
+static const NSUInteger      TRACKING_DATA_LIMIT            = 100u;
 
-static NSString *const       METRIC_LAUNCH              = @"_launch";
+static NSString *const       METRIC_LAUNCH                  = @"_launch";
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wconstant-conversion"
@@ -78,6 +78,7 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
 @property (nonatomic)            NSMutableDictionary<_RPTTrackingKey *, NSNumber *> *trackingData;
 @property (nonatomic)            BOOL                  forceTrackingEnabled;
 @property (nonatomic)            _RPTMainThreadWatcher *watcher;
+@property (nonatomic, readwrite) BOOL                   disableSwizzling;
 @end
 
 /* RPT_EXPORT */ @implementation _RPTTrackingManager
@@ -98,6 +99,8 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
         _forceTrackingEnabled = [[appBundle objectForInfoDictionaryKey:@"RPTForceTrackingEnabled"] boolValue];
 #endif
         _enableProtocolWebviewTracking = [[appBundle objectForInfoDictionaryKey:@"RPTEnableProtocolWebviewTracking"] boolValue];
+
+        _disableSwizzling = NO;
         
         do
         {
@@ -249,6 +252,10 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
                   }
               }
           }
+
+          // If the activation ration is set to 0 on the portal, the server won't send anything, so the config will be nil.
+          // It means that we will disable the method swizzling if the config is nil.
+          _disableSwizzling = invalidConfig;
 
           BOOL shouldDisableTracking = [self disableTracking];
           if (shouldDisableTracking || invalidConfig)
