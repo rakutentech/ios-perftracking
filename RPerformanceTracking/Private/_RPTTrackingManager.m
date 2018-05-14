@@ -10,7 +10,6 @@
 #import "_RPTLocation.h"
 #import "_RPTMainThreadWatcher.h"
 #import "_RPTEnvironment.h"
-#import "_RPTClassManipulator.h"
 
 static const NSUInteger      MAX_MEASUREMENTS               = 512u;
 static const NSUInteger      TRACKING_DATA_LIMIT            = 100u;
