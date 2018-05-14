@@ -264,7 +264,6 @@ static void updateStatusCodeForWebView(NSInteger statusCode, WKWebView *webView)
             NSHTTPURLResponse *response = (NSHTTPURLResponse *)navigationResponse.response;
             if (response.URL && [response.URL.absoluteString isEqualToString:webView.URL.absoluteString])
             {
-                uint_fast64_t trackingIdentifier = [objc_getAssociatedObject(webView, _RPT_WKWEBVIEW_TRACKINGIDENTIFIER) unsignedLongLongValue];
                 updateStatusCodeForWebView(response.statusCode, webView);
             }
         }
