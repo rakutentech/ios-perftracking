@@ -10,7 +10,7 @@
 
 @implementation _RPTSessionChallengeSender
 
-// FIXME : fix "-Wunused-parameter" warning, then remove pragma
+// Some params of NSURLAuthenticationChallengeSender methods are not being used.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"
 - (instancetype)initWithSessionCompletionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential))completionHandler

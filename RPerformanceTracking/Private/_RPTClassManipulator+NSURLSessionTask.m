@@ -66,8 +66,6 @@ void _handleChangedState(NSURLSessionTask *task, NSURLSessionTaskState state)
     }
 }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wundeclared-selector"
 + (void)_swizzleTaskSetState
 {
     NSURLSession *session = [NSURLSession sessionWithConfiguration:NSURLSessionConfiguration.defaultSessionConfiguration];
@@ -87,7 +85,7 @@ void _handleChangedState(NSURLSessionTask *task, NSURLSessionTaskState state)
 
         _handleChangedState((NSURLSessionTask *)selfRef, state);
         
-        SEL selector = @selector(setState:);
+        SEL selector = NSSelectorFromString(@"setState:");
         IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:dataTaskClass];
         
         if (originalImp)
@@ -96,12 +94,12 @@ void _handleChangedState(NSURLSessionTask *task, NSURLSessionTaskState state)
         }
     };
     
-    [self swizzleSelector:@selector(setState:)
+    [self swizzleSelector:NSSelectorFromString(@"setState:")
                   onClass:dataTaskClass
         newImplementation:imp_implementationWithBlock(setState_swizzle_blockImp)
                     types:"v@:l"];
     
     [session invalidateAndCancel];
 }
-#pragma clang diagnostic pop
+
 @end

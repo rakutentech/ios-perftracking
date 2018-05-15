@@ -4,8 +4,6 @@ static NSString *const KEY = @"com.rakuten.performancetracking";
 
 /* RPT_EXPORT */ @implementation _RPTConfiguration
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wassign-enum"
 - (instancetype)initWithData:(NSData *)data
 {
     do
@@ -68,8 +66,6 @@ static NSString *const KEY = @"com.rakuten.performancetracking";
 
     return nil; // invalid object
 }
-#pragma clang diagnostic pop
-
 
 + (instancetype)loadConfiguration
 {

@@ -16,10 +16,7 @@ static const NSUInteger      TRACKING_DATA_LIMIT            = 100u;
 
 static NSString *const       METRIC_LAUNCH                  = @"_launch";
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wconstant-conversion"
 static const NSUInteger      ARCRANDOM_MAX              = 0x100000000;
-#pragma clang diagnostic push
 
 static const NSTimeInterval  REFRESH_CONFIG_INTERVAL        = 3600.0; // 1 hour
 static const NSTimeInterval  MAIN_THREAD_BLOCK_THRESHOLD    = 0.4;
@@ -171,9 +168,6 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
     return (random_value < 1.0 - _configuration.activationRatio || _configuration.activationRatio < _currentActivationRatio) && !_forceTrackingEnabled;
 }
 
-// FIXME : fix "-Wnullable-to-nonnull-conversion" warning, then remove pragma
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
 - (void)updateConfiguration
 {
     NSBundle *thisBundle    = [NSBundle bundleForClass:self.class];
@@ -217,9 +211,10 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
     
     NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
     components.query = [NSString stringWithFormat:@"sdk=%@&country=%@&osVersion=%@&device=%@", thisVersion, country, environment.osVersion, environment.modelIdentifier];
-    
+
+    NSURL* configURL = components.URL;
     NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration];
-    [[session dataTaskWithURL:components.URL completionHandler:^(NSData *data, __unused NSURLResponse *response, __unused NSError * error)
+    [[session dataTaskWithURL:configURL completionHandler:^(NSData *data, __unused NSURLResponse *response, __unused NSError * error)
       {
           BOOL invalidConfig = NO;
           if (error)
@@ -318,7 +313,6 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
 		  }
 	  }] resume];
 }
-#pragma clang diagnostic pop
 
 - (void)refreshConfigTimerFire:(__unused NSTimer *)timer
 {
@@ -373,14 +367,14 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
     }
 }
 
-- (void)startMeasurement:(NSString *)measurement object:(NSObject *)object
+- (void)startMeasurement:(NSString *)measurement object:(nullable NSObject *)object
 {
     @synchronized (self) {
         if (_tracker)
         {
             _RPTTrackingKey *key = [_RPTTrackingKey.alloc initWithIdentifier:measurement object:object];
             NSNumber *item = _trackingData[key];
-            if (!item)
+            if (item == nil)
             {
                 if (_trackingData.count == TRACKING_DATA_LIMIT) [_trackingData removeAllObjects];
 
@@ -391,14 +385,14 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
     }
 }
 
-- (void)endMeasurement:(NSString *)measurement object:(NSObject *)object
+- (void)endMeasurement:(NSString *)measurement object:(nullable NSObject *)object
 {
     @synchronized (self) {
         if (_tracker)
         {
             _RPTTrackingKey *key = [_RPTTrackingKey.alloc initWithIdentifier:measurement object:object];
             NSNumber *item = _trackingData[key];
-            if (item)
+            if (item != nil)
             {
                 [_tracker end:(uint_fast64_t) item.unsignedLongLongValue];
                 [_trackingData removeObjectForKey:key];

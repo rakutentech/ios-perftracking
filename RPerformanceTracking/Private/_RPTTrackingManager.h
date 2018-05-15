@@ -17,8 +17,8 @@ RPT_EXPORT @interface _RPTTrackingManager : NSObject
 
 - (void)startMetric:(NSString *)metric;
 - (void)prolongMetric;
-- (void)startMeasurement:(NSString *)measurement object:(NSObject *)object;
-- (void)endMeasurement:(NSString *)measurement object:(NSObject *)object;
+- (void)startMeasurement:(NSString *)measurement object:(nullable NSObject *)object;
+- (void)endMeasurement:(NSString *)measurement object:(nullable NSObject *)object;
 @end
 
 NS_ASSUME_NONNULL_END
