@@ -8,7 +8,8 @@
 
 static const NSInteger      MIN_COUNT                   = 10;
 static const NSTimeInterval SLEEP_INTERVAL_SECONDS      = 10.0; // 10s
-static const NSTimeInterval MIN_TIME                    = 5.0 / 1000; // 5ms
+static const NSTimeInterval MIN_TIME_METRIC             = 5.0 / 1000; // 5ms
+static const NSTimeInterval MIN_TIME_MEASUREMENT        = 1.0 / 1000; // 1ms
 static const NSTimeInterval SLEEP_MAX_INTERVAL          = 1800; // 30 minutes
 
 @interface _RPTTrackingManager()
@@ -193,7 +194,7 @@ static const NSTimeInterval SLEEP_MAX_INTERVAL          = 1800; // 30 minutes
 
 - (void)writeMetric:(_RPTMetric *)metric
 {
-    if (metric.endTime - metric.startTime < MIN_TIME) { return; }
+    if (metric.endTime - metric.startTime < MIN_TIME_METRIC) { return; }
 
     if (!_sentCount) { [_eventWriter begin]; }
 
@@ -203,7 +204,7 @@ static const NSTimeInterval SLEEP_MAX_INTERVAL          = 1800; // 30 minutes
 
 - (void)writeMeasurement:(_RPTMeasurement *)measurement metricId:(NSString *)metricId
 {
-    if (measurement.endTime - measurement.startTime < MIN_TIME) { return; }
+    if (measurement.endTime - measurement.startTime < MIN_TIME_MEASUREMENT) { return; }
 
     if (!_sentCount) { [_eventWriter begin]; }
 

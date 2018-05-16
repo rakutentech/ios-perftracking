@@ -11,14 +11,15 @@ static const void *_RPT_WKWEBVIEW_TRACKINGIDENTIFIER = &_RPT_WKWEBVIEW_TRACKINGI
 
 static void startTrackingWithWKWebView(WKWebView *webView)
 {
-    [_RPTTrackingManager.sharedInstance.tracker prolongMetric];
+    _RPTTrackingManager *manager = [_RPTTrackingManager sharedInstance];
+    [manager.tracker prolongMetric];
 
     uint_fast64_t trackingIdentifier = [objc_getAssociatedObject(webView, _RPT_WKWEBVIEW_TRACKINGIDENTIFIER) unsignedLongLongValue];
     
     NSURL *webViewURL = webView.URL;
     if (!trackingIdentifier && webViewURL)
     {
-        trackingIdentifier = [_RPTTrackingManager.sharedInstance.tracker startRequest:[NSURLRequest requestWithURL:webViewURL]];
+        trackingIdentifier = [manager.tracker startRequest:[NSURLRequest requestWithURL:webViewURL]];
         if (trackingIdentifier)
         {
             objc_setAssociatedObject(webView, _RPT_WKWEBVIEW_TRACKINGIDENTIFIER, [NSNumber numberWithUnsignedLongLong:trackingIdentifier], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
@@ -28,25 +29,27 @@ static void startTrackingWithWKWebView(WKWebView *webView)
 
 static void endTrackingWithWKWebView(WKWebView *webView)
 {
-    [_RPTTrackingManager.sharedInstance.tracker prolongMetric];
-    [_RPTTrackingManager.sharedInstance.tracker endMetric];
-    
+    _RPTTrackingManager *manager = [_RPTTrackingManager sharedInstance];
+    [manager.tracker prolongMetric];
+
     uint_fast64_t trackingIdentifier = [objc_getAssociatedObject(webView, _RPT_WKWEBVIEW_TRACKINGIDENTIFIER) unsignedLongLongValue];
     if (trackingIdentifier)
     {
-        [_RPTTrackingManager.sharedInstance.tracker end:trackingIdentifier];
+        [manager.tracker end:trackingIdentifier];
+        objc_setAssociatedObject(webView, _RPT_WKWEBVIEW_TRACKINGIDENTIFIER, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
-    objc_setAssociatedObject(webView, _RPT_WKWEBVIEW_TRACKINGIDENTIFIER, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    [manager.tracker endMetric];
 }
 
 static void updateStatusCodeForWebView(NSInteger statusCode, WKWebView *webView)
 {
-    [_RPTTrackingManager.sharedInstance.tracker prolongMetric];
+    _RPTTrackingManager *manager = [_RPTTrackingManager sharedInstance];
+    [manager.tracker prolongMetric];
 
     uint_fast64_t trackingIdentifier = [objc_getAssociatedObject(webView, _RPT_WKWEBVIEW_TRACKINGIDENTIFIER) unsignedLongLongValue];
     if (trackingIdentifier)
     {
-        [_RPTTrackingManager.sharedInstance.tracker updateStatusCode:statusCode trackingIdentifier:trackingIdentifier];
+        [manager.tracker updateStatusCode:statusCode trackingIdentifier:trackingIdentifier];
     }
 }
 

@@ -106,14 +106,6 @@
     [mockTracker stopMocking];
 }
 
-- (void)testProlongMetricCalledOnWebViewDidStartLoad
-{
-    id mockTracker = OCMPartialMock(_trackingManager.tracker);
-    [_webView.delegate webViewDidStartLoad:_webView];
-    OCMVerify([mockTracker prolongMetric]);
-    [mockTracker stopMocking];
-}
-
 - (void)testProlongMetricCalledOnWebViewDidFinishLoad
 {
     id mockTracker = OCMPartialMock(_trackingManager.tracker);
@@ -147,17 +139,6 @@
 }
 
 // MARK: Delegate inheritance tests
-
-- (void)testWebViewDelegateSubclassedMethodCallsSuper
-{
-    id mockTracker = OCMPartialMock(self.trackingManager.tracker);
-    
-    WebViewControllerChild *child = [self childWebViewController];
-    [child.webViewInChild.delegate webViewDidStartLoad:child.webViewInChild];
-    
-    OCMVerify([mockTracker prolongMetric]);
-    [mockTracker stopMocking];
-}
 
 - (void)testWebViewDelegateSubclassedMethodIsForwardedToParent
 {
