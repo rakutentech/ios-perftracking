@@ -31,14 +31,15 @@
 @property (nonatomic) UIWebView             *webView;
 @end
 
-@interface WebViewControllerChild : WebViewController <UIWebViewDelegate>
+@interface WebViewControllerFirstChild : WebViewController <UIWebViewDelegate>
+@property (nonatomic) UIWebView             *webViewInChild;
+@end
+
+@interface WebViewControllerSecondChild : WebViewController <UIWebViewDelegate>
 @property (nonatomic) UIWebView             *webViewInChild;
 @end
 
 @implementation WebViewController
-- (void)webViewDidStartLoad:(UIWebView *)webView
-{
-}
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
@@ -49,12 +50,23 @@
 }
 @end
 
-@implementation WebViewControllerChild
-- (void)webViewDidStartLoad:(UIWebView *)webView
+@implementation WebViewControllerFirstChild
+- (void)webViewDidFinishLoad:(UIWebView *)webView
 {
-    [super webViewDidStartLoad:webView];
+    [super webViewDidFinishLoad:webView];
 }
 
+- (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
+{
+    // intentionally do not call super
+}
+
+- (void)methodNotImplementedInSuperclass
+{
+}
+@end
+
+@implementation WebViewControllerSecondChild
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
     // intentionally do not call super
@@ -140,11 +152,21 @@
 
 // MARK: Delegate inheritance tests
 
+- (void)testWebViewDelegateSubclassedMethodCallsSuper
+{
+    id mockTracker = OCMPartialMock(self.trackingManager.tracker);
+    WebViewControllerFirstChild *child = [self firstChildWebViewController];
+    [child.webViewInChild.delegate webViewDidFinishLoad:child.webViewInChild];
+
+    OCMVerify([mockTracker endMetric]);
+    [mockTracker stopMocking];
+}
+
 - (void)testWebViewDelegateSubclassedMethodIsForwardedToParent
 {
     id mockTracker = OCMPartialMock(self.trackingManager.tracker);
     
-    WebViewControllerChild *child = [self childWebViewController];
+    WebViewControllerSecondChild *child = [self secondChildWebViewController];
     [child.webViewInChild.delegate webViewDidFinishLoad:child.webViewInChild];
     
     OCMVerify([mockTracker endMetric]);
@@ -157,7 +179,7 @@
 {
     id mockTracker = OCMPartialMock(self.trackingManager.tracker);
     
-    WebViewControllerChild *child = [self childWebViewController];
+    WebViewControllerFirstChild *child = [self firstChildWebViewController];
     [child.webViewInChild.delegate webView:child.webViewInChild didFailLoadWithError:[NSError errorWithDomain:NSCocoaErrorDomain code:NSURLErrorNotConnectedToInternet userInfo:nil]];
     
     OCMVerify([mockTracker endMetric]);
@@ -177,16 +199,29 @@
 {
 }
 
-- (WebViewControllerChild *)childWebViewController
+- (WebViewControllerFirstChild *)firstChildWebViewController
 {
     WebViewController *parent = WebViewController.new;
     parent.webView = [UIWebView.alloc initWithFrame:CGRectMake(0, 0, 200, 300)];
     parent.webView.delegate = parent;
     
-    WebViewControllerChild *child = WebViewControllerChild.new;
+    WebViewControllerFirstChild *child = WebViewControllerFirstChild.new;
     child.webViewInChild = [UIWebView.alloc initWithFrame:CGRectMake(0, 0, 200, 300)];
     child.webViewInChild.delegate = child;
     
+    return child;
+}
+
+- (WebViewControllerSecondChild *)secondChildWebViewController
+{
+    WebViewController *parent = WebViewController.new;
+    parent.webView = [UIWebView.alloc initWithFrame:CGRectMake(0, 0, 200, 300)];
+    parent.webView.delegate = parent;
+
+    WebViewControllerSecondChild *child = WebViewControllerSecondChild.new;
+    child.webViewInChild = [UIWebView.alloc initWithFrame:CGRectMake(0, 0, 200, 300)];
+    child.webViewInChild.delegate = child;
+
     return child;
 }
 
