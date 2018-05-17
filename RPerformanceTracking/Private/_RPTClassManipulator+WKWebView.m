@@ -257,10 +257,6 @@ static void updateStatusCodeForWebView(NSInteger statusCode, WKWebView *webView)
         {
             ((void(*)(id, SEL, id, id, id))originalImp)(selfRef, selector, webView, navigationResponse, decisionHandler);
         }
-        else
-        {
-            decisionHandler(WKNavigationResponsePolicyAllow);
-        }
 
         if ([navigationResponse.response isKindOfClass:[NSHTTPURLResponse class]])
         {
