@@ -111,6 +111,18 @@
     }
 }
 
+- (void)updateURL:(NSURL *)url trackingIdentifier:(uint_fast64_t)trackingIdentifier
+{
+    if (trackingIdentifier)
+    {
+        _RPTMeasurement *measurement = [_ringBuffer measurementWithTrackingIdentifier:trackingIdentifier];
+        if (measurement.kind == _RPTURLMeasurementKind)
+        {
+            measurement.receiver = url.absoluteString;
+        }
+    }
+}
+
 - (_RPTMeasurement *)_startWithKind:(_RPTMeasurementKind)kind receiver:(NSObject *)receiver method:(nullable NSString *)method
 {
     return [self _startWithKind:kind
