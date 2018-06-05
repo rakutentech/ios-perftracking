@@ -162,10 +162,6 @@
     [mockTracker stopMocking];
 }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> Improve unit tests
 - (void)testWebViewDelegateSubclassedMethodIsForwardedToParent
 {
     id mockTracker = OCMPartialMock(self.trackingManager.tracker);

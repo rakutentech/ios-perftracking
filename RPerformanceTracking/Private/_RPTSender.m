@@ -5,6 +5,7 @@
 #import "_RPTEventWriter.h"
 #import "_RPTHelpers.h"
 #import "_RPTTrackingManager.h"
+#import "_RPTTracker.h"
 
 static const NSInteger      MIN_COUNT                   = 10;
 static const NSTimeInterval SLEEP_INTERVAL_SECONDS      = 10.0; // 10s
@@ -204,7 +205,9 @@ static const NSTimeInterval SLEEP_MAX_INTERVAL          = 1800; // 30 minutes
 
 - (void)writeMeasurement:(_RPTMeasurement *)measurement metricId:(NSString *)metricId
 {
-    if (measurement.endTime - measurement.startTime < MIN_TIME_MEASUREMENT) { return; }
+    _RPTTracker *tracker = _RPTTrackingManager.sharedInstance.tracker;
+    if ((!tracker.shouldTrackNonMetricMeasurements && !metricId.length) ||
+        (measurement.endTime - measurement.startTime < MIN_TIME_MEASUREMENT)) { return; }
 
     if (!_sentCount) { [_eventWriter begin]; }
 
