@@ -1,5 +1,16 @@
 ## Changelog
 
+### 1.2.0 (2018-06-12)
+
+- REM-25613 Send network request and webview HTTP status code to backend.
+- APTT-324 Send OS Version and Device Model to Config API. This enables the portal to offer better filtering.
+- APTT-430 Collect measurements outside a metric depending on a flag in the Config API response. This will reduce unnecessary mobile data usage.
+- REM-25625 Default to using swizzling to track UIWebViews.
+- APTT-260 Do not swizzle webview delegates when tracking is disabled.
+- REM-25979 Use GitHub hosted shared build config.
+- REM-25743 Fix device measurement invalid timestamp bug.
+- REM-25661 Fix bug where empty measurement url could occur.
+
 ### 1.1.0 (2018-02-08)
 - REM-25644 By default use swizzling to track UIWebViews instead of a custom NSURLProtocol.
 - REM-25242 Fix a bug with redirect handling by informing the custom protocol's client of redirect requests.
