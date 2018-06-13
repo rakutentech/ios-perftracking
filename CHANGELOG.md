@@ -1,6 +1,6 @@
 ## Changelog
 
-### 1.2.0 (2018-06-12)
+### 1.2.0 (2018-06-13)
 
 - REM-25613 Send network request and webview HTTP status code to backend.
 - APTT-324 Send OS Version and Device Model to Config API. This enables the portal to offer better filtering.
