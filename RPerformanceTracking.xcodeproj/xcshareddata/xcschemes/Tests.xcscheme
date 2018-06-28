@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "69194F711CED9D3400879A11"
-               BuildableName = "Tests.xctest"
-               BlueprintName = "Tests"
+               BuildableName = "UnitTests.xctest"
+               BlueprintName = "UnitTests"
                ReferencedContainer = "container:RPerformanceTracking.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -26,17 +26,16 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      language = ""
-      shouldUseLaunchSchemeArgsEnv = "YES"
-      codeCoverageEnabled = "YES">
+      codeCoverageEnabled = "YES"
+      shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
          <TestableReference
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "69194F711CED9D3400879A11"
-               BuildableName = "Tests.xctest"
-               BlueprintName = "Tests"
+               BuildableName = "UnitTests.xctest"
+               BlueprintName = "UnitTests"
                ReferencedContainer = "container:RPerformanceTracking.xcodeproj">
             </BuildableReference>
             <LocationScenarioReference
@@ -44,13 +43,23 @@
                referenceType = "1">
             </LocationScenarioReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "5AEA72D520E4605B00D0D4E0"
+               BuildableName = "FunctionalTests.xctest"
+               BlueprintName = "FunctionalTests"
+               ReferencedContainer = "container:RPerformanceTracking.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "69194F711CED9D3400879A11"
-            BuildableName = "Tests.xctest"
-            BlueprintName = "Tests"
+            BuildableName = "UnitTests.xctest"
+            BlueprintName = "UnitTests"
             ReferencedContainer = "container:RPerformanceTracking.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -76,7 +85,6 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      language = ""
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"
@@ -87,8 +95,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "69194F711CED9D3400879A11"
-            BuildableName = "Tests.xctest"
-            BlueprintName = "Tests"
+            BuildableName = "UnitTests.xctest"
+            BlueprintName = "UnitTests"
             ReferencedContainer = "container:RPerformanceTracking.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -105,8 +113,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "69194F711CED9D3400879A11"
-            BuildableName = "Tests.xctest"
-            BlueprintName = "Tests"
+            BuildableName = "UnitTests.xctest"
+            BlueprintName = "UnitTests"
             ReferencedContainer = "container:RPerformanceTracking.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

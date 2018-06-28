@@ -3,15 +3,16 @@ source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '8.0'
 use_frameworks!
 
-target 'Tests' do
-  pod 'Kiwi',            '~> 3.0.0'
-  pod 'Underscore.m',    '~> 0.3.0'
-  pod 'OCMock',          '~> 3.2'
-  pod 'OHHTTPStubs',     '~> 4.7.0'
-  pod 'OHHTTPStubs/HTTPMessage'
+pod 'Kiwi',            '~> 3.0.0'
+pod 'Underscore.m',    '~> 0.3.0'
+pod 'OCMock',          '~> 3.2'
+pod 'OHHTTPStubs',     '~> 4.7.0'
+pod 'OHHTTPStubs/HTTPMessage'
+pod 'RPerformanceTracking', :path => './RPerformanceTracking.podspec'
 
-  pod 'RPerformanceTracking', :path => './RPerformanceTracking.podspec'
-end
+target 'UnitTests'
+target 'FunctionalTests'
+
 
 # For CI: This post install hook enables more warnings for the module's target
 post_install do |installer|
