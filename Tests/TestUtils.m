@@ -88,3 +88,15 @@ _RPTEnvironment* mkEnvironmentStub(NSDictionary* params) {
     
     return environment;
 }
+
+void mkFillBuffer(_RPTRingBuffer *buffer, NSInteger fromIndex, NSInteger toIndex)
+{
+    _RPTMeasurement *measurement = nil;
+    for (NSInteger i = 0; i < toIndex; i++) {
+        measurement = [buffer nextMeasurement];
+        if (i < fromIndex-1) {
+            [measurement clear];
+        }
+    }
+}
+
