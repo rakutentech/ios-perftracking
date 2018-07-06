@@ -10,6 +10,6 @@ _RPTRingBuffer* mkRingBufferStub(NSDictionary* params);
 _RPTMetric* mkMetricStub(NSDictionary* params);
 _RPTConfiguration* mkConfigurationStub(NSDictionary* params);
 _RPTEnvironment* mkEnvironmentStub(NSDictionary* params);
-
+void mkFillBuffer(_RPTRingBuffer *buffer, NSInteger fromIndex, NSInteger toIndex);
 #endif
 

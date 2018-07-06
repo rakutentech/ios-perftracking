@@ -10,6 +10,7 @@
 		16932AE92080508E00C91400 /* RPTEnvironmentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 16932AE82080508E00C91400 /* RPTEnvironmentTests.m */; };
 		1696C3CA207714D700288BB5 /* RPTConfigurationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1696C3C9207714D700288BB5 /* RPTConfigurationTests.m */; };
 		1696C3CD2077157200288BB5 /* TestUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 1696C3CC2077157200288BB5 /* TestUtils.m */; };
+		5A57327020EB56710050B152 /* RingBufferTestsKiwi.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A57326F20EB56710050B152 /* RingBufferTestsKiwi.m */; };
 		5A8CF0CD1E9C76A1006E7544 /* UIControlTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A8CF0CC1E9C76A1006E7544 /* UIControlTests.m */; };
 		5A8CF0D61E9CAECD006E7544 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A8CF0D51E9CAECD006E7544 /* main.m */; };
 		5A8CF0D91E9CAECD006E7544 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A8CF0D81E9CAECD006E7544 /* AppDelegate.m */; };
@@ -61,6 +62,7 @@
 		1696C3C9207714D700288BB5 /* RPTConfigurationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RPTConfigurationTests.m; sourceTree = "<group>"; };
 		1696C3CB2077157200288BB5 /* TestUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestUtils.h; sourceTree = "<group>"; };
 		1696C3CC2077157200288BB5 /* TestUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestUtils.m; sourceTree = "<group>"; };
+		5A57326F20EB56710050B152 /* RingBufferTestsKiwi.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RingBufferTestsKiwi.m; sourceTree = "<group>"; };
 		5A8CF0CC1E9C76A1006E7544 /* UIControlTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIControlTests.m; sourceTree = "<group>"; };
 		5A8CF0D21E9CAECD006E7544 /* HostApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HostApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5A8CF0D51E9CAECD006E7544 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -179,6 +181,7 @@
 				1696C3CB2077157200288BB5 /* TestUtils.h */,
 				1696C3CC2077157200288BB5 /* TestUtils.m */,
 				16932AE82080508E00C91400 /* RPTEnvironmentTests.m */,
+				5A57326F20EB56710050B152 /* RingBufferTestsKiwi.m */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -350,6 +353,7 @@
 				C80E064C1EA876FF00FD22D2 /* TrackingManagerTests.m in Sources */,
 				5A8CF0CD1E9C76A1006E7544 /* UIControlTests.m in Sources */,
 				6D64251D1EB8611C00755DA3 /* ConfigTests.m in Sources */,
+				5A57327020EB56710050B152 /* RingBufferTestsKiwi.m in Sources */,
 				16932AE92080508E00C91400 /* RPTEnvironmentTests.m in Sources */,
 				5AB9C6641E8366300066C5CB /* EventWriterTests.m in Sources */,
 				1696C3CA207714D700288BB5 /* RPTConfigurationTests.m in Sources */,
