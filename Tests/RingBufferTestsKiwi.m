@@ -107,7 +107,7 @@ describe(@"RingBuffer", ^{
             [[measurement should] beNonNil];
         });
 
-        it(@"should return a non-nil measurement having expected tracking identifier when the buffer is not full", ^{
+        it(@"should return a non-nil measurement with tracking identifier set to 11 when the buffer is not full and the tracking identifiers up to 10 have been used", ^{
             _RPTRingBuffer *buffer = [[_RPTRingBuffer alloc] initWithSize:10];
             mkFillBuffer(buffer, 5, 10);
 
