@@ -170,14 +170,11 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
 
 - (void)updateConfiguration
 {
-    NSBundle *thisBundle    = [NSBundle bundleForClass:self.class];
-    NSString *thisVersion   = [thisBundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
-    
     _RPTEnvironment* environment = [_RPTEnvironment new];
     
     NSString *relayAppID    = environment.relayAppId;
     NSString *appVersion    = environment.appVersion;
-    
+    NSString *sdkVersion    = environment.sdkVersion;
     NSString *country       = environment.deviceCountry;
     
     NSString *path = [NSString stringWithFormat:@"/platform/ios/"];
@@ -210,7 +207,7 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
     }
     
     NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
-    components.query = [NSString stringWithFormat:@"sdk=%@&country=%@&osVersion=%@&device=%@", thisVersion, country, environment.osVersion, environment.modelIdentifier];
+    components.query = [NSString stringWithFormat:@"sdk=%@&country=%@&osVersion=%@&device=%@", sdkVersion, country, environment.osVersion, environment.modelIdentifier];
 
     NSURL* configURL = components.URL;
     NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration];
@@ -250,7 +247,7 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
 
           // If the activation ration is set to 0 on the portal, the server won't send anything, so the config will be nil.
           // It means that we will disable the method swizzling if the config is nil.
-          _disableSwizzling = invalidConfig;
+          self.disableSwizzling = invalidConfig;
 
           BOOL shouldDisableTracking = [self disableTracking];
           if (shouldDisableTracking || invalidConfig)

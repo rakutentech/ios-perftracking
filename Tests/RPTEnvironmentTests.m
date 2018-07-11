@@ -40,6 +40,12 @@ describe(@"RPTEnvironment", ^{
             [[env.osVersion should] equal:@"100500"];
         });
         
+        it(@"should set SDK version to podspec version", ^{
+            _RPTEnvironment* env = [_RPTEnvironment new];
+            
+            [[env.sdkVersion should] equal:RPTSDKVersion];
+        });
+        
         it(@"should set relay app id as relay app id from info.plist", ^{
             [[NSBundle mainBundle] stub:@selector(objectForInfoDictionaryKey:) andReturn:@"relay_app_id" withArguments:@"RPTRelayAppID"];
             
