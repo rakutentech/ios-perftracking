@@ -14,6 +14,7 @@ Pod::Spec.new do |s|
     'CLANG_MODULES_AUTOLINK'                                => 'YES',
     'CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES' => 'YES',
     'GCC_C_LANGUAGE_STANDARD'                               => 'gnu11',
+    'OTHER_CFLAGS'                                          => "'-DRPT_SDK_VERSION=#{s.version.to_s}'"
   }
   s.user_target_xcconfig = {
     'CLANG_ENABLE_MODULES'                                  => 'YES',

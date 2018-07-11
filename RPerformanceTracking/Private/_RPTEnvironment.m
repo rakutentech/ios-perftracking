@@ -2,6 +2,15 @@
 
 #import "_RPTEnvironment.h"
 
+#define RPT_EXPAND_AND_QUOTE0(s) #s
+#define RPT_EXPAND_AND_QUOTE(s) RPT_EXPAND_AND_QUOTE0(s)
+
+#ifndef RPT_SDK_VERSION
+#define RPT_SDK_VERSION 0.0.0
+#endif
+
+NSString* const RPTSDKVersion = @ RPT_EXPAND_AND_QUOTE(RPT_SDK_VERSION);
+
 @interface _RPTEnvironment(Private)
 
 -(NSString*)determineModelIdentifier;
@@ -18,6 +27,7 @@
         
         _appIdentifier = bundle.bundleIdentifier;
         _appVersion = [bundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+        _sdkVersion = RPTSDKVersion;
         
         _modelIdentifier = [self determineModelIdentifier];
         _osVersion = [device.systemVersion copy];
@@ -55,6 +65,5 @@
     
     return nil;
 }
-
 
 @end

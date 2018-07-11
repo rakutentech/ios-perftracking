@@ -1,21 +1,24 @@
-#import <Foundation/Foundation.h>
+#import <RPerformanceTracking/RPTDefines.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface _RPTEnvironment : NSObject
+RPT_EXPORT NSString* const RPTSDKVersion;
 
-@property (atomic, readonly, nullable) NSString* appIdentifier;
-@property (atomic, readonly, nullable) NSString* appVersion;
+RPT_EXPORT @interface _RPTEnvironment : NSObject
 
-@property (atomic, readonly) NSString* modelIdentifier;
-@property (atomic, readonly) NSString* osVersion;
+@property (nonatomic, readonly, copy, nullable) NSString* appIdentifier;
+@property (nonatomic, readonly, copy, nullable) NSString* appVersion;
+@property (nonatomic, readonly, copy, nullable) NSString* sdkVersion;
 
-@property (atomic, readonly, nullable) NSString* relayAppId;
+@property (nonatomic, copy, readonly) NSString* modelIdentifier;
+@property (nonatomic, copy, readonly) NSString* osVersion;
 
-@property (atomic, readonly, nullable) NSURL* performanceTrackingBaseURL;
-@property (atomic, readonly, nullable) NSString* performanceTrackingSubscriptionKey;
+@property (nonatomic, readonly, copy, nullable) NSString* relayAppId;
 
-@property(atomic, readonly, nullable) NSString* deviceCountry;
+@property (nonatomic, readonly, copy, nullable) NSURL* performanceTrackingBaseURL;
+@property (nonatomic, readonly, copy, nullable) NSString* performanceTrackingSubscriptionKey;
+
+@property (nonatomic, readonly, copy, nullable) NSString* deviceCountry;
 
 @end
 
