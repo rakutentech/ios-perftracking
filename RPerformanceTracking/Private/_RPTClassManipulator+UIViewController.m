@@ -8,12 +8,7 @@ static const void *_RPT_UIVIEWCONTROLLER_TRACKINGIDENTIFIER = &_RPT_UIVIEWCONTRO
 
 @implementation _RPTClassManipulator (UIViewController)
 
-+ (void)load
-{
-    [self _swizzleUIViewController];
-}
-
-+ (void)_swizzleUIViewController
++ (void)rpt_swizzleUIViewController
 {
     id loadView_swizzle_blockImp = ^void (id<NSObject> selfRef) {
         RPTLogVerbose(@"UIViewController loadView_swizzle_blockImp called");

@@ -1,6 +1,8 @@
 @import XCTest;
 #import <OCMock/OCMock.h>
+#import <Kiwi/Kiwi.h>
 #import "_RPTClassManipulator.h"
+#import "_RPTClassManipulator+NSURLSessionTask.h"
 
 @interface _RPTClassManipulator ()
 + (void)_removeSwizzleSelector:(SEL)sel onClass:(Class)recipient types:(const char *)types;
@@ -261,3 +263,35 @@
 }
 #pragma clang diagnostic pop
 @end
+
+SPEC_BEGIN(_RPTClassManipulatorTests)
+describe(@"load", ^{
+    it(@"should set up swizzles when RPTDeferSwizzlingUntilActivateResponseReceived flag is false", ^{
+        [[NSBundle.mainBundle stubAndReturn:@"NO"] objectForInfoDictionaryKey:@"RPTDeferSwizzlingUntilActivateResponseReceived"];
+        
+        [[_RPTClassManipulator should] receive:NSSelectorFromString(@"setupSwizzles")];
+        
+        [_RPTClassManipulator load];
+    });
+    
+    it(@"should not set up swizzles when RPTDeferSwizzlingUntilActivateResponseReceived flag is true", ^{
+        [[NSBundle.mainBundle stubAndReturn:@"YES"] objectForInfoDictionaryKey:@"RPTDeferSwizzlingUntilActivateResponseReceived"];
+        
+        [[_RPTClassManipulator shouldNot] receive:NSSelectorFromString(@"setupSwizzles")];
+        
+        [_RPTClassManipulator load];
+    });
+});
+describe(@"setupDeferredSwizzles", ^{
+    it(@"should set up swizzles when called after deferral due to RPTDeferSwizzlingUntilActivateResponseReceived flag being set to true", ^{
+        [[NSBundle.mainBundle stubAndReturn:@"YES"] objectForInfoDictionaryKey:@"RPTDeferSwizzlingUntilActivateResponseReceived"];
+        [_RPTClassManipulator load];
+        
+        [[_RPTClassManipulator should] receive:NSSelectorFromString(@"setupSwizzles")];
+        
+        [_RPTClassManipulator setupDeferredSwizzles];
+    });
+});
+SPEC_END
+
+

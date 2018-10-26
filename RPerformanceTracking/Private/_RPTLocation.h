@@ -2,6 +2,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+RPT_EXPORT @interface _RPTLocationFetcher : NSObject
+
+/*
+ * Fetch location from server
+ */
++ (void)fetch;
+
+@end
+
 RPT_EXPORT @interface _RPTLocation : NSObject
 
 /*

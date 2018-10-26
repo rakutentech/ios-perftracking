@@ -1,5 +1,13 @@
 #import <objc/runtime.h>
 #import "_RPTClassManipulator.h"
+#import "_RPTClassManipulator+NSURLSessionTask.h"
+#import "_RPTClassManipulator+UICollectionViewCell.h"
+#import "_RPTClassManipulator+UIControl.h"
+#import "_RPTClassManipulator+UITableViewCell.h"
+#import "_RPTClassManipulator+UIViewController.h"
+#import "_RPTClassManipulator+UIWebView.h"
+#import "_RPTClassManipulator+WKWebView.h"
+#import "_RPTHelpers.h"
 
 @interface SwizzleDetail : NSObject
 @property (nonatomic, readonly, copy) NSString *className;
@@ -31,10 +39,13 @@ typedef NSMutableDictionary<NSString *, SwizzleDetail *> swizzleMappingDictionar
 
 @interface _RPTClassManipulator ()
 @property (class, nonatomic) swizzleMappingDictionary *swizzleMap;
+@property (class, nonatomic) NSValue *deferredSwizzlerIMP;
 @end
 
 @implementation _RPTClassManipulator
+
 static swizzleMappingDictionary *_swizzleMap = nil;
+static NSValue *_deferredSwizzlerIMP = nil;
 
 + (swizzleMappingDictionary *)swizzleMap
 {
@@ -46,12 +57,61 @@ static swizzleMappingDictionary *_swizzleMap = nil;
     _swizzleMap = newSwizzleMap;
 }
 
-+ (void)load
++ (NSValue *)deferredSwizzlerIMP
 {
+    return _deferredSwizzlerIMP;
+}
+
++ (void)setDeferredSwizzlerIMP:(NSValue *)newDeferredSwizzlerIMP
+{
+    _deferredSwizzlerIMP = newDeferredSwizzlerIMP;
+}
+
++ (void)load
+{    
     if (!self.swizzleMap)
     {
         _swizzleMap = NSMutableDictionary.new;
     }
+    
+    if (boolForInfoPlistKey(@"RPTDeferSwizzlingUntilActivateResponseReceived"))
+    {
+        RPTLog(@"Defer swizzling setup until Config API response is received and tracking enabled");
+        
+        id setupSwizzlesBlock = ^ {
+            [self setupSwizzles];
+        };
+        self.deferredSwizzlerIMP = [NSValue valueWithPointer:imp_implementationWithBlock(setupSwizzlesBlock)];
+    }
+    else
+    {
+        RPTLog(@"Setup swizzling at class load");
+        [self setupSwizzles];
+    }
+}
+
++ (void)setupSwizzles
+{
+    // swizzling should only be performed once per session
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        [_RPTClassManipulator rpt_swizzleTaskSetState];
+        [_RPTClassManipulator rpt_swizzleUICollectionViewCell];
+        [_RPTClassManipulator rpt_swizzleUIControl];
+        [_RPTClassManipulator rpt_swizzleUITableViewCell];
+        [_RPTClassManipulator rpt_swizzleUIViewController];
+        [_RPTClassManipulator rpt_swizzleUIWebView];
+        [_RPTClassManipulator rpt_swizzleWKWebView];
+    });
+}
+
++ (void)setupDeferredSwizzles
+{
+    IMP imp = self.deferredSwizzlerIMP.pointerValue;
+    if (!imp) { return; }
+    
+    void (^swizzleSetupBlock)(void) = imp_getBlock(imp);
+    if (swizzleSetupBlock) { swizzleSetupBlock(); }
 }
 
 + (Class)furthestAncestorOfRecipient:(Class)recipient implementingSelector:(SEL)sel

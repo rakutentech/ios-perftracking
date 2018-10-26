@@ -1,5 +1,6 @@
 #import "_RPTConfiguration.h"
 #import "_RPTHelpers.h"
+#import "_RPTEnvironment.h"
 
 static NSString *const KEY = @"com.rakuten.performancetracking";
 
@@ -32,8 +33,8 @@ static NSString *const KEY = @"com.rakuten.performancetracking";
         NSNumber* enableNonMetricMeasurement = values[@"enableNonMetricMeasurement"];
         BOOL shouldTrackNonMetricMeasurements = _RPTNumberToBool(enableNonMetricMeasurement, YES);
 
-        BOOL shouldSendDataToPerformanceTracking;
-        BOOL shouldSendDataToRAT;
+        BOOL shouldSendDataToPerformanceTracking = YES;
+        BOOL shouldSendDataToRAT = NO;
         NSDictionary *modules = values[@"modules"];
         if ([modules isKindOfClass:NSDictionary.class] && modules.count) {
             NSNumber* enablePerformanceTracking = modules[@"enablePerformanceTracking"];
@@ -88,4 +89,60 @@ static NSString *const KEY = @"com.rakuten.performancetracking";
 {
     if (data.length) [NSUserDefaults.standardUserDefaults setObject:data forKey:KEY];
 }
+@end
+
+@implementation _RPTConfigurationFetcher
+
++ (void)fetchWithCompletionHandler:(void (^)(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error))completionHandler
+{
+    _RPTEnvironment* environment = [_RPTEnvironment new];
+    
+    NSString *relayAppID    = environment.relayAppId;
+    NSString *appVersion    = environment.appVersion;
+    NSString *sdkVersion    = environment.sdkVersion;
+    NSString *country       = environment.deviceCountry;
+    
+    NSString *path = [NSString stringWithFormat:@"/platform/ios/"];
+    if (relayAppID.length){ path = [path stringByAppendingString:[NSString stringWithFormat:@"app/%@/", relayAppID]]; }
+#if DEBUG
+    NSAssert(relayAppID.length, @"Your application's Info.plist must contain a key 'RPTRelayAppID' set to the relay Portal application ID");
+#endif
+    
+    path = [path stringByAppendingString:[NSString stringWithFormat:@"version/%@/", appVersion]];
+    
+    NSURLSessionConfiguration *sessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration;
+    
+    NSURL *base = environment.performanceTrackingBaseURL;
+#if DEBUG
+    NSAssert(base, @"Your application's Info.plist must contain a key 'RPTConfigAPIEndpoint' set to the endpoint URL of your Config API");
+#endif
+    
+    NSString *subscriptionKey = environment.performanceTrackingSubscriptionKey;
+    if (subscriptionKey.length) { sessionConfiguration.HTTPAdditionalHeaders = @{@"Ocp-Apim-Subscription-Key":subscriptionKey}; }
+#if DEBUG
+    NSAssert(subscriptionKey.length, @"Your application's Info.plist file must contain a key 'RPTSubscriptionKey' which should be set to your 'Ocp-Apim-Subscription-Key' from the API Portal");
+#endif
+    
+    NSURL *url = [base URLByAppendingPathComponent:path];
+    
+    if (!url || !base || !subscriptionKey.length || !relayAppID.length)
+    {
+        // Fail safely in a release build if the info.plist doesn't have the expected key-values
+        return;
+    }
+    
+    NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
+    components.query = [NSString stringWithFormat:@"sdk=%@&country=%@&osVersion=%@&device=%@", sdkVersion, country, environment.osVersion, environment.modelIdentifier];
+    
+    NSURL* configURL = components.URL;
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration];
+    [[session dataTaskWithURL:configURL completionHandler:^(NSData *data, NSURLResponse *response, NSError * error)
+      {
+          if (completionHandler)
+          {
+              completionHandler(data, response, error);
+          }
+      }] resume];
+}
+
 @end

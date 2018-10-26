@@ -13,42 +13,6 @@
 #import <Underscore_m/Underscore.h>
 #import "TestUtils.h"
 
-SPEC_BEGIN(RPTTrackingManagerTests)
-
-describe(@"RPTTRackingManager", ^{
-    describe(@"init", ^{
-        describe(@"config request", ^{
-            __block NSURLSession* configURLSession;
-            beforeEach(^{
-                configURLSession = [NSURLSession nullMock];
-                [NSURLSession stub:@selector(sessionWithConfiguration:) andReturn:configURLSession];
-            });
-
-            it(@"should append to config request os version as QS parameter", ^{
-                KWCaptureSpy *spy = [configURLSession captureArgument:@selector(dataTaskWithURL:completionHandler:) atIndex:0];
-                [_RPTEnvironment stub:@selector(new) andReturn:mkEnvironmentStub(@{@"osVersion": @"100500"})];
-                
-                [_RPTTrackingManager new];
-                NSURL* configURL = spy.argument;
-                
-                [[configURL.query should] containString:@"osVersion=100500"];
-            });
-            
-            it(@"should append to config request device model name as QS parameter", ^{
-                KWCaptureSpy *spy = [configURLSession captureArgument:@selector(dataTaskWithURL:completionHandler:) atIndex:0];
-                [_RPTEnvironment stub:@selector(new) andReturn:mkEnvironmentStub(@{@"modelIdentifier": @"ios_device"})];
-                
-                [_RPTTrackingManager new];
-                NSURL* configURL = spy.argument;
-                
-                [[configURL.query should] containString:@"device=ios_device"];
-            });
-        });
-    });
-});
-
-SPEC_END
-
 @interface _RPTTrackingManager()
 @property (nonatomic) NSTimeInterval         refreshConfigInterval;
 @property (nonatomic, readwrite) _RPTSender *sender;

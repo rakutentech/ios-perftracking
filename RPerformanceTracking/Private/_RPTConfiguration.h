@@ -2,6 +2,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+RPT_EXPORT @interface _RPTConfigurationFetcher : NSObject
+
+/*
+ * Fetch configuration from server
+ */
++ (void)fetchWithCompletionHandler:(void (^)(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error))completionHandler;
+
+@end
+
 RPT_EXPORT @interface _RPTConfiguration : NSObject
 /*
  * URL to send tracking data to.

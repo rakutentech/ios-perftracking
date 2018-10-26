@@ -6,12 +6,7 @@
 
 @implementation _RPTClassManipulator (UIControl)
 
-+ (void)load
-{
-    [self _swizzleUIControl];
-}
-
-+ (void)_swizzleUIControl
++ (void)rpt_swizzleUIControl
 {
     id sendAction_swizzle_blockImp = ^void (UIControl *selfRef, SEL action, id target, UIEvent *event) {
         RPTLogVerbose(@"UIControl sendAction_swizzle_blockImp called");
