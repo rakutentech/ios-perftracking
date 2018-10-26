@@ -407,31 +407,4 @@ static const NSUInteger     TRACKING_DATA_LIMIT  = 100u;
     }    
 }
 
-- (void)testThatNSURLProtocolTrackingIsDisabledWhenPlistEnableKeyIsNotPresent
-{
-    // plist does not contain key so no need to mock bundle
-    _RPTTrackingManager *trackingManager = [_RPTTrackingManager.alloc init];
-    XCTAssertFalse(trackingManager.enableProtocolWebviewTracking);
-}
-
-- (void)testThatNSURLProtocolTrackingIsDisabledWhenPlistEnableKeyIsFalse
-{
-    id mockBundle = OCMPartialMock([NSBundle mainBundle]);
-    OCMStub([mockBundle objectForInfoDictionaryKey:@"RPTEnableProtocolWebviewTracking"]).andReturn(@NO);
-    
-    _RPTTrackingManager *trackingManager = [_RPTTrackingManager.alloc init];
-    XCTAssertFalse(trackingManager.enableProtocolWebviewTracking);
-    [mockBundle stopMocking];
-}
-
-- (void)testThatNSURLProtocolTrackingIsEnabledWhenPlistEnableKeyIsTrue
-{
-    id mockBundle = OCMPartialMock([NSBundle mainBundle]);
-    OCMStub([mockBundle objectForInfoDictionaryKey:@"RPTEnableProtocolWebviewTracking"]).andReturn(@YES);
-    
-    _RPTTrackingManager *trackingManager = [_RPTTrackingManager.alloc init];
-    XCTAssertTrue(trackingManager.enableProtocolWebviewTracking);
-    [mockBundle stopMocking];
-}
-
 @end
