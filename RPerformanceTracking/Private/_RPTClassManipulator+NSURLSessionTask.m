@@ -53,13 +53,14 @@ void _handleChangedState(NSURLSessionTask *task, NSURLSessionTaskState state)
         uint_fast64_t trackingIdentifier = [objc_getAssociatedObject(task, @selector(_rpt_sessionTask_trackingIdentifier)) unsignedLongLongValue];
         if (trackingIdentifier)
         {
+            _RPTTracker *tracker = _RPTTrackingManager.sharedInstance.tracker;
             NSInteger statusCode = 0;
             if ([task.response isKindOfClass:[NSHTTPURLResponse class]])
             {
                 NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)task.response;
                 statusCode = httpResponse.statusCode;
+                [tracker sendResponseHeader:httpResponse.allHeaderFields.copy trackingIdentifier:trackingIdentifier];
             }
-            _RPTTracker *tracker = _RPTTrackingManager.sharedInstance.tracker;
             [tracker updateStatusCode:statusCode trackingIdentifier:trackingIdentifier];
             [tracker end:trackingIdentifier];
         }
