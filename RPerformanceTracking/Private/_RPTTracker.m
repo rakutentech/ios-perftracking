@@ -3,6 +3,7 @@
 #import "_RPTMeasurement.h"
 #import "_RPTRingBuffer.h"
 #import "_RPTTrackingManager.h"
+#import "_RPTEventBroadcast.h"
 
 @interface _RPTTracker ()
 @property (atomic) _RPTMetric *currentMetric;
@@ -121,6 +122,30 @@
             measurement.receiver = url.absoluteString;
         }
     }
+}
+
+- (void)sendResponseHeaders:(NSDictionary *)responseHeaders trackingIdentifier:(uint_fast64_t)trackingIdentifier
+{
+    _RPTMeasurement *measurement = [_ringBuffer measurementWithTrackingIdentifier:trackingIdentifier];
+    NSString *sourceURL = (NSString *)measurement.receiver;
+    if (!sourceURL.length) {
+        return;
+    }
+    NSTimeInterval startTime = measurement.startTime * 1000;
+    NSTimeInterval responseEnd = [NSDate.date timeIntervalSince1970] * 1000;
+    NSTimeInterval duration = responseEnd - startTime;
+    NSString *cdn = responseHeaders[@"x-cdn-served-from"];
+    NSMutableDictionary *dataEntry = [NSMutableDictionary dictionary];
+    dataEntry[@"startTime"] = @(startTime);
+    dataEntry[@"responseEnd"] = @(responseEnd);
+    dataEntry[@"duration"] = @(duration);
+    dataEntry[@"name"] = sourceURL;
+    if (cdn.length) {
+        dataEntry[@"cdn"] = cdn;
+    }
+    NSDictionary *perfData = @{@"perfdata": @{@"type": @"resource",
+                                              @"entries": @[dataEntry.copy]}};
+    [_RPTEventBroadcast sendEventName:@"perf" topLevelDataObject:perfData];
 }
 
 - (_RPTMeasurement *)_startWithKind:(_RPTMeasurementKind)kind receiver:(NSObject *)receiver method:(nullable NSString *)method
