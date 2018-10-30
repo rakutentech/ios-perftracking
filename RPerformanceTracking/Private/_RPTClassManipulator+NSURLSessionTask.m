@@ -59,7 +59,7 @@ void _handleChangedState(NSURLSessionTask *task, NSURLSessionTaskState state)
             {
                 NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)task.response;
                 statusCode = httpResponse.statusCode;
-                [tracker sendResponseHeader:httpResponse.allHeaderFields.copy trackingIdentifier:trackingIdentifier];
+                [tracker sendResponseHeaders:httpResponse.allHeaderFields.copy trackingIdentifier:trackingIdentifier];
             }
             [tracker updateStatusCode:statusCode trackingIdentifier:trackingIdentifier];
             [tracker end:trackingIdentifier];

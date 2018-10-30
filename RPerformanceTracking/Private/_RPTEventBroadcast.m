@@ -9,7 +9,7 @@
     NSMutableDictionary *parameters = [NSMutableDictionary dictionary];
     parameters[@"eventName"] = name;
 
-    if ([object isKindOfClass:NSDictionary.class]) parameters[@"topLevelEventData"] = object.copy;
+    if ([object isKindOfClass:NSDictionary.class]) parameters[@"topLevelObject"] = object.copy;
 
     [NSNotificationCenter.defaultCenter postNotificationName:@"com.rakuten.esd.sdk.events.custom" object:parameters];
 }

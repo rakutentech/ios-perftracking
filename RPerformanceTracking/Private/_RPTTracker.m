@@ -124,23 +124,25 @@
     }
 }
 
-- (void)sendResponseHeader:(NSDictionary *)responseHeader trackingIdentifier:(uint_fast64_t)trackingIdentifier
+- (void)sendResponseHeaders:(NSDictionary *)responseHeaders trackingIdentifier:(uint_fast64_t)trackingIdentifier
 {
-    NSString *sourceURL = responseHeader[@"link"];
+    _RPTMeasurement *measurement = [_ringBuffer measurementWithTrackingIdentifier:trackingIdentifier];
+    NSString *sourceURL = (NSString *)measurement.receiver;
     if (!sourceURL.length) {
         return;
     }
-    _RPTMeasurement *measurement = [_ringBuffer measurementWithTrackingIdentifier:trackingIdentifier];
     NSTimeInterval startTime = measurement.startTime * 1000;
     NSTimeInterval responseEnd = [NSDate.date timeIntervalSince1970] * 1000;
     NSTimeInterval duration = responseEnd - startTime;
-    NSString *cdn = responseHeader[@"X-CDN-Served-From"];
+    NSString *cdn = responseHeaders[@"x-cdn-served-from"];
     NSMutableDictionary *dataEntry = [NSMutableDictionary dictionary];
     dataEntry[@"startTime"] = @(startTime);
     dataEntry[@"responseEnd"] = @(responseEnd);
     dataEntry[@"duration"] = @(duration);
     dataEntry[@"name"] = sourceURL;
-    dataEntry[@"cdn"] = cdn;
+    if (cdn.length) {
+        dataEntry[@"cdn"] = cdn;
+    }
     NSDictionary *perfData = @{@"perfdata": @{@"type": @"resource",
                                               @"entries": @[dataEntry.copy]}};
     [_RPTEventBroadcast sendEventName:@"perf" topLevelDataObject:perfData];
