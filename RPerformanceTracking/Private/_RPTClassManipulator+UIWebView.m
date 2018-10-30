@@ -1,6 +1,5 @@
 #import "_RPTTrackingManager.h"
 #import "_RPTClassManipulator+UIWebView.h"
-#import "_RPTNSURLProtocol.h"
 #import <objc/runtime.h>
 #import "_RPTTracker.h"
 #import "_RPTHelpers.h"
@@ -14,8 +13,8 @@ static void startTrackingWithUIWebViewWithRequest(UIWebView *webView, NSURLReque
     _RPTTrackingManager *manager = [_RPTTrackingManager sharedInstance];
     [manager.tracker prolongMetric];
 
-    // bail out if there's no URL or if tracking is already done by _RPTNSURLProtocol
-    if (!request || manager.enableProtocolWebviewTracking) { return; }
+    // bail out if there's no URL
+    if (!request.URL) { return; }
 
     uint_fast64_t trackingIdentifier = [objc_getAssociatedObject(webView, _RPT_UIWEBVIEW_TRACKINGIDENTIFIER) unsignedLongLongValue];
 
@@ -57,12 +56,6 @@ static void endTrackingWithUIWebView(UIWebView *webView)
 
 + (void)load
 {
-    if([_RPTTrackingManager sharedInstance].enableProtocolWebviewTracking)
-    {
-        [NSURLProtocol registerClass:[_RPTNSURLProtocol class]];
-        return;
-    }
-
     [self _swizzleUIWebView];
 }
 

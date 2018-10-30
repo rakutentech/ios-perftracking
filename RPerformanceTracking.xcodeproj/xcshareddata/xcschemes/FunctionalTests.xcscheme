@@ -16,7 +16,7 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "5A96FB7020E228EE00F731FC"
+               BlueprintIdentifier = "5AEA72D520E4605B00D0D4E0"
                BuildableName = "FunctionalTests.xctest"
                BlueprintName = "FunctionalTests"
                ReferencedContainer = "container:RPerformanceTracking.xcodeproj">
