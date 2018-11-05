@@ -5,6 +5,7 @@
 #import "_RPTRingBuffer.h"
 #import "_RPTMetric.h"
 #import "_RPTMeasurement.h"
+#import "_RPTEventBroadcast.h"
 
 #import <Kiwi/Kiwi.h>
 #import <Underscore_m/Underscore.h>
@@ -116,6 +117,118 @@ describe(@"RPTTracker", ^{
             uint_fast64_t measurementId = [tracker addDevice:@"device_id" start:0 end:1];
             
             [[theValue(measurementId) shouldNot] equal:theValue(0)];
+        });
+    });
+
+    describe(@"sendResponseHeaders", ^{
+        context(@"sourceURL", ^{
+            it(@"should not call 'sendEventName:topLevelDataObject:' method of _RPTEventBroadcast' class when the sourceURL'host is empty", ^{
+                _RPTMeasurement *measurement = [[_RPTMeasurement alloc] init];
+                measurement.trackingIdentifier = 100;
+                measurement.receiver = @"";
+                _RPTRingBuffer* buffer = [_RPTRingBuffer nullMock];
+                [buffer stub:@selector(measurementWithTrackingIdentifier:) andReturn:measurement];
+                _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:buffer currentMetric:nil];
+
+                [[_RPTEventBroadcast shouldNot] receive:@selector(sendEventName:topLevelDataObject:)];
+
+                [tracker sendResponseHeaders:@{@"foo": @"bar"} trackingIdentifier:100];
+            });
+
+            it(@"should not call 'sendEventName:topLevelDataObject:' method of _RPTEventBroadcast' class when the sourceURL'host is blacklisted", ^{
+                _RPTMeasurement *measurement = [[_RPTMeasurement alloc] init];
+                measurement.trackingIdentifier = 100;
+                measurement.receiver = @"https://rat.rakuten.co.jp/report";
+                _RPTRingBuffer* buffer = [_RPTRingBuffer nullMock];
+                [buffer stub:@selector(measurementWithTrackingIdentifier:) andReturn:measurement];
+                _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:buffer currentMetric:nil];
+
+                [[_RPTEventBroadcast shouldNot] receive:@selector(sendEventName:topLevelDataObject:)];
+
+                [tracker sendResponseHeaders:@{@"foo": @"bar"} trackingIdentifier:100];
+            });
+
+            it(@"should call 'sendEventName:topLevelDataObject:' method of _RPTEventBroadcast' class when the sourceURL'host is not blacklisted", ^{
+                _RPTMeasurement *measurement = [[_RPTMeasurement alloc] init];
+                measurement.trackingIdentifier = 100;
+                measurement.receiver = @"https://google.com/report";
+                _RPTRingBuffer* buffer = [_RPTRingBuffer nullMock];
+                [buffer stub:@selector(measurementWithTrackingIdentifier:) andReturn:measurement];
+                _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:buffer currentMetric:nil];
+
+                [[_RPTEventBroadcast should] receive:@selector(sendEventName:topLevelDataObject:)];
+
+                [tracker sendResponseHeaders:@{@"foo": @"bar"} trackingIdentifier:100];
+            });
+
+        });
+
+        context(@"perfData", ^{
+            __block _RPTTracker *tracker;
+            __block _RPTMeasurement *measurement;
+            beforeEach(^{
+                measurement = [[_RPTMeasurement alloc] init];
+                measurement.trackingIdentifier = 100;
+                measurement.receiver = @"https://google.com";
+                _RPTRingBuffer* buffer = [_RPTRingBuffer nullMock];
+                [buffer stub:@selector(measurementWithTrackingIdentifier:) andReturn:measurement];
+                tracker = [_RPTTracker.alloc initWithRingBuffer:buffer currentMetric:nil];
+            });
+
+            afterEach(^{
+                tracker = nil;
+            });
+
+            it(@"should call 'sendEventName:topLevelDataObject:' method with the eventName is 'perf' ", ^{
+                KWCaptureSpy *spy = [_RPTEventBroadcast captureArgument:@selector(sendEventName:topLevelDataObject:) atIndex:0];
+
+                [tracker sendResponseHeaders:@{@"foo": @"bar"} trackingIdentifier:100];
+
+                NSString *eventName = spy.argument;
+                [[eventName should] equal:@"perf"];
+            });
+
+            it(@"should call 'sendEventName:topLevelDataObject:' method with the topLevelDataObject.perfData.type is 'resource' ", ^{
+                KWCaptureSpy *spy = [_RPTEventBroadcast captureArgument:@selector(sendEventName:topLevelDataObject:) atIndex:1];
+
+                [tracker sendResponseHeaders:@{@"foo": @"bar"} trackingIdentifier:100];
+
+                NSDictionary *dict = spy.argument;
+                [[dict[@"perfdata"][@"type"] should] equal:@"resource"];
+            });
+
+            it(@"should call 'sendEventName:topLevelDataObject:' method with the topLevelDataObject.perfData.entries having one item", ^{
+                KWCaptureSpy *spy = [_RPTEventBroadcast captureArgument:@selector(sendEventName:topLevelDataObject:) atIndex:1];
+
+                [tracker sendResponseHeaders:@{@"foo": @"bar"} trackingIdentifier:100];
+
+                NSDictionary *dict = spy.argument;
+                NSArray *entries = dict[@"perfdata"][@"entries"];
+                [[[entries should] have:1] items];
+            });
+
+            it(@"should call 'sendEventName:topLevelDataObject:' method with the topLevelDataObject.perfData.entries having one item which have 'name' is equal to the url of measurement", ^{
+                KWCaptureSpy *spy = [_RPTEventBroadcast captureArgument:@selector(sendEventName:topLevelDataObject:) atIndex:1];
+                measurement.receiver = @"https://rakuten.com";
+
+                [tracker sendResponseHeaders:@{@"foo": @"bar"} trackingIdentifier:100];
+
+                NSDictionary *dict = spy.argument;
+                NSArray *entries = dict[@"perfdata"][@"entries"];
+                NSDictionary *entryData = entries.firstObject;
+                [[entryData[@"name"] should] equal:@"https://rakuten.com"];
+            });
+
+            it(@"should call 'sendEventName:topLevelDataObject:' method with the topLevelDataObject.perfData.entries having one item which have 'cdn' is equal to the value of 'x-cdn-served-from' in passed response headers", ^{
+                KWCaptureSpy *spy = [_RPTEventBroadcast captureArgument:@selector(sendEventName:topLevelDataObject:) atIndex:1];
+
+                [tracker sendResponseHeaders:@{@"x-cdn-served-from": @"test-cdn"} trackingIdentifier:100];
+
+                NSDictionary *dict = spy.argument;
+                NSArray *entries = dict[@"perfdata"][@"entries"];
+                NSDictionary *entryData = entries.firstObject;
+                [[entryData[@"cdn"] should] equal:@"test-cdn"];
+            });
         });
     });
 });

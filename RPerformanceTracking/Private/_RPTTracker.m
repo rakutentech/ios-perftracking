@@ -4,6 +4,7 @@
 #import "_RPTRingBuffer.h"
 #import "_RPTTrackingManager.h"
 #import "_RPTEventBroadcast.h"
+#import "NSURL+RPerformanceTracking.h"
 
 @interface _RPTTracker ()
 @property (atomic) _RPTMetric *currentMetric;
@@ -127,8 +128,8 @@
 - (void)sendResponseHeaders:(NSDictionary *)responseHeaders trackingIdentifier:(uint_fast64_t)trackingIdentifier
 {
     _RPTMeasurement *measurement = [_ringBuffer measurementWithTrackingIdentifier:trackingIdentifier];
-    NSString *sourceURL = (NSString *)measurement.receiver;
-    if (!sourceURL.length) {
+    NSString *sourceURLString = (NSString *)measurement.receiver;
+    if (!sourceURLString.length || [[NSURL URLWithString:sourceURLString] isBlacklisted]) {
         return;
     }
     NSTimeInterval startTime = measurement.startTime * 1000;
@@ -139,7 +140,7 @@
     dataEntry[@"startTime"] = @(startTime);
     dataEntry[@"responseEnd"] = @(responseEnd);
     dataEntry[@"duration"] = @(duration);
-    dataEntry[@"name"] = sourceURL;
+    dataEntry[@"name"] = sourceURLString;
     if (cdn.length) {
         dataEntry[@"cdn"] = cdn;
     }
