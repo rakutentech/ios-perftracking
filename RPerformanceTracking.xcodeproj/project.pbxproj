@@ -26,6 +26,7 @@
 		5AC8DDC81E96354D0067995E /* TestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5AC8DDC61E96354D0067995E /* TestViewController.m */; };
 		5AC8DDC91E96354D0067995E /* TestViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5AC8DDC71E96354D0067995E /* TestViewController.xib */; };
 		5AEA72E520E4C01500D0D4E0 /* SenderIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6DA949E21E94E09600856C95 /* SenderIntegrationTests.m */; };
+		5AF6FD4521914F5900EA8C3B /* RPTEventBroadcastTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5AF6FD4421914F5900EA8C3B /* RPTEventBroadcastTests.m */; };
 		6D312C621EA5D98D00467620 /* NetworkSessionHookTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D312C611EA5D98D00467620 /* NetworkSessionHookTests.m */; };
 		6D3DBD4A1E824A9B00B97E89 /* SenderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D3DBD491E824A9B00B97E89 /* SenderTests.m */; };
 		6D64251D1EB8611C00755DA3 /* ConfigTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D64251C1EB8611C00755DA3 /* ConfigTests.m */; };
@@ -82,6 +83,7 @@
 		5AC8DDC61E96354D0067995E /* TestViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestViewController.m; sourceTree = "<group>"; };
 		5AC8DDC71E96354D0067995E /* TestViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TestViewController.xib; sourceTree = "<group>"; };
 		5AEA72D620E4605B00D0D4E0 /* FunctionalTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FunctionalTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		5AF6FD4421914F5900EA8C3B /* RPTEventBroadcastTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RPTEventBroadcastTests.m; sourceTree = "<group>"; };
 		69194F721CED9D3400879A11 /* UnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		69194F761CED9D3500879A11 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6D312C611EA5D98D00467620 /* NetworkSessionHookTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NetworkSessionHookTests.m; sourceTree = "<group>"; };
@@ -179,6 +181,7 @@
 				1696C3CC2077157200288BB5 /* TestUtils.m */,
 				16932AE82080508E00C91400 /* RPTEnvironmentTests.m */,
 				5A57326F20EB56710050B152 /* RingBufferTestsKiwi.m */,
+				5AF6FD4421914F5900EA8C3B /* RPTEventBroadcastTests.m */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -362,6 +365,7 @@
 				5AC8DDC81E96354D0067995E /* TestViewController.m in Sources */,
 				1696C3CD2077157200288BB5 /* TestUtils.m in Sources */,
 				6DA30F6B1FAAF501006A4DE6 /* MainThreadWatcherTests.m in Sources */,
+				5AF6FD4521914F5900EA8C3B /* RPTEventBroadcastTests.m in Sources */,
 				C8D982DF1F18D83C0088EBEC /* LocationTests.m in Sources */,
 				C83BA7A01EDEA2150048D5C5 /* UITableViewCellTests.m in Sources */,
 				6D312C621EA5D98D00467620 /* NetworkSessionHookTests.m in Sources */,
