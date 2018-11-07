@@ -21,6 +21,7 @@
 		5A8CF0EC1E9E21D0006E7544 /* TrackerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A8CF0EB1E9E21D0006E7544 /* TrackerTests.m */; };
 		5A91BD641EB096210048689C /* UICollectionViewTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A91BD631EB096210048689C /* UICollectionViewTests.m */; };
 		5AB9C6641E8366300066C5CB /* EventWriterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5AB9C6631E8366300066C5CB /* EventWriterTests.m */; };
+		5ABA1A722193D15D00CED97D /* HelperTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5ABA1A712193D15D00CED97D /* HelperTests.m */; };
 		5AC8DD3C1E95E3B80067995E /* UIViewControllerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5AC8DD3B1E95E3B80067995E /* UIViewControllerTests.m */; };
 		5AC8DD3E1E9604CD0067995E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5AC8DD3D1E9604CD0067995E /* Main.storyboard */; };
 		5AC8DDC81E96354D0067995E /* TestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5AC8DDC61E96354D0067995E /* TestViewController.m */; };
@@ -77,6 +78,7 @@
 		5A8CF0EB1E9E21D0006E7544 /* TrackerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TrackerTests.m; sourceTree = "<group>"; };
 		5A91BD631EB096210048689C /* UICollectionViewTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UICollectionViewTests.m; sourceTree = "<group>"; };
 		5AB9C6631E8366300066C5CB /* EventWriterTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EventWriterTests.m; sourceTree = "<group>"; };
+		5ABA1A712193D15D00CED97D /* HelperTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HelperTests.m; sourceTree = "<group>"; };
 		5AC8DD3B1E95E3B80067995E /* UIViewControllerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIViewControllerTests.m; sourceTree = "<group>"; };
 		5AC8DD3D1E9604CD0067995E /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		5AC8DDC51E96354D0067995E /* TestViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestViewController.h; sourceTree = "<group>"; };
@@ -182,6 +184,7 @@
 				16932AE82080508E00C91400 /* RPTEnvironmentTests.m */,
 				5A57326F20EB56710050B152 /* RingBufferTestsKiwi.m */,
 				5AF6FD4421914F5900EA8C3B /* RPTEventBroadcastTests.m */,
+				5ABA1A712193D15D00CED97D /* HelperTests.m */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -348,6 +351,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5ABA1A722193D15D00CED97D /* HelperTests.m in Sources */,
 				5A8CF0EC1E9E21D0006E7544 /* TrackerTests.m in Sources */,
 				C85DC3EA1EA084B800F79E52 /* RingBufferTests.m in Sources */,
 				C80E064C1EA876FF00FD22D2 /* TrackingManagerTests.m in Sources */,

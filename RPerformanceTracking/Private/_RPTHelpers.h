@@ -9,4 +9,6 @@
 #   define RPTLogVerbose(...) do { } while(0)
 #endif
 
+int64_t _RPTTimeIntervalInMiliseconds(NSTimeInterval timeInterval);
+
 
