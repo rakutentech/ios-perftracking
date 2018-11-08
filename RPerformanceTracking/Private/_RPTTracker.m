@@ -5,6 +5,7 @@
 #import "_RPTTrackingManager.h"
 #import "_RPTEventBroadcast.h"
 #import "NSURL+RPerformanceTracking.h"
+#import "_RPTHelpers.h"
 
 @interface _RPTTracker ()
 @property (atomic) _RPTMetric *currentMetric;
@@ -132,9 +133,10 @@
     if (!sourceURLString.length || [[NSURL URLWithString:sourceURLString] isBlacklisted]) {
         return;
     }
-    NSTimeInterval startTime = measurement.startTime * 1000;
-    NSTimeInterval responseEnd = [NSDate.date timeIntervalSince1970] * 1000;
-    NSTimeInterval duration = responseEnd - startTime;
+
+    int64_t startTime = _RPTTimeIntervalInMiliseconds(measurement.startTime);
+    int64_t responseEnd = _RPTTimeIntervalInMiliseconds([NSDate.date timeIntervalSince1970]);
+    int64_t duration = MAX(0ll, responseEnd - startTime);
     NSString *cdn = responseHeaders[@"x-cdn-served-from"];
     NSMutableDictionary *dataEntry = [NSMutableDictionary dictionary];
     dataEntry[@"startTime"] = @(startTime);
