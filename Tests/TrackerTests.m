@@ -229,6 +229,29 @@ describe(@"RPTTracker", ^{
                 NSDictionary *entryData = entries.firstObject;
                 [[entryData[@"cdn"] should] equal:@"test-cdn"];
             });
+
+            it(@"should call 'sendEventName:topLevelDataObject:' method with the topLevelDataObject.perfData.entries having one item which have 'start_time' is equal to startTime of the measurement in miliseconds", ^{
+                KWCaptureSpy *spy = [_RPTEventBroadcast captureArgument:@selector(sendEventName:topLevelDataObject:) atIndex:1];
+                measurement.startTime = 123;
+
+                [tracker sendResponseHeaders:@{@"foo": @"bar"} trackingIdentifier:100];
+
+                NSDictionary *dict = spy.argument;
+                NSArray *entries = dict[@"perfdata"][@"entries"];
+                NSDictionary *entryData = entries.firstObject;
+                [[entryData[@"start_time"] should] equal:theValue(123000)];
+            });
+
+            it(@"should call 'sendEventName:topLevelDataObject:' method with the topLevelDataObject.perfData.entries having one item which have 'response_end' is not nil", ^{
+                KWCaptureSpy *spy = [_RPTEventBroadcast captureArgument:@selector(sendEventName:topLevelDataObject:) atIndex:1];
+
+                [tracker sendResponseHeaders:@{@"foo": @"bar"} trackingIdentifier:100];
+
+                NSDictionary *dict = spy.argument;
+                NSArray *entries = dict[@"perfdata"][@"entries"];
+                NSDictionary *entryData = entries.firstObject;
+                [[entryData[@"response_end"] shouldNot] beNil];
+            });
         });
     });
 });

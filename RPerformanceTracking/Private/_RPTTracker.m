@@ -139,8 +139,8 @@
     int64_t duration = MAX(0ll, responseEnd - startTime);
     NSString *cdn = responseHeaders[@"x-cdn-served-from"];
     NSMutableDictionary *dataEntry = [NSMutableDictionary dictionary];
-    dataEntry[@"startTime"] = @(startTime);
-    dataEntry[@"responseEnd"] = @(responseEnd);
+    dataEntry[@"start_time"] = @(startTime);
+    dataEntry[@"response_end"] = @(responseEnd);
     dataEntry[@"duration"] = @(duration);
     dataEntry[@"name"] = sourceURLString;
     if (cdn.length) {
