@@ -8,6 +8,7 @@
 #import "_RPTMetric.h"
 #import "_RPTMeasurement.h"
 #import "_RPTClassManipulator+NSURLSessionTask.h"
+#import "TestUtils.h"
 
 @interface _RPTTrackingManager ()
 @property (nonatomic) _RPTTracker    *tracker;
@@ -53,7 +54,9 @@ static _RPTTrackingManager *_trackingManager = nil;
     
     _RPTRingBuffer *ringBuffer  = [_RPTRingBuffer.alloc initWithSize:12];
     _trackingManager.ringBuffer = ringBuffer;
+    _RPTConfiguration *config   = mkConfigurationStub(nil);
     _trackingManager.tracker    = [_RPTTracker.alloc initWithRingBuffer:ringBuffer
+                                                          configuration:config
                                                           currentMetric:_RPTMetric.new];
     _trackerMock                = OCMPartialMock(_trackingManager.tracker);
     _session                    = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];

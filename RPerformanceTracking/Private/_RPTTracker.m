@@ -6,9 +6,11 @@
 #import "_RPTEventBroadcast.h"
 #import "NSURL+RPerformanceTracking.h"
 #import "_RPTHelpers.h"
+#import "_RPTConfiguration.h"
 
 @interface _RPTTracker ()
 @property (atomic) _RPTMetric *currentMetric;
+@property (nonatomic) _RPTConfiguration *configuration;
 @end
 
 /* RPT_EXPORT */ @implementation _RPTTracker
@@ -128,6 +130,10 @@
 
 - (void)sendResponseHeaders:(NSDictionary *)responseHeaders trackingIdentifier:(uint_fast64_t)trackingIdentifier
 {
+    if (!_configuration.shouldSendDataToRAT) {
+        return;
+    }
+    
     _RPTMeasurement *measurement = [_ringBuffer measurementWithTrackingIdentifier:trackingIdentifier];
     NSString *sourceURLString = (NSString *)measurement.receiver;
     if (!sourceURLString.length || [[NSURL URLWithString:sourceURLString] isBlacklisted]) {
@@ -135,7 +141,7 @@
     }
 
     int64_t startTime = _RPTTimeIntervalInMiliseconds(measurement.startTime);
-    int64_t responseEnd = _RPTTimeIntervalInMiliseconds([NSDate.date timeIntervalSince1970]);
+    int64_t responseEnd = _RPTTimeIntervalInMiliseconds(measurement.endTime);
     int64_t duration = MAX(0ll, responseEnd - startTime);
     NSString *cdn = responseHeaders[@"x-cdn-served-from"];
     NSMutableDictionary *dataEntry = [NSMutableDictionary dictionary];
@@ -159,9 +165,9 @@
                          metric:_currentMetric];
 }
 
-- (_RPTMeasurement *)_startWithKind:(_RPTMeasurementKind)kind receiver:(NSObject *)receiver method:(nullable NSString *)method metric:(_RPTMetric*)metric {
-    
-    if (!_shouldTrackNonMetricMeasurements && !metric) {
+- (_RPTMeasurement *)_startWithKind:(_RPTMeasurementKind)kind receiver:(NSObject *)receiver method:(nullable NSString *)method metric:(_RPTMetric*)metric
+{
+    if (!_configuration.shouldTrackNonMetricMeasurements && !metric) {
         return nil;
     }
     
@@ -180,13 +186,15 @@
     return measurement;
 }
 
-- (instancetype)initWithRingBuffer:(_RPTRingBuffer *)ringBuffer currentMetric:(nonnull _RPTMetric *)currentMetric
+- (instancetype)initWithRingBuffer:(_RPTRingBuffer *)ringBuffer
+                     configuration:(_RPTConfiguration *)configuration
+                     currentMetric:(nonnull _RPTMetric *)currentMetric
 {
     if ((self = [super init]))
     {
         _ringBuffer = ringBuffer;
         _currentMetric = currentMetric;
-        _shouldTrackNonMetricMeasurements = YES;
+        _configuration = configuration;
     }
     return self;
 }

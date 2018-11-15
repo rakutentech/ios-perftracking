@@ -13,7 +13,9 @@ NSData* mkConfigPayload_(NSDictionary* params) {
         @"enablePercent": @(100),
         @"sendUrl": @"https://example.com",
         @"enableNonMetricMeasurement": @"true",
-        @"sendHeaders": @{@"header1": @"value1", @"header2": @"value2"}
+        @"sendHeaders": @{@"header1": @"value1", @"header2": @"value2"},
+        @"modules": @{@"enablePerformanceTracking": @"true",
+                      @"enableRat": @"false"}
     });
     
     return [NSJSONSerialization dataWithJSONObject:payload options:NSJSONWritingPrettyPrinted error:0];
@@ -53,16 +55,20 @@ _RPTConfiguration* mkConfigurationStub(NSDictionary* params) {
         @"activationRatio": @(100),
         @"eventHubURL": [NSURL URLWithString:@"https://default.event.hub.url"],
         @"eventHubHTTPHeaderFields": @{@"default_header": @"default_header_value"},
-        @"shouldTrackNonMetricMeasurements": @(YES)
+        @"shouldTrackNonMetricMeasurements": @(YES),
+        @"shouldSendDataToPerformanceTracking": @(YES),
+        @"shouldSendDataToRAT": @(NO)
     });
     
     _RPTConfiguration* config = [_RPTConfiguration nullMock];
-    
+
     [config stub:@selector(activationRatio) andReturn:params[@"activationRatio"]];
     [config stub:@selector(eventHubURL) andReturn:params[@"eventHubURL"]];
     [config stub:@selector(eventHubHTTPHeaderFields) andReturn:params[@"eventHubHTTPHeaderFields"]];
-    [config stub:@selector(shouldTrackNonMetricMeasurements) andReturn:@"shouldTrackNonMetricMeasurements"];
-    
+    [config stub:@selector(shouldTrackNonMetricMeasurements) andReturn:params[@"shouldTrackNonMetricMeasurements"]];
+    [config stub:@selector(shouldSendDataToPerformanceTracking) andReturn:params[@"shouldSendDataToPerformanceTracking"]];
+    [config stub:@selector(shouldSendDataToRAT) andReturn:params[@"shouldSendDataToRAT"]];
+
     return config;
 }
 

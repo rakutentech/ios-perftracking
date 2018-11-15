@@ -34,6 +34,21 @@ static NSString *const KEY = @"com.rakuten.performancetracking";
             shouldTrackNonMetricMeasurements = [enableNonMetricMeasurement boolValue];
         }
 
+        BOOL shouldSendDataToPerformanceTracking = YES;
+        BOOL shouldSendDataToRAT = NO;
+        NSDictionary *modules = values[@"modules"];
+        if ([modules isKindOfClass:NSDictionary.class] && modules.count) {
+            NSNumber* enablePerformanceTracking = modules[@"enablePerformanceTracking"];
+            if ([enablePerformanceTracking isKindOfClass:NSNumber.class])  {
+                shouldSendDataToPerformanceTracking = [enablePerformanceTracking boolValue];
+            }
+
+            NSNumber* enableRat = modules[@"enableRat"];
+            if ([enableRat isKindOfClass:NSNumber.class])  {
+                shouldSendDataToRAT = [enableRat boolValue];
+            }
+        }
+
         NSDictionary *headerFields = values[@"sendHeaders"];
         if (![headerFields isKindOfClass:NSDictionary.class]) break;
 
@@ -60,6 +75,8 @@ static NSString *const KEY = @"com.rakuten.performancetracking";
             _eventHubURL              = url;
             _eventHubHTTPHeaderFields = headerFields;
             _shouldTrackNonMetricMeasurements = shouldTrackNonMetricMeasurements;
+            _shouldSendDataToPerformanceTracking = shouldSendDataToPerformanceTracking;
+            _shouldSendDataToRAT = shouldSendDataToRAT;
         }
         return self;
     } while(0);

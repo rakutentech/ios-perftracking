@@ -10,6 +10,7 @@
 #import "_RPTSender.h"
 #import <WebKit/WebKit.h>
 #import "_RPTClassManipulator.h"
+#import "TestUtils.h"
 
 @interface _RPTTrackingManager ()
 @property (nonatomic) _RPTTracker    *tracker;
@@ -38,8 +39,10 @@ static _RPTTrackingManager *_trackingManager = nil;
     _trackingManager.ringBuffer            = ringBuffer;
     _RPTMetric *currentMetric              = _RPTMetric.new;
     currentMetric.identifier               = @"metric";
-    _trackingManager.tracker               = [_RPTTracker.alloc initWithRingBuffer:ringBuffer
-                                                                     currentMetric:currentMetric];
+    _RPTConfiguration *config              = mkConfigurationStub(nil);
+    _trackingManager.tracker                = [[_RPTTracker alloc] initWithRingBuffer:ringBuffer
+                                                                       configuration:config
+                                                                       currentMetric:currentMetric];
     _trackingManager.disableSwizzling      = NO;
     _webView                               = [[WKWebView alloc] initWithFrame:CGRectZero
                                                                 configuration:[[WKWebViewConfiguration alloc] init]];

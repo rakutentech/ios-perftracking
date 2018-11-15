@@ -24,6 +24,16 @@ RPT_EXPORT @interface _RPTConfiguration : NSObject
 @property (nonatomic, readonly) BOOL shouldTrackNonMetricMeasurements;
 
 /*
+ * Should send data to PerformanceTracking endpoint
+ */
+@property (nonatomic, readonly) BOOL shouldSendDataToPerformanceTracking;
+
+/*
+ * Should send data to RAT endpoint
+ */
+@property (nonatomic, readonly) BOOL shouldSendDataToRAT;
+
+/*
  * Load configuration from disk if it exists there, or return the default configuration if not.
  */
 + (instancetype)loadConfiguration;

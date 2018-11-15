@@ -6,6 +6,7 @@
 #import "_RPTMainThreadWatcher.h"
 #import "_RPTRingBuffer.h"
 #import "_RPTMetric.h"
+#import "TestUtils.h"
 
 static const NSTimeInterval BLOCK_THRESHOLD = 0.4;
 
@@ -35,7 +36,8 @@ static const NSTimeInterval BLOCK_THRESHOLD = 0.4;
     
     _RPTRingBuffer *ringBuffer = [_RPTRingBuffer.alloc initWithSize:12];
     _RPTMetric *currentMetric = [_RPTMetric new];
-    _RPTTrackingManager.sharedInstance.tracker = [_RPTTracker.alloc initWithRingBuffer:ringBuffer currentMetric:currentMetric];
+    _RPTConfiguration* config = mkConfigurationStub(nil);
+    _RPTTrackingManager.sharedInstance.tracker = [_RPTTracker.alloc initWithRingBuffer:ringBuffer configuration:config currentMetric:currentMetric];
     
     _trackerMock = OCMPartialMock(_RPTTrackingManager.sharedInstance.tracker);
 }

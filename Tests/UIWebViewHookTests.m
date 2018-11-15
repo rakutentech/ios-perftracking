@@ -10,6 +10,7 @@
 #import "_RPTEventWriter.h"
 #import "_RPTSender.h"
 #import "_RPTClassManipulator.h"
+#import "TestUtils.h"
 
 @interface _RPTTracker ()
 @property (atomic) _RPTMetric *currentMetric;
@@ -88,7 +89,9 @@
     _trackingManager.ringBuffer             = ringBuffer;
     _RPTMetric *currentMetric               = _RPTMetric.new;
     currentMetric.identifier                = @"metric";
+    _RPTConfiguration *config               = mkConfigurationStub(nil);
     _trackingManager.tracker                = [_RPTTracker.alloc initWithRingBuffer:ringBuffer
+                                                                      configuration:config
                                                                       currentMetric:currentMetric];
     _trackingManager.disableSwizzling       = NO;
     
