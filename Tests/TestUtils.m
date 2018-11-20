@@ -12,10 +12,10 @@ NSData* mkConfigPayload_(NSDictionary* params) {
     NSDictionary* payload = Underscore.defaults(params ? params : @{}, @{
         @"enablePercent": @(100),
         @"sendUrl": @"https://example.com",
-        @"enableNonMetricMeasurement": @"true",
+        @"enableNonMetricMeasurement": @(YES),
         @"sendHeaders": @{@"header1": @"value1", @"header2": @"value2"},
-        @"modules": @{@"enablePerformanceTracking": @"true",
-                      @"enableRat": @"false"}
+        @"modules": @{@"enablePerformanceTracking": @(YES),
+                      @"enableRat": @(NO)}
     });
     
     return [NSJSONSerialization dataWithJSONObject:payload options:NSJSONWritingPrettyPrinted error:0];

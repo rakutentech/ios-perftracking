@@ -11,7 +11,6 @@
 #import <OHHTTPStubs/OHHTTPStubs.h>
 
 #import <Kiwi/Kiwi.h>
-#import "TestUtils.h"
 
 static const NSUInteger      MAX_MEASUREMENTS    = 512u;
 

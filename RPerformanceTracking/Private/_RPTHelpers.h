@@ -10,5 +10,5 @@
 #endif
 
 int64_t _RPTTimeIntervalInMiliseconds(NSTimeInterval timeInterval);
-
+BOOL _RPTNumberToBool(NSNumber *number, BOOL defaultValue);
 

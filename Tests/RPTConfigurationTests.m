@@ -5,10 +5,34 @@
 
 SPEC_BEGIN(RPTConfigurationTests)
 
-describe(@"RPTTracker", ^{
+describe(@"RPTConfiguration", ^{
     describe(@"initWithData:", ^{
+        it(@"should `shouldTrackNonMetricMeasurements` property as `YES` by default", ^{
+            NSData* payload = mkConfigPayload_(nil);
+
+            _RPTConfiguration* config = [[_RPTConfiguration alloc] initWithData:payload];
+
+            [[theValue(config.shouldTrackNonMetricMeasurements) should] beTrue];
+        });
+
+        it(@"should `shouldSendDataToPerformanceTracking` property as `YES` by default", ^{
+            NSData* payload = mkConfigPayload_(nil);
+
+            _RPTConfiguration* config = [[_RPTConfiguration alloc] initWithData:payload];
+
+            [[theValue(config.shouldSendDataToPerformanceTracking) should] beTrue];
+        });
+
+        it(@"should `shouldSendDataToRAT` property as `NO` by default", ^{
+            NSData* payload = mkConfigPayload_(nil);
+
+            _RPTConfiguration* config = [[_RPTConfiguration alloc] initWithData:payload];
+
+            [[theValue(config.shouldSendDataToRAT) should] beFalse];
+        });
+
         it(@"should `shouldTrackNonMetricMeasurements` property as `YES` if `enableNonMetricMeasurement` payload field is not a number", ^{
-            NSData* payload = mkConfigPayload_(@{@"enableNonMetricMeasurement": [NSNull null]});
+            NSData* payload = mkConfigPayload_(@{@"enableNonMetricMeasurement": @"123"});
             
             _RPTConfiguration* config = [[_RPTConfiguration alloc] initWithData:payload];
             
@@ -32,7 +56,7 @@ describe(@"RPTTracker", ^{
         });
 
         it(@"should set `shouldSendDataToPerformanceTracking` property as `YES` if `module.enablePerformanceTracking` payload field is `true`", ^{
-            NSData* payload = mkConfigPayload_(@{@"modules": @{@"enableNonMetricMeasurement": @YES}});
+            NSData* payload = mkConfigPayload_(@{@"modules": @{@"enablePerformanceTracking": @YES}});
 
             _RPTConfiguration* config = [[_RPTConfiguration alloc] initWithData:payload];
 
