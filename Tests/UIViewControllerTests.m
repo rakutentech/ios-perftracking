@@ -7,6 +7,7 @@
 #import "_RPTMetric.h"
 #import "_RPTRingBuffer.h"
 #import "_RPTSender.h"
+#import "TestUtils.h"
 
 static const NSUInteger      MAX_MEASUREMENTS    = 512u;
 
@@ -32,8 +33,10 @@ static _RPTTrackingManager *_trackingManager = nil;
 	_RPTRingBuffer *ringBuffer               = [_RPTRingBuffer.alloc initWithSize:MAX_MEASUREMENTS];
 	_trackingManager                         = [_RPTTrackingManager sharedInstance];
 	_trackingManager.ringBuffer              = ringBuffer;
-	_trackingManager.tracker                 = [_RPTTracker.alloc initWithRingBuffer:ringBuffer
-																	   currentMetric:_RPTMetric.new];
+    _RPTConfiguration *config               = mkConfigurationStub(nil);
+    _trackingManager.tracker                = [[_RPTTracker alloc] initWithRingBuffer:ringBuffer
+                                                                        configuration:config
+                                                                        currentMetric:_RPTMetric.new];
 }
 
 + (void)tearDown

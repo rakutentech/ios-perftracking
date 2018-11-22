@@ -1,4 +1,5 @@
 #import "_RPTConfiguration.h"
+#import "_RPTHelpers.h"
 
 static NSString *const KEY = @"com.rakuten.performancetracking";
 
@@ -29,9 +30,17 @@ static NSString *const KEY = @"com.rakuten.performancetracking";
         if (!url) break;
         
         NSNumber* enableNonMetricMeasurement = values[@"enableNonMetricMeasurement"];
-        BOOL shouldTrackNonMetricMeasurements = YES;
-        if ([enableNonMetricMeasurement isKindOfClass:NSNumber.class])  {
-            shouldTrackNonMetricMeasurements = [enableNonMetricMeasurement boolValue];
+        BOOL shouldTrackNonMetricMeasurements = _RPTNumberToBool(enableNonMetricMeasurement, YES);
+
+        BOOL shouldSendDataToPerformanceTracking;
+        BOOL shouldSendDataToRAT;
+        NSDictionary *modules = values[@"modules"];
+        if ([modules isKindOfClass:NSDictionary.class] && modules.count) {
+            NSNumber* enablePerformanceTracking = modules[@"enablePerformanceTracking"];
+            shouldSendDataToPerformanceTracking = _RPTNumberToBool(enablePerformanceTracking, YES);
+
+            NSNumber* enableRat = modules[@"enableRat"];
+            shouldSendDataToRAT = _RPTNumberToBool(enableRat, NO);
         }
 
         NSDictionary *headerFields = values[@"sendHeaders"];
@@ -60,6 +69,8 @@ static NSString *const KEY = @"com.rakuten.performancetracking";
             _eventHubURL              = url;
             _eventHubHTTPHeaderFields = headerFields;
             _shouldTrackNonMetricMeasurements = shouldTrackNonMetricMeasurements;
+            _shouldSendDataToPerformanceTracking = shouldSendDataToPerformanceTracking;
+            _shouldSendDataToRAT = shouldSendDataToRAT;
         }
         return self;
     } while(0);

@@ -2,12 +2,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class _RPTRingBuffer, _RPTMetric;
+@class _RPTRingBuffer, _RPTMetric, _RPTConfiguration;
 
 RPT_EXPORT @interface _RPTTracker : NSObject
 @property (nonatomic, readonly) _RPTRingBuffer *ringBuffer;
-
-@property (nonatomic) BOOL shouldTrackNonMetricMeasurements;
 
 - (void)startMetric:(NSString *)metric;
 - (void)prolongMetric;
@@ -22,7 +20,9 @@ RPT_EXPORT @interface _RPTTracker : NSObject
 - (void)updateURL:(NSURL *)url trackingIdentifier:(uint_fast64_t)trackingIdentifier;
 - (void)sendResponseHeaders:(NSDictionary *)responseHeaders trackingIdentifier:(uint_fast64_t)trackingIdentifier;
 
-- (instancetype)initWithRingBuffer:(_RPTRingBuffer *)ringBuffer currentMetric:(_RPTMetric *)currentMetric NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithRingBuffer:(_RPTRingBuffer *)ringBuffer
+                     configuration:(_RPTConfiguration *)configuration
+                     currentMetric:(_RPTMetric *)currentMetric NS_DESIGNATED_INITIALIZER;
 @end
 
 NS_ASSUME_NONNULL_END

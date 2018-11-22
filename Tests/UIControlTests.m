@@ -6,6 +6,7 @@
 #import "_RPTMetric.h"
 #import "_RPTSender.h"
 #import "TestViewController.h"
+#import "TestUtils.h"
 
 @interface UIControl ()
 - (void)_rpt_sendAction:(SEL)action to:(nullable id)target forEvent:(nullable UIEvent *)event;
@@ -34,7 +35,9 @@ static _RPTTrackingManager *_trackingManager = nil;
 {
     [super setUp];
     _trackingManager							= [_RPTTrackingManager sharedInstance];
+    _RPTConfiguration *config                   = mkConfigurationStub(nil);
     _trackingManager.tracker					= [_RPTTracker.alloc initWithRingBuffer:[_RPTRingBuffer.alloc initWithSize:512]
+                                                           configuration:config
                                                            currentMetric:_RPTMetric.new];
 }
 

@@ -4,6 +4,7 @@
 #import "_RPTTrackingManager.h"
 #import "_RPTRingBuffer.h"
 #import "_RPTMetric.h"
+#import "TestUtils.h"
 
 @interface UITableViewCell ()
 - (void)_rpt_setSelected:(BOOL)selected;
@@ -30,7 +31,9 @@ static _RPTTrackingManager *_trackingManager = nil;
 {
     [super setUp];
     _trackingManager                        = [_RPTTrackingManager sharedInstance];
+    _RPTConfiguration *configuration        = mkConfigurationStub(nil);
     _trackingManager.tracker                 = [_RPTTracker.alloc initWithRingBuffer:[_RPTRingBuffer.alloc initWithSize:512]
+                                                                       configuration:configuration
                                                                        currentMetric:_RPTMetric.new];
     _cell = [[UITableViewCell alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
 }

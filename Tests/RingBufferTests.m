@@ -7,6 +7,7 @@
 #import "_RPTMetric.h"
 #import "_RPTTracker.h"
 #import "_RPTMetric.h"
+#import "TestUtils.h"
 
 @interface _RPTRingBuffer ()
 @property (nonatomic) NSArray<_RPTMeasurement *> *measurements;
@@ -26,7 +27,10 @@
     _ringBuffer                          = [_RPTRingBuffer.alloc initWithSize:512];
     _RPTMetric *currentMetric            = _RPTMetric.new;
     currentMetric.identifier             = @"metric";
-    _tracker                             = [_RPTTracker.alloc initWithRingBuffer:_ringBuffer currentMetric:currentMetric];
+    _RPTConfiguration *configuration     = mkConfigurationStub(nil);
+    _tracker                             = [_RPTTracker.alloc initWithRingBuffer:_ringBuffer
+                                                                   configuration:configuration
+                                                                   currentMetric:currentMetric];
     // Inserting some measurements
     [_tracker startCustom:@"m1"];
     [_tracker startMetric:@"_item"];
@@ -169,7 +173,10 @@
     _RPTRingBuffer *ringBuffer          = [_RPTRingBuffer.alloc initWithSize:12];
     _RPTMetric *currentMetric           = _RPTMetric.new;
     currentMetric.identifier            = @"metric";
-    _RPTTracker *tracker                = [_RPTTracker.alloc initWithRingBuffer:ringBuffer currentMetric:currentMetric];
+    _RPTConfiguration *configuration     = mkConfigurationStub(nil);
+    _RPTTracker *tracker                = [_RPTTracker.alloc initWithRingBuffer:ringBuffer
+                                                                  configuration:configuration
+                                                                  currentMetric:currentMetric];
     
     for( int i = 0; i < 12; i++)
     {
@@ -184,7 +191,10 @@
     _RPTRingBuffer *ringBuffer          = [_RPTRingBuffer.alloc initWithSize:12];
     _RPTMetric *currentMetric           = _RPTMetric.new;
     currentMetric.identifier            = @"metric";
-    _RPTTracker *tracker                = [_RPTTracker.alloc initWithRingBuffer:ringBuffer currentMetric:currentMetric];
+    _RPTConfiguration *configuration     = mkConfigurationStub(nil);
+    _RPTTracker *tracker                = [_RPTTracker.alloc initWithRingBuffer:ringBuffer
+                                                                  configuration:configuration
+                                                                  currentMetric:currentMetric];
     
     for( int i = 0; i < 12; i++)
     {

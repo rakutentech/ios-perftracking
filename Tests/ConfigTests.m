@@ -17,15 +17,6 @@ SPEC_BEGIN(RPTTrackingManagerTests)
 
 describe(@"RPTTRackingManager", ^{
     describe(@"init", ^{
-        it(@"should configure tracker to track non-metric measurements as described in config", ^{
-            _RPTConfiguration* config = mkConfigurationStub(@{@"shouldTrackNonMetricMeasurements": @(NO)});
-            [_RPTConfiguration stub:@selector(loadConfiguration) andReturn:config];
-
-            _RPTTrackingManager* manager = [_RPTTrackingManager new];
-
-            [[theValue(manager.tracker.shouldTrackNonMetricMeasurements) should] beNo];
-        });
-        
         describe(@"config request", ^{
             __block NSURLSession* configURLSession;
             beforeEach(^{

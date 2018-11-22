@@ -9,7 +9,7 @@
 #import "_RPTConfiguration.h"
 #import "_RPTEventWriter.h"
 #import "_RPTSender.h"
-#import "_RPTConfiguration.h"
+#import "TestUtils.h"
 
 static const NSUInteger     TRACKING_DATA_LIMIT  = 100u;
 
@@ -78,8 +78,10 @@ static const NSUInteger     TRACKING_DATA_LIMIT  = 100u;
     trackingManager.ringBuffer             = ringBuffer;
     _RPTMetric *currentMetric              = _RPTMetric.new;
     currentMetric.identifier               = @"metric";
+    _RPTConfiguration *config              = mkConfigurationStub(nil);
     trackingManager.tracker                = [[_RPTTracker alloc] initWithRingBuffer:ringBuffer
-                                                                     currentMetric:currentMetric];
+                                                                       configuration:config
+                                                                       currentMetric:currentMetric];
     return trackingManager;
 }
 
@@ -104,11 +106,11 @@ static const NSUInteger     TRACKING_DATA_LIMIT  = 100u;
     _RPTTrackingManager *trackingManager = [_RPTTrackingManager alloc];
     id mockTrackingManager = [OCMockObject partialMockForObject:trackingManager];
     [[[mockTrackingManager stub] andReturnValue:OCMOCK_VALUE(NO)] disableTracking];
-    
+
     id mockTracker = OCMClassMock([_RPTTracker class]);
     OCMStub([mockTracker alloc]).andReturn(mockTracker);
-    OCMStub([(_RPTTracker *)mockTracker initWithRingBuffer:[OCMArg any] currentMetric:[OCMArg any]]).andReturn(nil);
-    
+    OCMStub([(_RPTTracker *)mockTracker initWithRingBuffer:[OCMArg any] configuration:[OCMArg any] currentMetric:[OCMArg any]]).andReturn(nil);
+
     trackingManager = [trackingManager init];
     XCTAssertNil(trackingManager);
     [mockTracker stopMocking];

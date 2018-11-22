@@ -6,6 +6,7 @@
 #import "_RPTMetric.h"
 #import "_RPTMeasurement.h"
 #import "_RPTEventBroadcast.h"
+#import "_RPTConfiguration.h"
 
 #import <Kiwi/Kiwi.h>
 #import <Underscore_m/Underscore.h>
@@ -18,21 +19,23 @@
 SPEC_BEGIN(RPTTRackerTests)
 
 describe(@"RPTTracker", ^{
-    describe(@"constructor", ^{
-        it(@"should enable tracking by default", ^{
-            _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:mkRingBufferStub(nil)
-                                                          currentMetric:mkMetricStub(nil)
-                                   ];
-            
-            [[theValue(tracker.shouldTrackNonMetricMeasurements) should] equal:theValue(YES)];
-        });
+
+    __block _RPTConfiguration *config;
+    beforeEach(^{
+        config = [_RPTConfiguration nullMock];
     });
-    
+
+    afterEach(^{
+        config = nil;
+    });
+
     describe(@"startMetric:", ^{        
         it(@"should start metric if configured to not track non-metric measurements", ^{
-            _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:mkRingBufferStub(nil) currentMetric:nil];
-            tracker.shouldTrackNonMetricMeasurements = NO;
-            
+            [config stub:@selector(shouldTrackNonMetricMeasurements) andReturn:theValue(false)];
+            _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:mkRingBufferStub(nil)
+                                                           configuration:config
+                                                           currentMetric:nil];
+
             [tracker startMetric:@"some_metric"];
             
             // measurements can be tracked only when metric started if `shouldTrackNonMetricMeasurements` == NO
@@ -42,8 +45,10 @@ describe(@"RPTTracker", ^{
     
     describe(@"startMethod:receiver:", ^{
         it(@"should not start tracking measurement if tracking non-metric measurements disabled and no active metric exists", ^{
-            _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:mkRingBufferStub(nil) currentMetric:nil];
-            tracker.shouldTrackNonMetricMeasurements = NO;
+            [config stub:@selector(shouldTrackNonMetricMeasurements) andReturn:theValue(false)];
+            _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:mkRingBufferStub(nil)
+                                                           configuration:config
+                                                           currentMetric:nil];
             
             uint_fast64_t measurementId = [tracker startMethod:@"some_method" receiver:[NSObject nullMock]];
             
@@ -51,8 +56,10 @@ describe(@"RPTTracker", ^{
         });
         
         it(@"should start tracking meaurement if tracking non-metric measurements enabled and no active metric exists", ^{
-            _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:mkRingBufferStub(nil) currentMetric:nil];
-            tracker.shouldTrackNonMetricMeasurements = YES;
+            [config stub:@selector(shouldTrackNonMetricMeasurements) andReturn:theValue(true)];
+            _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:mkRingBufferStub(nil)
+                                                           configuration:config
+                                                           currentMetric:nil];
             
             uint_fast64_t measurementId = [tracker startMethod:@"some_method" receiver:[NSObject nullMock]];
             
@@ -62,8 +69,10 @@ describe(@"RPTTracker", ^{
     
     describe(@"startRequest", ^{
         it(@"should not start tracking measurement if tracking non-metric measurements disabled and no active metric exists", ^{
-            _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:mkRingBufferStub(nil) currentMetric:nil];
-            tracker.shouldTrackNonMetricMeasurements = NO;
+            [config stub:@selector(shouldTrackNonMetricMeasurements) andReturn:theValue(false)];
+            _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:mkRingBufferStub(nil)
+                                                           configuration:config
+                                                           currentMetric:nil];
             
             uint_fast64_t measurementId = [tracker startRequest:[NSURLRequest nullMock]];
             
@@ -71,8 +80,10 @@ describe(@"RPTTracker", ^{
         });
         
         it(@"should start tracking meaurement if tracking non-metric measurements enabled and no active metric exists", ^{
-            _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:mkRingBufferStub(nil) currentMetric:nil];
-            tracker.shouldTrackNonMetricMeasurements = YES;
+            [config stub:@selector(shouldTrackNonMetricMeasurements) andReturn:theValue(true)];
+            _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:mkRingBufferStub(nil)
+                                                           configuration:config
+                                                           currentMetric:nil];
             
             uint_fast64_t measurementId = [tracker startRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://example.com"]]];
             
@@ -82,8 +93,10 @@ describe(@"RPTTracker", ^{
     
     describe(@"startCustom:", ^{
         it(@"should not start tracking measurement if tracking non-metric measurements disabled and no active metric exists", ^{
-            _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:mkRingBufferStub(nil) currentMetric:nil];
-            tracker.shouldTrackNonMetricMeasurements = NO;
+            [config stub:@selector(shouldTrackNonMetricMeasurements) andReturn:theValue(false)];
+            _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:mkRingBufferStub(nil)
+                                                           configuration:config
+                                                           currentMetric:nil];
             
             uint_fast64_t measurementId = [tracker startCustom:@"custrom_metric"];
             
@@ -91,8 +104,10 @@ describe(@"RPTTracker", ^{
         });
         
         it(@"should start tracking meaurement if tracking non-metric measurements enabled and no active metric exists", ^{
-            _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:mkRingBufferStub(nil) currentMetric:nil];
-            tracker.shouldTrackNonMetricMeasurements = YES;
+            [config stub:@selector(shouldTrackNonMetricMeasurements) andReturn:theValue(true)];
+            _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:mkRingBufferStub(nil)
+                                                           configuration:config
+                                                           currentMetric:nil];
             
             uint_fast64_t measurementId = [tracker startCustom:@"custrom_metric"];
             
@@ -102,8 +117,10 @@ describe(@"RPTTracker", ^{
     
     describe(@"addDevice", ^{
         it(@"should not start tracking measurement if tracking non-metric measurements disabled and no active metric exists", ^{
-            _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:mkRingBufferStub(nil) currentMetric:nil];
-            tracker.shouldTrackNonMetricMeasurements = NO;
+            [config stub:@selector(shouldTrackNonMetricMeasurements) andReturn:theValue(false)];
+            _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:mkRingBufferStub(nil)
+                                                           configuration:config
+                                                           currentMetric:nil];
             
             uint_fast64_t measurementId = [tracker addDevice:@"device_id" start:0 end:1];
             
@@ -111,8 +128,10 @@ describe(@"RPTTracker", ^{
         });
         
         it(@"should start tracking meaurement if tracking non-metric measurements enabled and no active metric exists", ^{
-            _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:mkRingBufferStub(nil) currentMetric:nil];
-            tracker.shouldTrackNonMetricMeasurements = YES;
+            [config stub:@selector(shouldTrackNonMetricMeasurements) andReturn:theValue(true)];
+            _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:mkRingBufferStub(nil)
+                                                           configuration:config
+                                                           currentMetric:nil];
             
             uint_fast64_t measurementId = [tracker addDevice:@"device_id" start:0 end:1];
             
@@ -121,6 +140,38 @@ describe(@"RPTTracker", ^{
     });
 
     describe(@"sendResponseHeaders", ^{
+        context(@"enableSendPerfDataToRAT", ^{
+            it(@"should not call 'sendEventName:topLevelDataObject:' method of _RPTEventBroadcast' class if enableRAT disabled", ^{
+                _RPTMeasurement *measurement = [[_RPTMeasurement alloc] init];
+                measurement.trackingIdentifier = 100;
+                measurement.receiver = @"https://google.com/report";
+                _RPTRingBuffer* buffer = [_RPTRingBuffer nullMock];
+                [buffer stub:@selector(measurementWithTrackingIdentifier:) andReturn:measurement];
+                [config stub:@selector(shouldTrackNonMetricMeasurements) andReturn:theValue(true)];
+                [config stub:@selector(shouldSendDataToRAT) andReturn:theValue(false)];
+                _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:buffer configuration:config currentMetric:nil];
+
+                [[_RPTEventBroadcast shouldNot] receive:@selector(sendEventName:topLevelDataObject:)];
+
+                [tracker sendResponseHeaders:@{@"foo": @"bar"} trackingIdentifier:100];
+            });
+
+            it(@"should call 'sendEventName:topLevelDataObject:' method of _RPTEventBroadcast' class if enableRAT enabled", ^{
+                _RPTMeasurement *measurement = [[_RPTMeasurement alloc] init];
+                measurement.trackingIdentifier = 100;
+                measurement.receiver = @"https://google.com/report";
+                _RPTRingBuffer* buffer = [_RPTRingBuffer nullMock];
+                [buffer stub:@selector(measurementWithTrackingIdentifier:) andReturn:measurement];
+                [config stub:@selector(shouldTrackNonMetricMeasurements) andReturn:theValue(true)];
+                [config stub:@selector(shouldSendDataToRAT) andReturn:theValue(true)];
+                _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:buffer configuration:config currentMetric:nil];
+
+                [[_RPTEventBroadcast should] receive:@selector(sendEventName:topLevelDataObject:)];
+
+                [tracker sendResponseHeaders:@{@"foo": @"bar"} trackingIdentifier:100];
+            });
+        });
+
         context(@"sourceURL", ^{
             it(@"should not call 'sendEventName:topLevelDataObject:' method of _RPTEventBroadcast' class when the sourceURL'host is empty", ^{
                 _RPTMeasurement *measurement = [[_RPTMeasurement alloc] init];
@@ -128,7 +179,9 @@ describe(@"RPTTracker", ^{
                 measurement.receiver = @"";
                 _RPTRingBuffer* buffer = [_RPTRingBuffer nullMock];
                 [buffer stub:@selector(measurementWithTrackingIdentifier:) andReturn:measurement];
-                _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:buffer currentMetric:nil];
+                [config stub:@selector(shouldTrackNonMetricMeasurements) andReturn:theValue(true)];
+                [config stub:@selector(shouldSendDataToRAT) andReturn:theValue(true)];
+                _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:buffer configuration:config currentMetric:nil];
 
                 [[_RPTEventBroadcast shouldNot] receive:@selector(sendEventName:topLevelDataObject:)];
 
@@ -141,7 +194,9 @@ describe(@"RPTTracker", ^{
                 measurement.receiver = @"https://rat.rakuten.co.jp/report";
                 _RPTRingBuffer* buffer = [_RPTRingBuffer nullMock];
                 [buffer stub:@selector(measurementWithTrackingIdentifier:) andReturn:measurement];
-                _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:buffer currentMetric:nil];
+                [config stub:@selector(shouldTrackNonMetricMeasurements) andReturn:theValue(true)];
+                [config stub:@selector(shouldSendDataToRAT) andReturn:theValue(true)];
+                _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:buffer configuration:config currentMetric:nil];
 
                 [[_RPTEventBroadcast shouldNot] receive:@selector(sendEventName:topLevelDataObject:)];
 
@@ -154,7 +209,9 @@ describe(@"RPTTracker", ^{
                 measurement.receiver = @"https://google.com/report";
                 _RPTRingBuffer* buffer = [_RPTRingBuffer nullMock];
                 [buffer stub:@selector(measurementWithTrackingIdentifier:) andReturn:measurement];
-                _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:buffer currentMetric:nil];
+                [config stub:@selector(shouldTrackNonMetricMeasurements) andReturn:theValue(true)];
+                [config stub:@selector(shouldSendDataToRAT) andReturn:theValue(true)];
+                _RPTTracker* tracker = [_RPTTracker.alloc initWithRingBuffer:buffer configuration:config currentMetric:nil];
 
                 [[_RPTEventBroadcast should] receive:@selector(sendEventName:topLevelDataObject:)];
 
@@ -172,7 +229,9 @@ describe(@"RPTTracker", ^{
                 measurement.receiver = @"https://google.com";
                 _RPTRingBuffer* buffer = [_RPTRingBuffer nullMock];
                 [buffer stub:@selector(measurementWithTrackingIdentifier:) andReturn:measurement];
-                tracker = [_RPTTracker.alloc initWithRingBuffer:buffer currentMetric:nil];
+                [config stub:@selector(shouldTrackNonMetricMeasurements) andReturn:theValue(true)];
+                [config stub:@selector(shouldSendDataToRAT) andReturn:theValue(true)];
+                tracker = [_RPTTracker.alloc initWithRingBuffer:buffer configuration:config currentMetric:nil];
             });
 
             afterEach(^{
@@ -275,7 +334,7 @@ SPEC_END
     _RPTRingBuffer *ringBuffer           = [_RPTRingBuffer.alloc initWithSize:512];
     _RPTMetric *currentMetric            = _RPTMetric.new;
     currentMetric.identifier             = @"defaultMetric";
-    _RPTTracker *tracker                 = [_RPTTracker.alloc initWithRingBuffer:ringBuffer currentMetric:currentMetric];
+    _RPTTracker *tracker                 = [_RPTTracker.alloc initWithRingBuffer:ringBuffer configuration:nil currentMetric:currentMetric];
     return tracker;
 }
 

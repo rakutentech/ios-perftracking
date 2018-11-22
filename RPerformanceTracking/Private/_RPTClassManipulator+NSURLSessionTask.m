@@ -55,14 +55,16 @@ void _handleChangedState(NSURLSessionTask *task, NSURLSessionTaskState state)
         {
             _RPTTracker *tracker = _RPTTrackingManager.sharedInstance.tracker;
             NSInteger statusCode = 0;
+            NSDictionary *responseHeaders = nil;
             if ([task.response isKindOfClass:[NSHTTPURLResponse class]])
             {
                 NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)task.response;
                 statusCode = httpResponse.statusCode;
-                [tracker sendResponseHeaders:httpResponse.allHeaderFields.copy trackingIdentifier:trackingIdentifier];
+                responseHeaders = httpResponse.allHeaderFields.copy;
             }
             [tracker updateStatusCode:statusCode trackingIdentifier:trackingIdentifier];
             [tracker end:trackingIdentifier];
+            [tracker sendResponseHeaders:responseHeaders trackingIdentifier:trackingIdentifier];
         }
     }
 }
