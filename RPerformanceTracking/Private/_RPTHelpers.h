@@ -9,6 +9,23 @@
 #   define RPTLogVerbose(...) do { } while(0)
 #endif
 
-int64_t _RPTTimeIntervalInMiliseconds(NSTimeInterval timeInterval);
-BOOL _RPTNumberToBool(NSNumber *number, BOOL defaultValue);
+NS_INLINE int64_t _RPTTimeIntervalInMiliseconds(NSTimeInterval timeInterval)
+{
+    return MAX(0ll, (long long)(timeInterval * 1000));
+}
+
+NS_INLINE BOOL _RPTNumberToBool(NSNumber *number, BOOL defaultValue)
+{
+    BOOL result = defaultValue;
+    if ([number isKindOfClass:NSNumber.class]) {
+        result = [number boolValue];
+    }
+    return result;
+}
+
+NS_INLINE BOOL boolForInfoPlistKey(NSString *key)
+{
+    return [[NSBundle.mainBundle objectForInfoDictionaryKey:key] boolValue];
+}
+
 

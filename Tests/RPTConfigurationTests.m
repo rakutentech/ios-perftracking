@@ -1,5 +1,6 @@
 #import <Kiwi/Kiwi.h>
 #import "_RPTConfiguration.h"
+#import "_RPTEnvironment.h"
 
 #import "TestUtils.h"
 
@@ -85,6 +86,40 @@ describe(@"RPTConfiguration", ^{
             _RPTConfiguration* config = [[_RPTConfiguration alloc] initWithData:payload];
 
             [[theValue(config.shouldSendDataToRAT) should] beFalse];
+        });
+    });
+});
+
+SPEC_END
+
+SPEC_BEGIN(_RPTConfigurationFetcherTests)
+
+describe(@"_RPTConfigurationFetcher", ^{
+    describe(@"config fetch", ^{
+        __block NSURLSession* configURLSession;
+        beforeEach(^{
+            configURLSession = [NSURLSession nullMock];
+            [NSURLSession stub:@selector(sessionWithConfiguration:) andReturn:configURLSession];
+        });
+        
+        it(@"should append to config request os version as QS parameter", ^{
+            KWCaptureSpy *spy = [configURLSession captureArgument:@selector(dataTaskWithURL:completionHandler:) atIndex:0];
+            [_RPTEnvironment stub:@selector(new) andReturn:mkEnvironmentStub(@{@"osVersion": @"100500"})];
+            
+            [_RPTConfigurationFetcher fetchWithCompletionHandler:nil];
+            NSURL* configURL = spy.argument;
+            
+            [[configURL.query should] containString:@"osVersion=100500"];
+        });
+        
+        it(@"should append to config request device model name as QS parameter", ^{
+            KWCaptureSpy *spy = [configURLSession captureArgument:@selector(dataTaskWithURL:completionHandler:) atIndex:0];
+            [_RPTEnvironment stub:@selector(new) andReturn:mkEnvironmentStub(@{@"modelIdentifier": @"ios_device"})];
+            
+            [_RPTConfigurationFetcher fetchWithCompletionHandler:nil];
+            NSURL* configURL = spy.argument;
+            
+            [[configURL.query should] containString:@"device=ios_device"];
         });
     });
 });

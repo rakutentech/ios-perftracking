@@ -6,12 +6,7 @@
 
 @implementation _RPTClassManipulator (UITableViewCell)
 
-+ (void)load
-{
-    [self _swizzleUITableViewCell];
-}
-
-+ (void)_swizzleUITableViewCell
++ (void)rpt_swizzleUITableViewCell
 {
     id setSelected_swizzle_blockImp = ^void (id<NSObject> selfRef, BOOL selected) {
         RPTLogVerbose(@"UITableViewCell setSelected_swizzle_blockImp called");

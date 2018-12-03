@@ -57,4 +57,44 @@ static NSString *const KEY = @"com.rakuten.performancetracking.location";
 {
 	if (data.length) [NSUserDefaults.standardUserDefaults setObject:data forKey:KEY];
 }
+
+@end
+
+@implementation _RPTLocationFetcher
+
++ (void)fetch
+{
+    NSURLSessionConfiguration *sessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration;
+    NSString *subscriptionKey = [NSBundle.mainBundle objectForInfoDictionaryKey:@"RPTSubscriptionKey"];
+    
+    NSURL *locationURL = nil;
+    NSString *locationURLString = [NSBundle.mainBundle objectForInfoDictionaryKey:@"RPTLocationAPIEndpoint"];
+    
+    if (locationURLString.length) { locationURL = [NSURL URLWithString:locationURLString]; }
+#if DEBUG
+    NSAssert(locationURL, @"Your application's Info.plist must contain a key 'RPTLocationAPIEndpoint' set to the endpoint URL of your Location API");
+#endif
+    
+    if (!locationURL) return;
+    
+    if (subscriptionKey) { sessionConfiguration.HTTPAdditionalHeaders = @{@"Ocp-Apim-Subscription-Key":subscriptionKey}; }
+    
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration];
+    
+    [[session dataTaskWithURL:locationURL completionHandler:^(NSData *data, __unused NSURLResponse *response, __unused NSError * error)
+      {
+          if (!error && [response isKindOfClass:NSHTTPURLResponse.class])
+          {
+              NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *) response;
+              if (httpResponse.statusCode == 200 && data)
+              {
+                  _RPTLocation *locationConfig = [_RPTLocation.alloc initWithData:data];
+                  if (locationConfig)
+                  {
+                      [_RPTLocation persistWithData:data];
+                  }
+              }
+          }
+      }] resume];
+}
 @end

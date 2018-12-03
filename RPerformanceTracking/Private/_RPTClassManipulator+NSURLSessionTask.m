@@ -8,11 +8,6 @@ void _handleChangedState(NSURLSessionTask *task, NSURLSessionTaskState state);
 
 @implementation _RPTClassManipulator (NSURLSessionTask)
 
-+ (void)load
-{
-    [self _swizzleTaskSetState];
-}
-
 /*
  * Provide a unique key for associated object
  */
@@ -55,7 +50,7 @@ void _handleChangedState(NSURLSessionTask *task, NSURLSessionTaskState state)
         {
             _RPTTracker *tracker = _RPTTrackingManager.sharedInstance.tracker;
             NSInteger statusCode = 0;
-            NSDictionary *responseHeaders = nil;
+            NSDictionary *responseHeaders = NSDictionary.dictionary;
             if ([task.response isKindOfClass:[NSHTTPURLResponse class]])
             {
                 NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)task.response;
@@ -69,7 +64,7 @@ void _handleChangedState(NSURLSessionTask *task, NSURLSessionTaskState state)
     }
 }
 
-+ (void)_swizzleTaskSetState
++ (void)rpt_swizzleTaskSetState
 {
     NSURLSession *session = [NSURLSession sessionWithConfiguration:NSURLSessionConfiguration.defaultSessionConfiguration];
     NSURL *testURL = [NSURL URLWithString:@"https://www.rakuten.co.jp"];

@@ -54,12 +54,8 @@ static void updateStatusCodeForWebView(NSInteger statusCode, WKWebView *webView)
 }
 
 @implementation _RPTClassManipulator (WKWebView)
-+ (void)load
-{
-    [self _swizzleWKWebView];
-}
 
-+ (void)_swizzleWKWebView
++ (void)rpt_swizzleWKWebView
 {
     // MARK: WKWebView loadRequest:
     

@@ -54,12 +54,7 @@ static void endTrackingWithUIWebView(UIWebView *webView)
 
 @implementation _RPTClassManipulator (UIWebView)
 
-+ (void)load
-{
-    [self _swizzleUIWebView];
-}
-
-+ (void)_swizzleUIWebView
++ (void)rpt_swizzleUIWebView
 {
     // MARK: UIWebView loadRequest:
 

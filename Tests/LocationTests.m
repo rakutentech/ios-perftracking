@@ -80,7 +80,7 @@ static _RPTTrackingManager *_trackingManager = nil;
 	
 	[self stubLocationRequestsWithStatusCode:200 responseDictionary:@{ @"Location": @(95)}];
 	
-	[_trackingManager refreshLocation];
+    [_RPTLocationFetcher fetch];
 	
 	// Wait for fetched location
 	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -102,7 +102,7 @@ static _RPTTrackingManager *_trackingManager = nil;
 	
 	[self stubLocationRequestsWithStatusCode:500 responseDictionary:@{ @"Location": @(95)}];
 
-	[_trackingManager refreshLocation];
+	[_RPTLocationFetcher fetch];
 	
 	// Wait for fetched location
 	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -126,7 +126,7 @@ static _RPTTrackingManager *_trackingManager = nil;
 	
 	[self stubLocationRequestsWithStatusCode:500 responseDictionary:@{ @"Location": @(95)}];
 	
-	[_trackingManager refreshLocation];
+	[_RPTLocationFetcher fetch];
 	
 	uint_fast64_t ti = [_trackingManager.tracker startCustom:@"m1"];
 	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -150,7 +150,7 @@ static _RPTTrackingManager *_trackingManager = nil;
 	NSDictionary *obj = @{ @"status": @"ok", @"list": @[@{@"subdivisions" : @[@{@"names" : @{@"en" : @"teststate"}}], @"country" : @{@"iso_code" : @"testcountry"}}]};
 
 	[self stubLocationRequestsWithStatusCode:200 responseDictionary:obj];
-	[_trackingManager refreshLocation];
+	[_RPTLocationFetcher fetch];
 		
 	uint_fast64_t ti = [_trackingManager.tracker startCustom:@"m1"];
 	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -178,7 +178,7 @@ static _RPTTrackingManager *_trackingManager = nil;
 	
 	[self stubLocationRequestsWithStatusCode:200 responseDictionary:obj];
 	
-	[_trackingManager refreshLocation];
+	[_RPTLocationFetcher fetch];
 	
 	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 		

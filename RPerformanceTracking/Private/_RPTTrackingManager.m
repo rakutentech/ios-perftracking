@@ -10,6 +10,7 @@
 #import "_RPTLocation.h"
 #import "_RPTMainThreadWatcher.h"
 #import "_RPTEnvironment.h"
+#import "_RPTClassManipulator.h"
 
 static const NSUInteger      MAX_MEASUREMENTS               = 512u;
 static const NSUInteger      TRACKING_DATA_LIMIT            = 100u;
@@ -101,44 +102,25 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
         {
             _configuration = [_RPTConfiguration loadConfiguration];
             if (!_configuration) break;
+
+            if ([self disableTracking] || boolForInfoPlistKey(@"RPTDeferSwizzlingUntilActivateResponseReceived"))
+            {
+                break;
+            }
             
-            if ([self disableTracking]) break;
+            if (![self setupTracking]) return nil;
             
-            _trackingData = [NSMutableDictionary.alloc initWithCapacity:TRACKING_DATA_LIMIT];
-            if (!_trackingData) return nil;
-            
-            _ringBuffer = [_RPTRingBuffer.alloc initWithSize:MAX_MEASUREMENTS];
-            if (!_ringBuffer) return nil;
-            
-            _currentMetric = [_RPTMetric new];
-            
-            _tracker = [_RPTTracker.alloc initWithRingBuffer:_ringBuffer
-                                               configuration:_configuration
-                                               currentMetric:_currentMetric];
-            if (!_tracker) return nil;
-            
-            _eventWriter = [_RPTEventWriter.alloc initWithConfiguration:_configuration];
-            if (!_eventWriter) return nil;
-            
-            _sender = [_RPTSender.alloc initWithRingBuffer:_ringBuffer
-                                             configuration:_configuration
-                                             currentMetric:_currentMetric
-                                               eventWriter:_eventWriter];
-            if (!_sender) return nil;
-            
-            _eventWriter.delegate = _sender;
-            
-            [self addEndMetricObservers];
-            [_sender start];
-            
-            // Profile main thread to check if it is running for > threshold time
-            _watcher = [_RPTMainThreadWatcher.alloc initWithThreshold:MAIN_THREAD_BLOCK_THRESHOLD];
-            [_watcher start];
-            
-            [UIDevice currentDevice].batteryMonitoringEnabled = YES;
         } while (0);
         
-        [self updateConfiguration];
+        // Note that the update call MUST be performed async so that we return an
+        // initialized instance immediately.
+        //
+        // Otherwise there will be a crash due to nested dispatch_once calls that occurs
+        // when NSURLSessionTask swizzling attempts to get RPTTrackingManager.shared
+        // before the first call to RPTTrackingManager.shared has successfully returned.
+        dispatch_async(dispatch_get_main_queue(), ^{
+           [self updateConfiguration];
+        });
     }
     return self;
 }
@@ -153,9 +135,111 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
     return instance;
 }
 
+- (BOOL)setupTracking
+{
+    _trackingData = [NSMutableDictionary.alloc initWithCapacity:TRACKING_DATA_LIMIT];
+    if (!_trackingData) return NO;
+    
+    _ringBuffer = [_RPTRingBuffer.alloc initWithSize:MAX_MEASUREMENTS];
+    if (!_ringBuffer) return NO;
+    
+    _currentMetric = [_RPTMetric new];
+    
+    _tracker = [_RPTTracker.alloc initWithRingBuffer:_ringBuffer
+                                       configuration:_configuration
+                                       currentMetric:_currentMetric];
+    if (!_tracker) return NO;
+    
+    _eventWriter = [_RPTEventWriter.alloc initWithConfiguration:_configuration];
+    if (!_eventWriter) return NO;
+    
+    _sender = [_RPTSender.alloc initWithRingBuffer:_ringBuffer
+                                     configuration:_configuration
+                                     currentMetric:_currentMetric
+                                       eventWriter:_eventWriter];
+    if (!_sender) return NO;
+    
+    _eventWriter.delegate = _sender;
+    
+    [self addEndMetricObservers];
+    [_sender start];
+    
+    // Profile main thread to check if it is running for > threshold time
+    _watcher = [_RPTMainThreadWatcher.alloc initWithThreshold:MAIN_THREAD_BLOCK_THRESHOLD];
+    [_watcher start];
+    
+    [UIDevice currentDevice].batteryMonitoringEnabled = YES;
+    
+    return YES;
+}
+
 - (void)dealloc
 {
     [NSNotificationCenter.defaultCenter removeObserver:self];
+}
+
+- (void)updateConfiguration
+{
+    [_RPTConfigurationFetcher fetchWithCompletionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        
+        BOOL invalidConfig = NO;
+        if (error)
+        {
+            invalidConfig = YES;
+        }
+        else if ([response isKindOfClass:NSHTTPURLResponse.class])
+        {
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *) response;
+            if (httpResponse.statusCode != 200)
+            {
+                invalidConfig = YES;
+            }
+            else if (data)
+            {
+                // store "current" activation ratio because we are about to overwrite it
+                if ((self.configuration = [_RPTConfiguration loadConfiguration]))
+                {
+                    self.currentActivationRatio = self.configuration.activationRatio;
+                }
+                
+                _RPTConfiguration *config = [_RPTConfiguration.alloc initWithData:data];
+                if (config)
+                {
+                    [_RPTConfiguration persistWithData:data];
+                }
+                else
+                {
+                    invalidConfig = YES;
+                }
+            }
+        }
+        
+        // If the activation ratio is set to 0 on the portal, the server won't send anything, so the config will be nil.
+        // It means that we will disable the method swizzling if the config is nil.
+        self.disableSwizzling = invalidConfig;
+        
+        BOOL shouldDisableTracking = [self disableTracking];
+        if (shouldDisableTracking || invalidConfig)
+        {
+            RPTLog(@"Tracking disabled: activation check response %@, Config API response %@", shouldDisableTracking?@"OFF":@"ON", invalidConfig?@"invalid":@"valid");
+            [self stopTracking];
+        }
+        else
+        {
+            // config is valid and tracking enabled
+            RPTLog(@"Valid config received and activation check returned true");
+            
+            if (boolForInfoPlistKey(@"RPTDeferSwizzlingUntilActivateResponseReceived") &&
+                [_RPTLocation loadLocation])
+            {
+                // Location was already fetched and saved so this isn't first run post install
+                [self setupTracking];
+                [_RPTClassManipulator setupDeferredSwizzles];
+            }
+            
+            [_RPTLocationFetcher fetch];
+        }
+    }];
 }
 
 - (BOOL)disableTracking
@@ -167,102 +251,6 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
     return (random_value < 1.0 - _configuration.activationRatio || _configuration.activationRatio < _currentActivationRatio) && !_forceTrackingEnabled;
 }
 
-- (void)updateConfiguration
-{
-    _RPTEnvironment* environment = [_RPTEnvironment new];
-    
-    NSString *relayAppID    = environment.relayAppId;
-    NSString *appVersion    = environment.appVersion;
-    NSString *sdkVersion    = environment.sdkVersion;
-    NSString *country       = environment.deviceCountry;
-    
-    NSString *path = [NSString stringWithFormat:@"/platform/ios/"];
-    if (relayAppID.length){ path = [path stringByAppendingString:[NSString stringWithFormat:@"app/%@/", relayAppID]]; }
-#if DEBUG
-    NSAssert(relayAppID.length, @"Your application's Info.plist must contain a key 'RPTRelayAppID' set to the relay Portal application ID");
-#endif
-    
-    path = [path stringByAppendingString:[NSString stringWithFormat:@"version/%@/", appVersion]];
-    
-    NSURLSessionConfiguration *sessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration;
-    
-    NSURL *base = environment.performanceTrackingBaseURL;
-#if DEBUG
-    NSAssert(base, @"Your application's Info.plist must contain a key 'RPTConfigAPIEndpoint' set to the endpoint URL of your Config API");
-#endif
-		
-    NSString *subscriptionKey = environment.performanceTrackingSubscriptionKey;
-    if (subscriptionKey.length) { sessionConfiguration.HTTPAdditionalHeaders = @{@"Ocp-Apim-Subscription-Key":subscriptionKey}; }
-#if DEBUG
-    NSAssert(subscriptionKey.length, @"Your application's Info.plist file must contain a key 'RPTSubscriptionKey' which should be set to your 'Ocp-Apim-Subscription-Key' from the API Portal");
-#endif
-    
-    NSURL *url = [base URLByAppendingPathComponent:path];
-    
-    if (!url || !base || !subscriptionKey.length || !relayAppID.length)
-    {
-        // Fail safely in a release build if the info.plist doesn't have the expected key-values
-        return;
-    }
-    
-    NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
-    components.query = [NSString stringWithFormat:@"sdk=%@&country=%@&osVersion=%@&device=%@", sdkVersion, country, environment.osVersion, environment.modelIdentifier];
-
-    NSURL* configURL = components.URL;
-    NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration];
-    [[session dataTaskWithURL:configURL completionHandler:^(NSData *data, __unused NSURLResponse *response, __unused NSError * error)
-      {
-          BOOL invalidConfig = NO;
-          if (error)
-          {
-              invalidConfig = YES;
-          }
-          else if ([response isKindOfClass:NSHTTPURLResponse.class])
-          {
-              NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *) response;
-              if (httpResponse.statusCode != 200)
-              {
-                  invalidConfig = YES;
-              }
-              else if (data)
-              {
-                  // store "current" activation ratio because we are about to overwrite it
-                  if ((self.configuration = [_RPTConfiguration loadConfiguration]))
-                  {
-                      self.currentActivationRatio = self.configuration.activationRatio;
-                  }
-
-                  _RPTConfiguration *config = [_RPTConfiguration.alloc initWithData:data];
-                  if (config)
-                  {
-                      [_RPTConfiguration persistWithData:data];
-                  }
-                  else
-                  {
-                      invalidConfig = YES;
-                  }
-              }
-          }
-
-          // If the activation ration is set to 0 on the portal, the server won't send anything, so the config will be nil.
-          // It means that we will disable the method swizzling if the config is nil.
-          self.disableSwizzling = invalidConfig;
-
-          BOOL shouldDisableTracking = [self disableTracking];
-          if (shouldDisableTracking || invalidConfig)
-          {
-              RPTLog(@"Tracking disabled: activation check response %@, Config API response %@", shouldDisableTracking?@"OFF":@"ON", invalidConfig?@"invalid":@"valid");
-              [self stopTracking];
-          }
-          else
-          {
-              // config is valid and tracking enabled
-              RPTLog(@"Valid config received. Tracking is active.");
-              if (self.tracker) [self refreshLocation];
-          }
-      }] resume];
-}
-
 - (void)stopTracking
 {
     // async in background because the sender stop is blocking
@@ -272,42 +260,6 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
     });
     [self invalidateRefreshConfigTimer];
     [_watcher cancel];
-}
-
-- (void)refreshLocation
-{
-	NSURLSessionConfiguration *sessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration;
-	NSString *subscriptionKey = [NSBundle.mainBundle objectForInfoDictionaryKey:@"RPTSubscriptionKey"];
-	
-    NSURL *locationURL = nil;
-    NSString *locationURLString = [NSBundle.mainBundle objectForInfoDictionaryKey:@"RPTLocationAPIEndpoint"];
-    
-    if (locationURLString.length) { locationURL = [NSURL URLWithString:locationURLString]; }
-#if DEBUG
-    NSAssert(locationURL, @"Your application's Info.plist must contain a key 'RPTLocationAPIEndpoint' set to the endpoint URL of your Location API");
-#endif
-    
-    if (!locationURL) return;
-	
-	if (subscriptionKey) { sessionConfiguration.HTTPAdditionalHeaders = @{@"Ocp-Apim-Subscription-Key":subscriptionKey}; }
-	
-	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration];
-	
-	[[session dataTaskWithURL:locationURL completionHandler:^(NSData *data, __unused NSURLResponse *response, __unused NSError * error)
-	  {
-		  if (!error && [response isKindOfClass:NSHTTPURLResponse.class])
-		  {
-			  NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *) response;
-			  if (httpResponse.statusCode == 200 && data)
-			  {
-				  _RPTLocation *locationConfig = [_RPTLocation.alloc initWithData:data];
-				  if (locationConfig)
-				  {
-					  [_RPTLocation persistWithData:data];
-				  }
-			  }
-		  }
-	  }] resume];
 }
 
 - (void)refreshConfigTimerFire:(__unused NSTimer *)timer
@@ -326,6 +278,8 @@ RPT_EXPORT @interface _RPTTrackingKey : NSObject<NSCopying>
         self.refreshConfigTimer = nil;
     });
 }
+
+// MARK: Metric and measurement handling
 
 // Auto-start
 + (void)load
