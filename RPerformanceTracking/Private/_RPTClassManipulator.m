@@ -92,17 +92,30 @@ static NSValue *_deferredSwizzlerIMP = nil;
 
 + (void)setupSwizzles
 {
-    // swizzling should only be performed once per session
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        [_RPTClassManipulator rpt_swizzleTaskSetState];
-        [_RPTClassManipulator rpt_swizzleUICollectionViewCell];
-        [_RPTClassManipulator rpt_swizzleUIControl];
-        [_RPTClassManipulator rpt_swizzleUITableViewCell];
-        [_RPTClassManipulator rpt_swizzleUIViewController];
-        [_RPTClassManipulator rpt_swizzleUIWebView];
-        [_RPTClassManipulator rpt_swizzleWKWebView];
-    });
+    // swizzling should only be performed once per session and on the main thread (due
+    // to UI classes)
+    
+    void (^setupSwizzleMethodsBlock)(void) = ^ {
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            [_RPTClassManipulator rpt_swizzleTaskSetState];
+            [_RPTClassManipulator rpt_swizzleUICollectionViewCell];
+            [_RPTClassManipulator rpt_swizzleUIControl];
+            [_RPTClassManipulator rpt_swizzleUITableViewCell];
+            [_RPTClassManipulator rpt_swizzleUIViewController];
+            [_RPTClassManipulator rpt_swizzleUIWebView];
+            [_RPTClassManipulator rpt_swizzleWKWebView];
+        });
+    };
+    
+    if ([NSThread isMainThread]) {
+        setupSwizzleMethodsBlock();
+    }
+    else {
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            setupSwizzleMethodsBlock();
+        });
+    }
 }
 
 + (void)setupDeferredSwizzles
