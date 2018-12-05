@@ -1,5 +1,9 @@
 ## Changelog
 
+### 2.0.0 (in-progress)
+
+- SDKCF-743 Drop support for OS version below 10.0.
+
 ### 1.2.0 (2018-06-13)
 
 - REM-25613 Send network request and webview HTTP status code to backend.
