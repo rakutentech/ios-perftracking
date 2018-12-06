@@ -6,7 +6,7 @@ Pod::Spec.new do |s|
   s.homepage     = "https://github.com/rakutentech/ios-perftracking"
   s.license      = { :type => 'MIT', :file => 'LICENSE' }
   s.source       = { :git => "https://github.com/rakutentech/ios-perftracking.git", :tag => s.version.to_s }
-  s.platform     = :ios, '8.0'
+  s.platform     = :ios, '10.0'
   s.requires_arc = true
   s.documentation_url = "https://github.com/rakutentech/ios-perftracking"
   s.pod_target_xcconfig = {
