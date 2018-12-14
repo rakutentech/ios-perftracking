@@ -3,6 +3,8 @@
 ### 2.0.0 (in-progress)
 
 - SDKCF-743 Drop support for OS version below 10.0.
+- APTT-662/APTT-675 Add ability to send tracking data to RAT and/or Azure depending on the `Data Storage` setting in the Rakuten App Studio Portal. Currently the only tracking data sent to RAT is network events.
+- APTT-728 Known issue: Due to an Apple issue it is not possible to track the response status code in UIWebViews in iOS 12.
 
 ### 1.2.0 (2018-06-13)
 
