@@ -47,7 +47,7 @@ static _RPTTrackingManager *_trackingManager = nil;
     _webView                               = [[WKWebView alloc] initWithFrame:CGRectZero
                                                                 configuration:[[WKWebViewConfiguration alloc] init]];
     _webView.navigationDelegate            = self;
-    [_webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"www.google.com"]]];
+    [_webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://www.google.com"]]];
 }
 
 - (void)tearDown
@@ -132,6 +132,40 @@ static _RPTTrackingManager *_trackingManager = nil;
                                withError:[NSError errorWithDomain:NSCocoaErrorDomain code:1 userInfo:nil]];
     OCMVerify([mockTracker endMetric]);
     [mockTracker stopMocking];
+}
+
+- (void)testEndMetricCalledOnWKWebviewWebContentProcessDidTerminate
+{
+    id mockTracker = OCMPartialMock(_trackingManager.tracker);
+    [_webView.navigationDelegate webViewWebContentProcessDidTerminate:_webView];
+    OCMVerify([mockTracker endMetric]);
+    [mockTracker stopMocking];
+}
+
+- (void)testWebViewURLAccessedOnDidReceiveServerRedirectForProvisionalNavigation
+{
+    id wvMock = OCMPartialMock(_webView);
+    [_webView.navigationDelegate webView:wvMock didReceiveServerRedirectForProvisionalNavigation:nil];
+    OCMVerify([wvMock URL]);
+    [wvMock stopMocking];
+}
+
+- (void)testProlongMetricCalledOnWebViewDecidePolicyForNavigationResponse
+{
+    id mockTracker = OCMPartialMock(_trackingManager.tracker);
+    id navResponseMock = OCMPartialMock(WKNavigationResponse.new);
+    NSHTTPURLResponse *httpResponse = [NSHTTPURLResponse.alloc initWithURL:[NSURL
+                                                                            URLWithString:@"https://www.google.com/"]
+                                                                statusCode:200
+                                                               HTTPVersion:@"HTTP/1.1"
+                                                              headerFields:nil];
+    OCMStub([navResponseMock response]).andReturn(httpResponse);
+    [_webView.navigationDelegate webView:_webView decidePolicyForNavigationResponse:navResponseMock decisionHandler:^(WKNavigationResponsePolicy policy) {
+        //
+    }];
+    OCMVerify([mockTracker prolongMetric]);
+    [mockTracker stopMocking];
+    [navResponseMock stopMocking];
 }
 
 // MARK: WKNavigationDelegate
