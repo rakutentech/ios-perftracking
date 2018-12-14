@@ -1,5 +1,10 @@
 ## Changelog
 
+### 1.3.0 (in-progress)
+
+- Known issue: Due to an Apple issue it is not possible to track the response status code in UIWebViews in iOS 12.
+- APTT-662/APTT-675 Add ability to send tracking data to RAT and/or Azure depending on the `Data Storage` setting in the Rakuten App Studio Portal. Currently the only tracking data sent to RAT is network events.
+
 ### 1.2.0 (2018-06-13)
 
 - REM-25613 Send network request and webview HTTP status code to backend.
