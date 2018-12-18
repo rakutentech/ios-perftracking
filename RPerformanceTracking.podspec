@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "RPerformanceTracking"
-  s.version      = "1.2.0"
+  s.version      = "1.3.0"
   s.authors      = "Rakuten Ecosystem Mobile"
   s.summary      = "Automatic performance tracking for all your applications."
   s.homepage     = "https://github.com/rakutentech/ios-perftracking"
