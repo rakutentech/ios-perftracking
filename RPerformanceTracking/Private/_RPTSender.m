@@ -114,6 +114,16 @@ static const NSTimeInterval SLEEP_MAX_INTERVAL          = 1800; // 30 minutes
         {
             index = [self sendWithStartIndex:index endIndex:idIndex];
         }
+        else
+        {
+            // If the measurement buffer is filled, we may have a cached metric
+            // that hasn't been sent
+            if (_metric)
+            {
+                [self sendSingleMetric:_metric];
+                _metric = nil;
+            }
+        }
         
         NSTimeInterval sleepTime = MIN(SLEEP_MAX_INTERVAL, pow(2, MIN(10, _failures)) * _sleepInterval);
         [NSThread sleepForTimeInterval:sleepTime];
@@ -216,6 +226,16 @@ static const NSTimeInterval SLEEP_MAX_INTERVAL          = 1800; // 30 minutes
     _sentCount++;
 }
 
+- (void)sendSingleMetric:(_RPTMetric *)metric
+{
+    _sentCount = 0;
+    [self writeMetric:metric];
+    
+    if (_sentCount > 0)
+    {
+        [_eventWriter end];
+    }
+}
 - (NSUInteger)indexAfterSendingWithStartIndex:(NSUInteger)startIndex endIndex:(NSUInteger)endIndex
 {
     NSUInteger returnIndex = startIndex;
@@ -240,7 +260,7 @@ static const NSTimeInterval SLEEP_MAX_INTERVAL          = 1800; // 30 minutes
         else if ([_response isKindOfClass:NSHTTPURLResponse.class])
         {
             NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *) _response;
-            if (httpResponse.statusCode == 201) // Created
+            if (httpResponse.statusCode == 201) // Success
             {
                 _failures = 0;
                 returnIndex = endIndex;
