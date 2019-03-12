@@ -17,7 +17,7 @@ static const NSUInteger      TRACKING_DATA_LIMIT            = 100u;
 
 static NSString *const       METRIC_LAUNCH                  = @"_launch";
 
-static const NSUInteger      ARCRANDOM_MAX              = 0x100000000;
+static const uint64_t        ARCRANDOM_MAX                  = 0x100000000;
 
 static const NSTimeInterval  REFRESH_CONFIG_INTERVAL        = 3600.0; // 1 hour
 static const NSTimeInterval  MAIN_THREAD_BLOCK_THRESHOLD    = 0.4;
