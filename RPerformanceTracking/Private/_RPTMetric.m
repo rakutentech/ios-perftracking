@@ -36,4 +36,15 @@ const NSTimeInterval _RPT_METRIC_MAXTIME = 10.0;
     return copy;
 }
 
+- (BOOL)durationLessThanMax
+{
+    NSTimeInterval duration = _endTime - _startTime;
+    return duration < [self.class maxDurationInSecs];
+}
+
++ (NSTimeInterval)maxDurationInSecs
+{
+    return _RPT_METRIC_MAXTIME;
+}
+
 @end

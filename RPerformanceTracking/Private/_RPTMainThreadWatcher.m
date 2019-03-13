@@ -47,10 +47,9 @@
         {
             // Main thread has been blocked for at least 'threshold' seconds
             _endTime = [NSDate.date timeIntervalSince1970];
-            RPTLog(@"Thread watcher: main thread blocked");
 
-            uint_fast64_t ti = [_RPTTrackingManager.sharedInstance.tracker addDevice:@"main_thread_blocked" start:_startTime end:_endTime];
-            if (!ti) RPTLog(@"Thread watcher: failed to add measurement");
+            RPTLog(@"Thread watcher: main thread blocked at least %f secs.", _blockThreshold);
+            [_RPTTrackingManager.sharedInstance.tracker addDevice:@"main_thread_blocked" start:_startTime end:_endTime];
         }
         
         dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);

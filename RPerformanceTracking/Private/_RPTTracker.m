@@ -50,8 +50,11 @@
             
             metric.endTime = now;
             
-            if (now - metric.startTime > _RPT_METRIC_MAXTIME)
+            NSTimeInterval maxDurationInSecs = [_RPTMetric maxDurationInSecs];
+            if (now - metric.startTime > maxDurationInSecs)
             {
+                // Metric has timed out
+                RPTLog(@"Metric %@ that started at %@ has been nil'd because it exceeded the max duration of %f seconds when attempting to prolong it at %@", metric.identifier, [NSDate dateWithTimeIntervalSince1970:metric.startTime], maxDurationInSecs, [NSDate dateWithTimeIntervalSince1970:now]);
                 _currentMetric = nil;
             }
         }

@@ -1,0 +1,34 @@
+# mostly based on https://github.com/NYTimes/objective-c-style-guide
+---
+# common
+SortIncludes: false
+UseTab: Never
+---
+Language:        ObjC
+BreakBeforeBraces: Custom
+BraceWrapping:
+    AfterEnum: true
+    AfterControlStatement: false
+    AfterFunction: false
+    AfterObjCDeclaration: true
+    BeforeCatch: true
+    BeforeElse: true
+ColumnLimit: 0
+IndentWidth: 4
+MaxEmptyLinesToKeep: 1
+ObjCBlockIndentWidth: 4
+ObjCSpaceAfterProperty: true
+ObjCSpaceBeforeProtocolList: true
+PointerBindsToType: false
+SpacesBeforeTrailingComments: 1
+SpacesInParentheses: false
+SpacesInAngles:  false
+SpaceInEmptyParentheses: false
+SpacesInCStyleCastParentheses: false
+SpacesInContainerLiterals: true
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeParens: ControlStatements
+SpacesInContainerLiterals: false
+---
+Language: Cpp
+DisableFormat: true

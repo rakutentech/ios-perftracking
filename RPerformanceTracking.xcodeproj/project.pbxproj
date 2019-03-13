@@ -31,6 +31,7 @@
 		6D312C621EA5D98D00467620 /* NetworkSessionHookTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D312C611EA5D98D00467620 /* NetworkSessionHookTests.m */; };
 		6D3DBD4A1E824A9B00B97E89 /* SenderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D3DBD491E824A9B00B97E89 /* SenderTests.m */; };
 		6D64251D1EB8611C00755DA3 /* ConfigTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D64251C1EB8611C00755DA3 /* ConfigTests.m */; };
+		6D872183223A484A0010BA2F /* MetricTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D872182223A484A0010BA2F /* MetricTests.m */; };
 		6DA30F6B1FAAF501006A4DE6 /* MainThreadWatcherTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6DA30F6A1FAAF501006A4DE6 /* MainThreadWatcherTests.m */; };
 		6DDD80CB1FF22BC7002DED2E /* SwizzleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6DDD80CA1FF22BC7002DED2E /* SwizzleTests.m */; };
 		C80E064C1EA876FF00FD22D2 /* TrackingManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C80E064B1EA876FF00FD22D2 /* TrackingManagerTests.m */; };
@@ -91,6 +92,7 @@
 		6D312C611EA5D98D00467620 /* NetworkSessionHookTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NetworkSessionHookTests.m; sourceTree = "<group>"; };
 		6D3DBD491E824A9B00B97E89 /* SenderTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SenderTests.m; sourceTree = "<group>"; };
 		6D64251C1EB8611C00755DA3 /* ConfigTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConfigTests.m; sourceTree = "<group>"; };
+		6D872182223A484A0010BA2F /* MetricTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MetricTests.m; sourceTree = "<group>"; };
 		6DA30F6A1FAAF501006A4DE6 /* MainThreadWatcherTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MainThreadWatcherTests.m; sourceTree = "<group>"; };
 		6DA949E21E94E09600856C95 /* SenderIntegrationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SenderIntegrationTests.m; sourceTree = "<group>"; };
 		6DDD80CA1FF22BC7002DED2E /* SwizzleTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SwizzleTests.m; sourceTree = "<group>"; };
@@ -185,6 +187,7 @@
 				5A57326F20EB56710050B152 /* RingBufferTestsKiwi.m */,
 				5AF6FD4421914F5900EA8C3B /* RPTEventBroadcastTests.m */,
 				5ABA1A712193D15D00CED97D /* HelperTests.m */,
+				6D872182223A484A0010BA2F /* MetricTests.m */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -195,7 +198,15 @@
 				69194F731CED9D3500879A11 /* Tests */,
 				69194F721CED9D3400879A11 /* UnitTests.xctest */,
 				5AEA72D620E4605B00D0D4E0 /* FunctionalTests.xctest */,
+				FACB0AC4E83C85EB3B087CFB /* Pods */,
 			);
+			sourceTree = "<group>";
+		};
+		FACB0AC4E83C85EB3B087CFB /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -358,6 +369,7 @@
 				5A8CF0CD1E9C76A1006E7544 /* UIControlTests.m in Sources */,
 				6D64251D1EB8611C00755DA3 /* ConfigTests.m in Sources */,
 				5A57327020EB56710050B152 /* RingBufferTestsKiwi.m in Sources */,
+				6D872183223A484A0010BA2F /* MetricTests.m in Sources */,
 				16932AE92080508E00C91400 /* RPTEnvironmentTests.m in Sources */,
 				5AB9C6641E8366300066C5CB /* EventWriterTests.m in Sources */,
 				1696C3CA207714D700288BB5 /* RPTConfigurationTests.m in Sources */,
