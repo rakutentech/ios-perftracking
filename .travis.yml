@@ -1,13 +1,10 @@
 language: objective-c
 xcode_workspace: RPerformanceTracking.xcworkspace
 xcode_scheme: Tests
-osx_image: xcode9.1
+osx_image: xcode10.1
 
 before_install:
-# FIXME:remove 2 lines below when xcodeproj is fixed https://github.com/CocoaPods/Xcodeproj/issues/572
-- gem uninstall --force -x -i /Users/travis/.rvm/gems/ruby-2.4.2@global xcodeproj
-- gem install -q -N -f --no-update-sources xcodeproj:1.5.7
-- gem update fastlane --no-ri --no-rdoc --no-document
+- gem update fastlane cocoapods --no-ri --no-rdoc --no-document
 - pod repo update
 
 script: fastlane ci
