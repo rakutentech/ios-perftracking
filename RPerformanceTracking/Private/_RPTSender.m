@@ -102,8 +102,8 @@ static const NSTimeInterval SLEEP_MAX_INTERVAL          = 1800; // 30 minutes
             break;
         }
 
-        NSUInteger idIndex = ([_ringBuffer nextMeasurement].trackingIdentifier % _ringBuffer.size);
-        NSInteger count = (NSInteger)(idIndex - index);
+        NSUInteger endIndex = ([_ringBuffer nextMeasurement].trackingIdentifier % _ringBuffer.size);
+        NSInteger count = (NSInteger)(endIndex - index);
 
         if (count < 0)
         {
@@ -112,15 +112,18 @@ static const NSTimeInterval SLEEP_MAX_INTERVAL          = 1800; // 30 minutes
         
         if (count >= MIN_COUNT)
         {
-            index = [self sendWithStartIndex:index endIndex:idIndex];
+            index = [self sendWithStartIndex:index endIndex:endIndex];
         }
         else
         {
             // If the measurement buffer is filled, we may have a cached metric
-            // that hasn't been sent
+            // that hasn't been sent so send it now if its duration is < max
             if (_metric)
             {
-                [self sendSingleMetric:_metric];
+                if ([_metric durationLessThanMax])
+                {
+                    [self sendSingleMetric:_metric];
+                }
                 _metric = nil;
             }
         }
@@ -156,10 +159,15 @@ static const NSTimeInterval SLEEP_MAX_INTERVAL          = 1800; // 30 minutes
 
                 if (metric == _currentMetric)
                 {
-                    if (now - measurement.startTime < _RPT_METRIC_MAXTIME)
+                    NSTimeInterval maxDurationInSecs = [_RPTMetric maxDurationInSecs];
+                    
+                    if (now - measurement.startTime < maxDurationInSecs)
                     {
+                        // Metric is still running and under max duration so stop
+                        // sending measurements and just set the current index
+                        // as the start index for the next call into the sender
                         return i;
-                    }
+                    }                    
                     _currentMetric = nil;
                 }
 
@@ -175,15 +183,21 @@ static const NSTimeInterval SLEEP_MAX_INTERVAL          = 1800; // 30 minutes
                 {
                     if (now - startTime < _RPT_MEASUREMENT_MAXTIME)
                     {
+                        // Measurement has not had an end time set and is under max
+                        // duration so stop sending measurements and just set the current index
+                        // as the start index for the next call into the sender
                         return i;
                     }
 
+                    // Measurement has exceeded max duration
                     [measurement clear];
                     continue;
                 }
 
                 if (_metric && (startTime > _metric.endTime))
                 {
+                    // The start time of this measurement was after the "current" metric's
+                    // end time so send the metric
                     [self writeMetric:_metric];
                     _metric = nil;
                 }
