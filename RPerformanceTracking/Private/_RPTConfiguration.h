@@ -7,7 +7,7 @@ RPT_EXPORT @interface _RPTConfigurationFetcher : NSObject
 /*
  * Fetch configuration from server
  */
-+ (void)fetchWithCompletionHandler:(void (^)(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error))completionHandler;
++ (void)fetchWithCompletionHandler:(void (^)(NSData *_Nullable data, NSURLResponse *_Nullable response, NSError *_Nullable error))completionHandler;
 
 @end
 
@@ -20,7 +20,7 @@ RPT_EXPORT @interface _RPTConfiguration : NSObject
 /*
  * Additional headers to set on the requests.
  */
-@property (nonatomic, readonly) NSDictionary <NSString *, NSString *> *eventHubHTTPHeaderFields;
+@property (nonatomic, readonly) NSDictionary<NSString *, NSString *> *eventHubHTTPHeaderFields;
 
 /*
  * The ratio of devices that should enable tracking.

@@ -6,11 +6,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 RPT_EXPORT @interface _RPTTrackingManager : NSObject
 @property (nonatomic, readonly) _RPTConfiguration *configuration;
-@property (nonatomic, readonly) _RPTRingBuffer    *ringBuffer;
-@property (nonatomic, readonly) _RPTTracker       *tracker;
-@property (nonatomic, readonly) _RPTSender        *sender;
-@property (nonatomic, copy)     NSString          *currentScreen;
-@property (nonatomic, readonly) BOOL               disableSwizzling;
+@property (nonatomic, readonly) _RPTRingBuffer *ringBuffer;
+@property (nonatomic, readonly) _RPTTracker *tracker;
+@property (nonatomic, readonly) _RPTSender *sender;
+@property (nonatomic, copy) NSString *currentScreen;
+@property (nonatomic, readonly) BOOL disableSwizzling;
 
 + (instancetype)sharedInstance;
 

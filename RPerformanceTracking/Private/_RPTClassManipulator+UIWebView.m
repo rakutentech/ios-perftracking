@@ -8,41 +8,38 @@
 
 static const void *_RPT_UIWEBVIEW_TRACKINGIDENTIFIER = &_RPT_UIWEBVIEW_TRACKINGIDENTIFIER;
 
-static void startTrackingWithUIWebViewWithRequest(UIWebView *webView, NSURLRequest *request)
-{
+static void startTrackingWithUIWebViewWithRequest(UIWebView *webView, NSURLRequest *request) {
     _RPTTrackingManager *manager = [_RPTTrackingManager sharedInstance];
     [manager.tracker prolongMetric];
 
     // bail out if there's no URL
-    if (!request.URL) { return; }
+    if (!request.URL) {
+        return;
+    }
 
     uint_fast64_t trackingIdentifier = [objc_getAssociatedObject(webView, _RPT_UIWEBVIEW_TRACKINGIDENTIFIER) unsignedLongLongValue];
 
     // if trackingId is non-zero it means there is already a request being tracked
-    if (!trackingIdentifier)
-    {
+    if (!trackingIdentifier) {
         trackingIdentifier = [manager.tracker startRequest:request];
-        if (trackingIdentifier)
-        {
+        if (trackingIdentifier) {
             objc_setAssociatedObject(webView, _RPT_UIWEBVIEW_TRACKINGIDENTIFIER, [NSNumber numberWithUnsignedLongLong:trackingIdentifier], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
         }
     }
 }
 
-static void endTrackingWithUIWebView(UIWebView *webView)
-{
+static void endTrackingWithUIWebView(UIWebView *webView) {
     _RPTTrackingManager *manager = [_RPTTrackingManager sharedInstance];
     [manager.tracker prolongMetric];
 
-    NSURLRequest* request = webView.request;
+    NSURLRequest *request = webView.request;
     NSURL *url = request.URL;
     NSCachedURLResponse *urlResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:request];
-    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*)urlResponse.response;
+    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)urlResponse.response;
     NSInteger statusCode = httpResponse.statusCode;
 
     uint_fast64_t trackingIdentifier = [objc_getAssociatedObject(webView, _RPT_UIWEBVIEW_TRACKINGIDENTIFIER) unsignedLongLongValue];
-    if (trackingIdentifier && url)
-    {
+    if (trackingIdentifier && url) {
         // Update status code
         [manager.tracker updateURL:url trackingIdentifier:trackingIdentifier];
         [manager.tracker updateStatusCode:statusCode trackingIdentifier:trackingIdentifier];
@@ -54,28 +51,27 @@ static void endTrackingWithUIWebView(UIWebView *webView)
 
 @implementation _RPTClassManipulator (UIWebView)
 
-+ (void)rpt_swizzleUIWebView
-{
++ (void)rpt_swizzleUIWebView {
     // MARK: UIWebView loadRequest:
 
     /* The block params below are `self` and then the parameters of the swizzled method.
      * Unlike Obj-C method calls a _cmd selector is not passed to a block.
      */
-    id loadRequest_swizzle_blockImp = ^void (id<NSObject> selfRef, NSURLRequest *request) {
+    id loadRequest_swizzle_blockImp = ^void(id<NSObject> selfRef, NSURLRequest *request) {
         RPTLogVerbose(@"UIWebView loadRequest_swizzle_blockImp called");
 
-        if (request.URL) { [[_RPTTrackingManager sharedInstance].tracker prolongMetric]; }
-        if ([selfRef isKindOfClass:UIWebView.class])
-        {
-            UIWebView *webView = (UIWebView*)selfRef;
+        if (request.URL) {
+            [[_RPTTrackingManager sharedInstance].tracker prolongMetric];
+        }
+        if ([selfRef isKindOfClass:UIWebView.class]) {
+            UIWebView *webView = (UIWebView *)selfRef;
             startTrackingWithUIWebViewWithRequest(webView, request);
         }
         SEL selector = @selector(loadRequest:);
         IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:UIWebView.class];
 
-        if (originalImp)
-        {
-            return ((void(*)(id, SEL, id))originalImp)(selfRef, selector, request);
+        if (originalImp) {
+            return ((void (*)(id, SEL, id))originalImp)(selfRef, selector, request);
         }
     };
 
@@ -85,19 +81,17 @@ static void endTrackingWithUIWebView(UIWebView *webView)
                     types:"v@:@"];
 
     //  MARK: UIWebView setDelegate:
-    id setDelegate_swizzle_blockImp = ^void (id<NSObject> selfRef, id<UIWebViewDelegate> delegate) {
+    id setDelegate_swizzle_blockImp = ^void(id<NSObject> selfRef, id<UIWebViewDelegate> delegate) {
         RPTLogVerbose(@"UIWebView setDelegate_swizzle_blockImp called");
 
         SEL selector = @selector(setDelegate:);
         IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:UIWebView.class];
-        if (originalImp)
-        {
-            if (delegate && !_RPTTrackingManager.sharedInstance.disableSwizzling)
-            {
+        if (originalImp) {
+            if (delegate && !_RPTTrackingManager.sharedInstance.disableSwizzling) {
                 [_RPTClassManipulator _swizzleUIWebViewDelegate:delegate];
             }
 
-            ((void(*)(id, SEL, id))originalImp)(selfRef, selector, delegate);
+            ((void (*)(id, SEL, id))originalImp)(selfRef, selector, delegate);
         }
     };
     [self swizzleSelector:@selector(setDelegate:)
@@ -106,8 +100,7 @@ static void endTrackingWithUIWebView(UIWebView *webView)
                     types:"v@:@"];
 }
 
-+ (void)_swizzleUIWebViewDelegate:(id<UIWebViewDelegate>)delegate
-{
++ (void)_swizzleUIWebViewDelegate:(id<UIWebViewDelegate>)delegate {
     Class recipient = delegate.class;
 
     // MARK: UIWebViewDelegate webViewDidFinishLoad:
@@ -116,9 +109,8 @@ static void endTrackingWithUIWebView(UIWebView *webView)
 
         SEL selector = @selector(webViewDidFinishLoad:);
         IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:selfRef.class];
-        if (originalImp)
-        {
-            ((void(*)(id, SEL, id))originalImp)(selfRef, selector, webView);
+        if (originalImp) {
+            ((void (*)(id, SEL, id))originalImp)(selfRef, selector, webView);
         }
 
         endTrackingWithUIWebView(webView);
@@ -134,9 +126,8 @@ static void endTrackingWithUIWebView(UIWebView *webView)
 
         SEL selector = @selector(webView:didFailLoadWithError:);
         IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:selfRef.class];
-        if (originalImp)
-        {
-            ((void(*)(id, SEL, id, id))originalImp)(selfRef, selector, webView, error);
+        if (originalImp) {
+            ((void (*)(id, SEL, id, id))originalImp)(selfRef, selector, webView, error);
         }
 
         endTrackingWithUIWebView(webView);

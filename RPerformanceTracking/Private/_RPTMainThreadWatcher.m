@@ -4,21 +4,19 @@
 #import "_RPTTracker.h"
 
 @interface _RPTMainThreadWatcher ()
-@property (nonatomic) BOOL                 watcherRunning;
+@property (nonatomic) BOOL watcherRunning;
 @property (nonatomic) dispatch_semaphore_t semaphore;
-@property (nonatomic) NSTimeInterval       blockThreshold;
-@property (nonatomic) NSTimeInterval       startTime;
-@property (nonatomic) NSTimeInterval       endTime;
-@property (nonatomic) uint_fast64_t        trackingIdentifier;
+@property (nonatomic) NSTimeInterval blockThreshold;
+@property (nonatomic) NSTimeInterval startTime;
+@property (nonatomic) NSTimeInterval endTime;
+@property (nonatomic) uint_fast64_t trackingIdentifier;
 @end
 
 // Inspired by https://medium.com/@mandrigin/ios-app-performance-instruments-beyond-48fe7b7cdf2
 @implementation _RPTMainThreadWatcher
 
-- (instancetype)initWithThreshold:(NSTimeInterval)threshold
-{
-    if (self = [super init])
-    {
+- (instancetype)initWithThreshold:(NSTimeInterval)threshold {
+    if (self = [super init]) {
         _watcherRunning = NO;
         _blockThreshold = threshold;
         _semaphore = dispatch_semaphore_create(0);
@@ -26,13 +24,11 @@
     return self;
 }
 
-- (void)main
-{
-    while (!self.isCancelled)
-    {
+- (void)main {
+    while (!self.isCancelled) {
         _watcherRunning = YES;
         _startTime = [NSDate.date timeIntervalSince1970];
-        
+
         // If this block doesn't get to run on the main thread in
         // <= blockThreshold seconds then we consider the main
         // thread blocked
@@ -40,18 +36,17 @@
             self.watcherRunning = NO; // reset watcher
             dispatch_semaphore_signal(self.semaphore);
         });
-        
+
         [NSThread sleepForTimeInterval:_blockThreshold];
 
-        if (_watcherRunning)
-        {
+        if (_watcherRunning) {
             // Main thread has been blocked for at least 'threshold' seconds
             _endTime = [NSDate.date timeIntervalSince1970];
 
             RPTLog(@"Thread watcher: main thread blocked at least %f secs.", _blockThreshold);
             [_RPTTrackingManager.sharedInstance.tracker addDevice:@"main_thread_blocked" start:_startTime end:_endTime];
         }
-        
+
         dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
     }
 }
