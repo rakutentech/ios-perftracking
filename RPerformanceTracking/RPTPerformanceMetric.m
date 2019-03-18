@@ -2,13 +2,11 @@
 #import "_RPTTrackingManager.h"
 
 /* RPT_EXPORT */ @implementation RPTPerformanceMetric
-+ (void)start:(NSString *)identifier
-{
++ (void)start:(NSString *)identifier {
     [_RPTTrackingManager.sharedInstance startMetric:identifier];
 }
 
-+ (void)prolong
-{
++ (void)prolong {
     [_RPTTrackingManager.sharedInstance prolongMetric];
 }
 @end

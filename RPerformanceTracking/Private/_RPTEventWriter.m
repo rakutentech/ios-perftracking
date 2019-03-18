@@ -18,146 +18,125 @@ NSString *_RPTJSONFormatWithIntegerValue(NSString *key, long long value);
 NSString *_RPTJSONFormatWithUnsignedIntegerValue(NSString *key, unsigned long long value);
 NSString *_RPTJSONFormatWithFloatValue(NSString *key, float value);
 
-NSString *_RPTJSONFormatWithStringValue(NSString *key, NSString *value)
-{
+NSString *_RPTJSONFormatWithStringValue(NSString *key, NSString *value) {
     return [NSString stringWithFormat:@"\"%@\":\"%@\"", key, value];
 }
 
-NSString *_RPTJSONFormatWithIntegerValue(NSString *key, long long value)
-{
+NSString *_RPTJSONFormatWithIntegerValue(NSString *key, long long value) {
     return [NSString stringWithFormat:@"\"%@\":%lld", key, value];
 }
 
-NSString *_RPTJSONFormatWithUnsignedIntegerValue(NSString *key, unsigned long long value)
-{
+NSString *_RPTJSONFormatWithUnsignedIntegerValue(NSString *key, unsigned long long value) {
     return [NSString stringWithFormat:@"\"%@\":%llu", key, value];
 }
 
-NSString *_RPTJSONFormatWithFloatValue(NSString *key, float value)
-{
+NSString *_RPTJSONFormatWithFloatValue(NSString *key, float value) {
     return [NSString stringWithFormat:@"\"%@\":%.2f", key, value];
 }
 
 @interface _RPTEventWriter ()
-@property (nonatomic) _RPTConfiguration					*configuration;
-@property (nonatomic) CTTelephonyNetworkInfo			*telephonyNetworkInfo;
+@property (nonatomic) _RPTConfiguration *configuration;
+@property (nonatomic) CTTelephonyNetworkInfo *telephonyNetworkInfo;
 
-@property (nonatomic) NSMutableString					*writer;
-@property (nonatomic) NSInteger					 		 measurementCount;
-@property (nonatomic) _RPTLocation						*locationHelper;
+@property (nonatomic) NSMutableString *writer;
+@property (nonatomic) NSInteger measurementCount;
+@property (nonatomic) _RPTLocation *locationHelper;
 
-@property (nonatomic) _RPTEnvironment* environment;
+@property (nonatomic) _RPTEnvironment *environment;
 @end
 
 @implementation _RPTEventWriter
 
 #pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
 
-- (instancetype)init NS_UNAVAILABLE
-{
+- (instancetype)init NS_UNAVAILABLE {
     [self doesNotRecognizeSelector:_cmd];
     return nil;
 }
 
-- (instancetype)initWithConfiguration:(_RPTConfiguration *)configuration
-{
-    if ((self = [super init]))
-    {
+- (instancetype)initWithConfiguration:(_RPTConfiguration *)configuration {
+    if ((self = [super init])) {
         _configuration = configuration;
         _environment = [_RPTEnvironment new];
-        _telephonyNetworkInfo  = CTTelephonyNetworkInfo.new;
+        _telephonyNetworkInfo = CTTelephonyNetworkInfo.new;
     }
     return self;
 }
 
-- (void)begin
-{
-    UIDevice* device = [UIDevice currentDevice];
+- (void)begin {
+    UIDevice *device = [UIDevice currentDevice];
     __block NSString *carrierName;
     static SCNetworkReachabilityRef reachability;
 
     void (^assignCarrierName)(CTCarrier *) = ^(CTCarrier *carrier) {
-        if(carrier.carrierName)
-        {
+        if (carrier.carrierName) {
             carrierName = carrier.carrierName.copy;
         }
     };
-    
+
     // Find the reachability then update the carrierName
     reachability = SCNetworkReachabilityCreateWithName(kCFAllocatorDefault, [_RPTTrackingManager sharedInstance].configuration.eventHubURL.host.UTF8String);
     SCNetworkReachabilityScheduleWithRunLoop(reachability, CFRunLoopGetMain(), kCFRunLoopCommonModes);
     SCNetworkReachabilityFlags flags;
-    if (SCNetworkReachabilityGetFlags(reachability, &flags))
-    {
-        if ((flags & kSCNetworkReachabilityFlagsIsWWAN))
-        {
+    if (SCNetworkReachabilityGetFlags(reachability, &flags)) {
+        if ((flags & kSCNetworkReachabilityFlagsIsWWAN)) {
             CTTelephonyNetworkInfo *telephonyNetworkInfo = self.telephonyNetworkInfo;
             assignCarrierName(telephonyNetworkInfo.subscriberCellularProvider);
             telephonyNetworkInfo.subscriberCellularProviderDidUpdateNotifier = ^(CTCarrier *carrier) {
                 assignCarrierName(carrier);
             };
         }
-        else
-        {
+        else {
             carrierName = @"wifi";
         }
     }
-    
+
     _measurementCount = 0;
-    if (_writer)
-    {
+    if (_writer) {
         _writer = nil;
     }
     _writer = [NSMutableString string];
     [_writer appendString:@"{"];
-    if (_environment.appIdentifier)
-    {
+    if (_environment.appIdentifier) {
         [_writer appendString:_RPTJSONFormatWithStringValue(@"app", _environment.appIdentifier)];
     }
-    
-    if (_environment.relayAppId)
-    {
+
+    if (_environment.relayAppId) {
         [_writer appendString:@","];
         [_writer appendString:_RPTJSONFormatWithStringValue(@"relay_app_id", _environment.relayAppId)];
     }
-    
-    if (_environment.appVersion)
-    {
+
+    if (_environment.appVersion) {
         [_writer appendString:@","];
         [_writer appendString:_RPTJSONFormatWithStringValue(@"version", _environment.appVersion)];
     }
 
-    if (_environment.modelIdentifier)
-    {
+    if (_environment.modelIdentifier) {
         [_writer appendString:@","];
         [_writer appendString:_RPTJSONFormatWithStringValue(@"device", _environment.modelIdentifier)];
     }
-	
+
     NSString *region = [_RPTLocation loadLocation].location;
-    if (region)
-    {
+    if (region) {
         [_writer appendString:@","];
         [_writer appendString:_RPTJSONFormatWithStringValue(@"region", region)];
     }
-    
-	NSString *country = [_RPTLocation loadLocation].country ? : _environment.deviceCountry;
-    if (country)
-    {
+
+    NSString *country = [_RPTLocation loadLocation].country ?: _environment.deviceCountry;
+    if (country) {
         [_writer appendString:@","];
         [_writer appendString:_RPTJSONFormatWithStringValue(@"country", country)];
     }
 
-    if (carrierName)
-    {
+    if (carrierName) {
         [_writer appendString:@","];
         [_writer appendString:_RPTJSONFormatWithStringValue(@"network", carrierName)];
     }
-    
+
     [_writer appendString:@","];
     [_writer appendString:_RPTJSONFormatWithStringValue(@"os", @"ios")];
-    
-    if (_environment.osVersion)
-    {
+
+    if (_environment.osVersion) {
         [_writer appendString:@","];
         [_writer appendString:_RPTJSONFormatWithStringValue(@"os_version", _environment.osVersion)];
     }
@@ -177,14 +156,13 @@ NSString *_RPTJSONFormatWithFloatValue(NSString *key, float value)
     [_writer appendString:@",\"measurements\":["];
 }
 
-- (void)writeWithMetric:(_RPTMetric *)metric
-{
-    if (!_writer || (metric.endTime - metric.startTime < 0)) return;
+- (void)writeWithMetric:(_RPTMetric *)metric {
+    if (!_writer || (metric.endTime - metric.startTime < 0))
+        return;
 
     NSTimeInterval duration = (metric.endTime - metric.startTime) * 1000.0;
 
-    if (_measurementCount > 0)
-    {
+    if (_measurementCount > 0) {
         [_writer appendString:@","];
     }
 
@@ -198,68 +176,59 @@ NSString *_RPTJSONFormatWithFloatValue(NSString *key, float value)
     [_writer appendString:_RPTJSONFormatWithUnsignedIntegerValue(@"start", MAX(0ull, (unsigned long long)(metric.startTime * 1000.0)))];
     [_writer appendString:@"}"];
 
-    _measurementCount ++;
+    _measurementCount++;
 }
 
-- (void)writeWithMeasurement:(_RPTMeasurement *)measurement metricIdentifier:(nullable NSString *)metricIdentifier
-{
-    if(!_writer || (measurement.endTime - measurement.startTime < 0)) return;
+- (void)writeWithMeasurement:(_RPTMeasurement *)measurement metricIdentifier:(nullable NSString *)metricIdentifier {
+    if (!_writer || (measurement.endTime - measurement.startTime < 0))
+        return;
 
-    if (_measurementCount > 0)
-    {
+    if (_measurementCount > 0) {
         [_writer appendString:@","];
     }
     [_writer appendString:@"{"];
 
-    switch (measurement.kind)
-    {
-        case _RPTMethodMeasurementKind:
-            [_writer appendString:_RPTJSONFormatWithStringValue(@"method", measurement.receiver ? [NSString stringWithFormat:@"%@.%@", measurement.receiver, measurement.method] : measurement.method)];
-            break;
+    switch (measurement.kind) {
+    case _RPTMethodMeasurementKind:
+        [_writer appendString:_RPTJSONFormatWithStringValue(@"method", measurement.receiver ? [NSString stringWithFormat:@"%@.%@", measurement.receiver, measurement.method] : measurement.method)];
+        break;
 
-        case _RPTURLMeasurementKind:
-            if ([measurement.receiver isKindOfClass:NSString.class])
-            {
-                [_writer appendString:_RPTJSONFormatWithStringValue(@"url", (NSString *)measurement.receiver)];
-            }
-            if (measurement.method.length)
-            {
-                [_writer appendString:@","];
-                [_writer appendString:_RPTJSONFormatWithStringValue(@"verb", measurement.method)];
-            }
-            break;
-            
-        case _RPTDeviceMeasurementKind:
-            if ([measurement.receiver isKindOfClass:NSString.class])
-            {
-                [_writer appendString:_RPTJSONFormatWithStringValue(@"device", (NSString *)measurement.receiver)];
-            }
-            break;
+    case _RPTURLMeasurementKind:
+        if ([measurement.receiver isKindOfClass:NSString.class]) {
+            [_writer appendString:_RPTJSONFormatWithStringValue(@"url", (NSString *)measurement.receiver)];
+        }
+        if (measurement.method.length) {
+            [_writer appendString:@","];
+            [_writer appendString:_RPTJSONFormatWithStringValue(@"verb", measurement.method)];
+        }
+        break;
 
-        case _RPTCustomMeasurementKind:
-            if ([measurement.receiver isKindOfClass:NSString.class])
-            {
-                [_writer appendString:_RPTJSONFormatWithStringValue(@"custom", (NSString *)measurement.receiver)];
-            }
-            break;
+    case _RPTDeviceMeasurementKind:
+        if ([measurement.receiver isKindOfClass:NSString.class]) {
+            [_writer appendString:_RPTJSONFormatWithStringValue(@"device", (NSString *)measurement.receiver)];
+        }
+        break;
 
-        default:
-            break;
+    case _RPTCustomMeasurementKind:
+        if ([measurement.receiver isKindOfClass:NSString.class]) {
+            [_writer appendString:_RPTJSONFormatWithStringValue(@"custom", (NSString *)measurement.receiver)];
+        }
+        break;
+
+    default:
+        break;
     }
-    if (measurement.screen.length)
-    {
+    if (measurement.screen.length) {
         [_writer appendString:@","];
         [_writer appendString:_RPTJSONFormatWithStringValue(@"screen", measurement.screen)];
     }
 
-    if (measurement.statusCode > 0)
-    {
+    if (measurement.statusCode > 0) {
         [_writer appendString:@","];
         [_writer appendString:_RPTJSONFormatWithIntegerValue(@"status_code", measurement.statusCode)];
     }
 
-    if (metricIdentifier.length)
-    {
+    if (metricIdentifier.length) {
         [_writer appendString:@","];
         [_writer appendString:_RPTJSONFormatWithStringValue(@"metric", metricIdentifier)];
     }
@@ -272,11 +241,10 @@ NSString *_RPTJSONFormatWithFloatValue(NSString *key, float value)
     [_writer appendString:_RPTJSONFormatWithUnsignedIntegerValue(@"start", MAX(0ull, (unsigned long long)(measurement.startTime * 1000.0)))];
     [_writer appendString:@"}"];
 
-    _measurementCount ++;
+    _measurementCount++;
 }
 
-- (void)end
-{
+- (void)end {
     [_writer appendString:@"]}"];
 
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:_configuration.eventHubURL];
@@ -284,9 +252,9 @@ NSString *_RPTJSONFormatWithFloatValue(NSString *key, float value)
     [request setAllHTTPHeaderFields:_configuration.eventHubHTTPHeaderFields];
     NSData *jsonData = [_writer dataUsingEncoding:NSUTF8StringEncoding];
     request.HTTPBody = jsonData;
-    
+
     RPTLog(@"Send measurements to URL %@ : %@", request.URL.absoluteString, _writer);
-    
+
     _writer = nil;
     _measurementCount = 0;
 
@@ -297,8 +265,7 @@ NSString *_RPTJSONFormatWithFloatValue(NSString *key, float value)
                                       error:&error];
 
     id<RPTEventWriterHandleNetworkResponse> networkResponseDelegate = self.delegate;
-    if ([networkResponseDelegate respondsToSelector:@selector(handleURLResponse:error:)])
-    {
+    if ([networkResponseDelegate respondsToSelector:@selector(handleURLResponse:error:)]) {
         [networkResponseDelegate handleURLResponse:response error:error];
     }
 }

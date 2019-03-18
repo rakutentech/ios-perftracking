@@ -11,24 +11,21 @@
 
 @interface SwizzleDetail : NSObject
 @property (nonatomic, readonly, copy) NSString *className;
-@property (nonatomic, readonly)       NSValue  *originalImplementation;
+@property (nonatomic, readonly) NSValue *originalImplementation;
 
 + (instancetype)swizzleDetailWithClass:(NSString *)className implementation:(IMP)imp;
 @end
 
 @implementation SwizzleDetail
-- (instancetype)initWithClass:(NSString *)className implementation:(IMP)imp
-{
-    if (self = [super init])
-    {
+- (instancetype)initWithClass:(NSString *)className implementation:(IMP)imp {
+    if (self = [super init]) {
         _className = className;
         _originalImplementation = [NSValue valueWithPointer:imp];
     }
     return self;
 }
 
-+ (instancetype)swizzleDetailWithClass:(NSString *)className implementation:(IMP)imp
-{
++ (instancetype)swizzleDetailWithClass:(NSString *)className implementation:(IMP)imp {
     return className ? [self.alloc initWithClass:className implementation:imp] : nil;
 }
 @end
@@ -47,55 +44,46 @@ typedef NSMutableDictionary<NSString *, SwizzleDetail *> swizzleMappingDictionar
 static swizzleMappingDictionary *_swizzleMap = nil;
 static NSValue *_deferredSwizzlerIMP = nil;
 
-+ (swizzleMappingDictionary *)swizzleMap
-{
++ (swizzleMappingDictionary *)swizzleMap {
     return _swizzleMap;
 }
 
-+ (void)setSwizzleMap:(swizzleMappingDictionary *)newSwizzleMap
-{
++ (void)setSwizzleMap:(swizzleMappingDictionary *)newSwizzleMap {
     _swizzleMap = newSwizzleMap;
 }
 
-+ (NSValue *)deferredSwizzlerIMP
-{
++ (NSValue *)deferredSwizzlerIMP {
     return _deferredSwizzlerIMP;
 }
 
-+ (void)setDeferredSwizzlerIMP:(NSValue *)newDeferredSwizzlerIMP
-{
++ (void)setDeferredSwizzlerIMP:(NSValue *)newDeferredSwizzlerIMP {
     _deferredSwizzlerIMP = newDeferredSwizzlerIMP;
 }
 
-+ (void)load
-{    
-    if (!self.swizzleMap)
-    {
++ (void)load {
+    if (!self.swizzleMap) {
         _swizzleMap = NSMutableDictionary.new;
     }
-    
-    if (boolForInfoPlistKey(@"RPTDeferSwizzlingUntilActivateResponseReceived"))
-    {
+
+    if (boolForInfoPlistKey(@"RPTDeferSwizzlingUntilActivateResponseReceived")) {
         RPTLog(@"Defer swizzling setup until Config API response is received and tracking enabled");
-        
-        id setupSwizzlesBlock = ^ {
+
+        id setupSwizzlesBlock = ^{
             [self setupSwizzles];
         };
         self.deferredSwizzlerIMP = [NSValue valueWithPointer:imp_implementationWithBlock(setupSwizzlesBlock)];
     }
-    else
-    {
+    else {
         RPTLog(@"Setup swizzling at class load");
         [self setupSwizzles];
     }
 }
 
-+ (void)setupSwizzles
-{
++ (void)setupSwizzles {
     // swizzling should only be performed once per session and on the main thread (due
     // to UI classes)
-    
-    void (^setupSwizzleMethodsBlock)(void) = ^ {
+
+    void (^setupSwizzleMethodsBlock)(void) = ^{
         static dispatch_once_t onceToken;
         dispatch_once(&onceToken, ^{
             [_RPTClassManipulator rpt_swizzleTaskSetState];
@@ -107,7 +95,7 @@ static NSValue *_deferredSwizzlerIMP = nil;
             [_RPTClassManipulator rpt_swizzleWKWebView];
         });
     };
-    
+
     if ([NSThread isMainThread]) {
         setupSwizzleMethodsBlock();
     }
@@ -118,33 +106,32 @@ static NSValue *_deferredSwizzlerIMP = nil;
     }
 }
 
-+ (void)setupDeferredSwizzles
-{
++ (void)setupDeferredSwizzles {
     IMP imp = self.deferredSwizzlerIMP.pointerValue;
-    if (!imp) { return; }
-    
+    if (!imp) {
+        return;
+    }
+
     void (^swizzleSetupBlock)(void) = imp_getBlock(imp);
-    if (swizzleSetupBlock) { swizzleSetupBlock(); }
+    if (swizzleSetupBlock) {
+        swizzleSetupBlock();
+    }
 }
 
-+ (Class)furthestAncestorOfRecipient:(Class)recipient implementingSelector:(SEL)sel
-{
++ (Class)furthestAncestorOfRecipient:(Class)recipient implementingSelector:(SEL)sel {
     IMP recipientMethod = [recipient methodForSelector:sel];
     Class clazz = recipient;
     Class objSuperClass = [recipient superclass];
-    
-    while (objSuperClass != NULL)
-    {
+
+    while (objSuperClass != NULL) {
         IMP superClassMethod = [objSuperClass instanceMethodForSelector:sel];
         if (recipientMethod &&
             superClassMethod &&
-            recipientMethod != superClassMethod)
-        {
+            recipientMethod != superClassMethod) {
             clazz = objSuperClass;
             objSuperClass = [objSuperClass superclass];
         }
-        else
-        {
+        else {
             // IMPs are the same - we found the furthest implementor
             break;
         }
@@ -152,13 +139,11 @@ static NSValue *_deferredSwizzlerIMP = nil;
     return clazz;
 }
 
-+ (void)swizzleSelector:(SEL)sel onClass:(Class)recipient newImplementation:(IMP)newImp types:(const char *)types
-{
-    if (!sel || !recipient || !newImp || !types)
-    {
++ (void)swizzleSelector:(SEL)sel onClass:(Class)recipient newImplementation:(IMP)newImp types:(const char *)types {
+    if (!sel || !recipient || !newImp || !types) {
         return;
     }
-    
+
     // If both class and superclass are swizzled on the same selector and the replacement
     // implementation is the same then we will end up in a stack overflow crash if
     // the class calls the super implementation, or doesn't implement the selector and the
@@ -167,56 +152,48 @@ static NSValue *_deferredSwizzlerIMP = nil;
     // Therefore we should only swizzle on the furthest ancestor
     recipient = [self furthestAncestorOfRecipient:recipient
                              implementingSelector:sel];
-    
-    if ([[_RPTClassManipulator _classNameForSelector:sel class:recipient] isEqualToString:NSStringFromClass(recipient)])
-    {
+
+    if ([[_RPTClassManipulator _classNameForSelector:sel class:recipient] isEqualToString:NSStringFromClass(recipient)]) {
         // Same selector and recipient - already swizzled
         return;
     }
-    
+
     Method m = class_getInstanceMethod(recipient, sel);
     IMP originalImplementation = NULL;
-    
-    if (m)
-    {
+
+    if (m) {
         originalImplementation = method_setImplementation(m, newImp);
     }
-    else
-    {
+    else {
         // add method, there's no original implementation
         class_addMethod(recipient, sel, newImp, types);
     }
     [self _addSelectorMapping:sel class:recipient implementation:originalImplementation];
 }
 
-+ (void)_removeSwizzleSelector:(SEL)sel onClass:(Class)recipient types:(const char *)types
-{
-    if (!sel || !recipient || !types)
-    {
++ (void)_removeSwizzleSelector:(SEL)sel onClass:(Class)recipient types:(const char *)types {
+    if (!sel || !recipient || !types) {
         return;
     }
-    
-    if (![[_RPTClassManipulator _classNameForSelector:sel class:recipient] isEqualToString:NSStringFromClass(recipient)])
-    {
+
+    if (![[_RPTClassManipulator _classNameForSelector:sel class:recipient] isEqualToString:NSStringFromClass(recipient)]) {
         // No swizzle has been added
         return;
     }
-    
+
     Method m = class_getInstanceMethod(recipient, sel);
     IMP originalImplementation = [self implementationForOriginalSelector:sel class:recipient];
     IMP swizzleImplementation = NULL;
-    
+
     // We can only safely reverse the swizzling if there was an original implementation
-    if (m && originalImplementation)
-    {
+    if (m && originalImplementation) {
         swizzleImplementation = method_setImplementation(m, originalImplementation);
         imp_removeBlock(swizzleImplementation);
         [self _removeSelectorMapping:sel class:recipient];
     }
 }
 
-+ (_Nullable IMP)implementationForOriginalSelector:(SEL)selector class:(Class)clazz
-{
++ (_Nullable IMP)implementationForOriginalSelector:(SEL)selector class:(Class)clazz {
     Class classObj = [self furthestAncestorOfRecipient:clazz
                                   implementingSelector:selector];
     NSString *key = [self _keyForSelector:selector class:classObj];
@@ -224,37 +201,32 @@ static NSValue *_deferredSwizzlerIMP = nil;
     return [swizzleDetail.originalImplementation pointerValue];
 }
 
-+ (void)_addSelectorMapping:(SEL)selector class:(Class)classObj implementation:(__nullable IMP)implementation
-{
+    + (void)_addSelectorMapping : (SEL)selector class : (Class)classObj implementation : (__nullable IMP)implementation {
     SwizzleDetail *swizzleDetail = [SwizzleDetail swizzleDetailWithClass:NSStringFromClass(classObj) implementation:implementation];
-    if (swizzleDetail)
-    {
+    if (swizzleDetail) {
         NSString *key = [self _keyForSelector:selector class:classObj];
         _swizzleMap[key] = swizzleDetail;
     }
 }
 
-+ (void)_removeSelectorMapping:(SEL)selector class:(Class)classObj
-{
-    if (!selector || !classObj) return;
+    + (void)_removeSelectorMapping : (SEL)selector class : (Class)classObj {
+    if (!selector || !classObj)
+        return;
 
     NSString *key = [self _keyForSelector:selector class:classObj];
     [_swizzleMap removeObjectForKey:key];
 }
 
-+ (NSString *)_classNameForSelector:(SEL)selector class:(Class)classObj
-{
+    + (NSString *)_classNameForSelector : (SEL)selector class : (Class)classObj {
     NSString *key = [self _keyForSelector:selector class:classObj];
     SwizzleDetail *swizzleDetail = _swizzleMap[key];
-    if (swizzleDetail)
-    {
+    if (swizzleDetail) {
         return swizzleDetail.className;
     }
     return nil;
 }
 
-+ (NSString *)_keyForSelector:(SEL)selector class:(Class)classObj
-{
+    + (NSString *)_keyForSelector : (SEL)selector class : (Class)classObj {
     return (selector && classObj) ? [NSString stringWithFormat:@"%@-%@", NSStringFromSelector(selector), NSStringFromClass(classObj)] : nil;
 }
 

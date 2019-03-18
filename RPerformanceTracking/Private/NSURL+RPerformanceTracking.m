@@ -2,8 +2,7 @@
 
 @implementation NSURL (RPerformanceTracking)
 
-- (BOOL)isBlacklisted
-{
+- (BOOL)isBlacklisted {
     static NSURL *RATEndPointURL;
     static dispatch_once_t once;
     dispatch_once(&once, ^{

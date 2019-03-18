@@ -6,20 +6,17 @@
 
 @implementation _RPTClassManipulator (UITableViewCell)
 
-+ (void)rpt_swizzleUITableViewCell
-{
-    id setSelected_swizzle_blockImp = ^void (id<NSObject> selfRef, BOOL selected) {
++ (void)rpt_swizzleUITableViewCell {
+    id setSelected_swizzle_blockImp = ^void(id<NSObject> selfRef, BOOL selected) {
         RPTLogVerbose(@"UITableViewCell setSelected_swizzle_blockImp called");
 
-        if (selected)
-        {
+        if (selected) {
             [[_RPTTrackingManager sharedInstance].tracker endMetric];
         }
         SEL selector = @selector(setSelected:);
         IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:UITableViewCell.class];
-        if (originalImp)
-        {
-            return ((void(*)(id, SEL, BOOL))originalImp)(selfRef, selector, selected);
+        if (originalImp) {
+            return ((void (*)(id, SEL, BOOL))originalImp)(selfRef, selector, selected);
         }
     };
     [self swizzleSelector:@selector(setSelected:)

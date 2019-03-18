@@ -8,36 +8,35 @@
 #import "_RPTTracker.h"
 #import "_RPTConfiguration.h"
 
-static const NSInteger      MIN_COUNT                   = 10;
-static const NSTimeInterval SLEEP_INTERVAL_SECONDS      = 10.0; // 10s
-static const NSTimeInterval MIN_TIME_METRIC             = 5.0 / 1000; // 5ms
-static const NSTimeInterval MIN_TIME_MEASUREMENT        = 1.0 / 1000; // 1ms
-static const NSTimeInterval SLEEP_MAX_INTERVAL          = 1800; // 30 minutes
+static const NSInteger MIN_COUNT = 10;
+static const NSTimeInterval SLEEP_INTERVAL_SECONDS = 10.0;     // 10s
+static const NSTimeInterval MIN_TIME_METRIC = 5.0 / 1000;      // 5ms
+static const NSTimeInterval MIN_TIME_MEASUREMENT = 1.0 / 1000; // 1ms
+static const NSTimeInterval SLEEP_MAX_INTERVAL = 1800;         // 30 minutes
 
-@interface _RPTTrackingManager()
-@property (nonatomic, readwrite) _RPTTracker    *tracker;
+@interface _RPTTrackingManager ()
+@property (nonatomic, readwrite) _RPTTracker *tracker;
 @end
 
 @interface _RPTSender ()
-@property (nonatomic) _RPTRingBuffer            *ringBuffer;
-@property (nonatomic) _RPTConfiguration         *configuration;
-@property (nonatomic) _RPTEventWriter           *eventWriter;
-@property (nonatomic) NSOperationQueue          *backgroundQueue;
-@property (nonatomic) NSInvocationOperation     *backgroundOperation;
-@property (nonatomic) NSTimeInterval             sleepInterval;
-@property (nonatomic) NSUInteger                 sentCount;
-@property (nonatomic) NSInteger                  failures;
-@property (atomic)    _RPTMetric                *currentMetric;
-@property (nonatomic) _RPTMetric                *metric;
-@property (nonatomic) _RPTMetric                *savedMetric;
-@property (nonatomic, nullable) NSURLResponse   *response;
-@property (nonatomic, nullable) NSError         *error;
+@property (nonatomic) _RPTRingBuffer *ringBuffer;
+@property (nonatomic) _RPTConfiguration *configuration;
+@property (nonatomic) _RPTEventWriter *eventWriter;
+@property (nonatomic) NSOperationQueue *backgroundQueue;
+@property (nonatomic) NSInvocationOperation *backgroundOperation;
+@property (nonatomic) NSTimeInterval sleepInterval;
+@property (nonatomic) NSUInteger sentCount;
+@property (nonatomic) NSInteger failures;
+@property (atomic) _RPTMetric *currentMetric;
+@property (nonatomic) _RPTMetric *metric;
+@property (nonatomic) _RPTMetric *savedMetric;
+@property (nonatomic, nullable) NSURLResponse *response;
+@property (nonatomic, nullable) NSError *error;
 @end
 
 /* RPT_EXPORT */ @implementation _RPTSender
 
-- (instancetype)init NS_UNAVAILABLE
-{
+- (instancetype)init NS_UNAVAILABLE {
     [self doesNotRecognizeSelector:_cmd];
     return nil;
 }
@@ -45,144 +44,120 @@ static const NSTimeInterval SLEEP_MAX_INTERVAL          = 1800; // 30 minutes
 - (instancetype)initWithRingBuffer:(_RPTRingBuffer *)ringBuffer
                      configuration:(_RPTConfiguration *)configuration
                      currentMetric:(_RPTMetric *)currentMetric
-                       eventWriter:(_RPTEventWriter *)eventWriter
-{
-    if ((self = [super init]))
-    {
-        _ringBuffer       = ringBuffer;
-        _configuration    = configuration;
-        _currentMetric    = currentMetric;
-        _eventWriter      = eventWriter;
-        _sleepInterval    = SLEEP_INTERVAL_SECONDS;
+                       eventWriter:(_RPTEventWriter *)eventWriter {
+    if ((self = [super init])) {
+        _ringBuffer = ringBuffer;
+        _configuration = configuration;
+        _currentMetric = currentMetric;
+        _eventWriter = eventWriter;
+        _sleepInterval = SLEEP_INTERVAL_SECONDS;
 
-        _backgroundQueue      = NSOperationQueue.new;
+        _backgroundQueue = NSOperationQueue.new;
         _backgroundQueue.name = @"com.rakuten.tech.perf";
-        _backgroundOperation  = [NSInvocationOperation.alloc initWithTarget:self
-                                                                   selector:@selector(processLoop)
-                                                                     object:nil];
+        _backgroundOperation = [NSInvocationOperation.alloc initWithTarget:self
+                                                                  selector:@selector(processLoop)
+                                                                    object:nil];
         _failures = 0;
     }
     return self;
 }
 
-- (void)start
-{
-    if (![_backgroundQueue.operations containsObject:_backgroundOperation])
-    {
+- (void)start {
+    if (![_backgroundQueue.operations containsObject:_backgroundOperation]) {
         // Operation is not already queued
-        _backgroundOperation  = [NSInvocationOperation.alloc initWithTarget:self
-                                                                   selector:@selector(processLoop)
-                                                                     object:nil];
+        _backgroundOperation = [NSInvocationOperation.alloc initWithTarget:self
+                                                                  selector:@selector(processLoop)
+                                                                    object:nil];
         [_backgroundQueue addOperation:_backgroundOperation];
     }
 }
 
-- (void)stop
-{
+- (void)stop {
     if (_backgroundOperation &&
         _backgroundQueue.operationCount &&
-        [_backgroundQueue.operations containsObject:_backgroundOperation])
-    {
+        [_backgroundQueue.operations containsObject:_backgroundOperation]) {
         [_backgroundOperation cancel];
         [_backgroundQueue waitUntilAllOperationsAreFinished];
         _backgroundOperation = nil;
     }
 }
 
-- (void)processLoop
-{
+- (void)processLoop {
     assert(NSOperationQueue.currentQueue == _backgroundQueue);
 
     NSUInteger index = 1;
 
-    while (true)
-    {
-        if (_backgroundOperation.isCancelled)
-        {
+    while (true) {
+        if (_backgroundOperation.isCancelled) {
             break;
         }
 
         NSUInteger endIndex = ([_ringBuffer nextMeasurement].trackingIdentifier % _ringBuffer.size);
         NSInteger count = (NSInteger)(endIndex - index);
 
-        if (count < 0)
-        {
+        if (count < 0) {
             count += _ringBuffer.size;
         }
-        
-        if (count >= MIN_COUNT)
-        {
+
+        if (count >= MIN_COUNT) {
             index = [self sendWithStartIndex:index endIndex:endIndex];
         }
-        else
-        {
+        else {
             // If the measurement buffer is filled, we may have a cached metric
             // that hasn't been sent so send it now if its duration is < max
-            if (_metric)
-            {
-                if ([_metric durationLessThanMax])
-                {
+            if (_metric) {
+                if ([_metric durationLessThanMax]) {
                     [self sendSingleMetric:_metric];
                 }
                 _metric = nil;
             }
         }
-        
+
         NSTimeInterval sleepTime = MIN(SLEEP_MAX_INTERVAL, pow(2, MIN(10, _failures)) * _sleepInterval);
         [NSThread sleepForTimeInterval:sleepTime];
     }
 }
 
-- (NSUInteger)sendWithStartIndex:(NSUInteger)startIndex endIndex:(NSUInteger)endIndex
-{
+- (NSUInteger)sendWithStartIndex:(NSUInteger)startIndex endIndex:(NSUInteger)endIndex {
     RPTLogVerbose(@"RPTSender sendWithStartIndex %ld endIndex %ld", (long)startIndex, (long)endIndex);
     NSUInteger returnIndex = startIndex;
-    NSTimeInterval now             = [NSDate.date timeIntervalSince1970];
-    _sentCount                     = 0;
+    NSTimeInterval now = [NSDate.date timeIntervalSince1970];
+    _sentCount = 0;
     _savedMetric = _metric ? _metric.copy : nil;
 
-    @synchronized (self)
-    {
-        for (NSUInteger i = startIndex; i != endIndex; i = (i + 1) % _ringBuffer.size)
-        {
+    @synchronized(self) {
+        for (NSUInteger i = startIndex; i != endIndex; i = (i + 1) % _ringBuffer.size) {
             _RPTMeasurement *measurement = [_ringBuffer measurementAtIndex:(unsigned long)i];
 
-            if (measurement.kind == _RPTMetricMeasurementKind)
-            {
-                if (_metric)
-                {
+            if (measurement.kind == _RPTMetricMeasurementKind) {
+                if (_metric) {
                     [self writeMetric:_metric];
                     _metric = nil;
                 }
 
                 _RPTMetric *metric = (_RPTMetric *)measurement.receiver;
 
-                if (metric == _currentMetric)
-                {
+                if (metric == _currentMetric) {
                     NSTimeInterval maxDurationInSecs = [_RPTMetric maxDurationInSecs];
-                    
-                    if (now - measurement.startTime < maxDurationInSecs)
-                    {
+
+                    if (now - measurement.startTime < maxDurationInSecs) {
                         // Metric is still running and under max duration so stop
                         // sending measurements and just set the current index
                         // as the start index for the next call into the sender
                         return i;
-                    }                    
+                    }
                     _currentMetric = nil;
                 }
 
                 _metric = metric;
                 [measurement clear];
             }
-            else
-            {
+            else {
                 NSTimeInterval startTime = measurement.startTime;
-                NSTimeInterval endTime   = measurement.endTime;
+                NSTimeInterval endTime = measurement.endTime;
 
-                if (endTime <= 0)
-                {
-                    if (now - startTime < _RPT_MEASUREMENT_MAXTIME)
-                    {
+                if (endTime <= 0) {
+                    if (now - startTime < _RPT_MEASUREMENT_MAXTIME) {
                         // Measurement has not had an end time set and is under max
                         // duration so stop sending measurements and just set the current index
                         // as the start index for the next call into the sender
@@ -194,16 +169,14 @@ static const NSTimeInterval SLEEP_MAX_INTERVAL          = 1800; // 30 minutes
                     continue;
                 }
 
-                if (_metric && (startTime > _metric.endTime))
-                {
+                if (_metric && (startTime > _metric.endTime)) {
                     // The start time of this measurement was after the "current" metric's
                     // end time so send the metric
                     [self writeMetric:_metric];
                     _metric = nil;
                 }
 
-                if (_metric && (measurement.kind == _RPTURLMeasurementKind))
-                {
+                if (_metric && (measurement.kind == _RPTURLMeasurementKind)) {
                     _metric.urlCount++;
                 }
 
@@ -218,62 +191,61 @@ static const NSTimeInterval SLEEP_MAX_INTERVAL          = 1800; // 30 minutes
     return returnIndex;
 }
 
-- (void)writeMetric:(_RPTMetric *)metric
-{
-    if (!_configuration.shouldSendDataToPerformanceTracking || (metric.endTime - metric.startTime < MIN_TIME_METRIC)) { return; }
+- (void)writeMetric:(_RPTMetric *)metric {
+    if (!_configuration.shouldSendDataToPerformanceTracking || (metric.endTime - metric.startTime < MIN_TIME_METRIC)) {
+        return;
+    }
 
-    if (!_sentCount) { [_eventWriter begin]; }
+    if (!_sentCount) {
+        [_eventWriter begin];
+    }
 
     [_eventWriter writeWithMetric:metric];
     _sentCount++;
 }
 
-- (void)writeMeasurement:(_RPTMeasurement *)measurement metricId:(NSString *)metricId
-{
+- (void)writeMeasurement:(_RPTMeasurement *)measurement metricId:(NSString *)metricId {
     if (!_configuration.shouldSendDataToPerformanceTracking ||
         (!_configuration.shouldTrackNonMetricMeasurements && !metricId.length) ||
-        (measurement.endTime - measurement.startTime < MIN_TIME_MEASUREMENT)) { return; }
+        (measurement.endTime - measurement.startTime < MIN_TIME_MEASUREMENT)) {
+        return;
+    }
 
-    if (!_sentCount) { [_eventWriter begin]; }
+    if (!_sentCount) {
+        [_eventWriter begin];
+    }
 
     [_eventWriter writeWithMeasurement:measurement metricIdentifier:metricId];
     _sentCount++;
 }
 
-- (void)sendSingleMetric:(_RPTMetric *)metric
-{
+- (void)sendSingleMetric:(_RPTMetric *)metric {
     _sentCount = 0;
     [self writeMetric:metric];
-    
-    if (_sentCount > 0)
-    {
+
+    if (_sentCount > 0) {
         [_eventWriter end];
     }
 }
-- (NSUInteger)indexAfterSendingWithStartIndex:(NSUInteger)startIndex endIndex:(NSUInteger)endIndex
-{
+- (NSUInteger)indexAfterSendingWithStartIndex:(NSUInteger)startIndex endIndex:(NSUInteger)endIndex {
     NSUInteger returnIndex = startIndex;
     // if _sentCount == 0, don't send metric.
-    if (_sentCount == 0)
-    {
+    if (_sentCount == 0) {
         returnIndex = endIndex;
     }
-    else
-    {
+    else {
         _response = nil;
         _error = nil;
 
         [_eventWriter end];
 
         // here the response and error are updated. Because the 'end' method is excuted synchronously.
-        if (_error)
-        {
-            _failures ++;
+        if (_error) {
+            _failures++;
             _metric = _savedMetric;
         }
-        else if ([_response isKindOfClass:NSHTTPURLResponse.class])
-        {
-            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *) _response;
+        else if ([_response isKindOfClass:NSHTTPURLResponse.class]) {
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)_response;
             if (httpResponse.statusCode == 201) // Success
             {
                 _failures = 0;
@@ -284,9 +256,8 @@ static const NSTimeInterval SLEEP_MAX_INTERVAL          = 1800; // 30 minutes
                 [_RPTTrackingManager sharedInstance].tracker = nil;
                 [self stop];
             }
-            else
-            {
-                _failures ++;
+            else {
+                _failures++;
                 _metric = _savedMetric;
             }
         }

@@ -8,24 +8,21 @@ static const void *_RPT_UIVIEWCONTROLLER_TRACKINGIDENTIFIER = &_RPT_UIVIEWCONTRO
 
 @implementation _RPTClassManipulator (UIViewController)
 
-+ (void)rpt_swizzleUIViewController
-{
-    id loadView_swizzle_blockImp = ^void (id<NSObject> selfRef) {
++ (void)rpt_swizzleUIViewController {
+    id loadView_swizzle_blockImp = ^void(id<NSObject> selfRef) {
         RPTLogVerbose(@"UIViewController loadView_swizzle_blockImp called");
 
         _RPTTrackingManager.sharedInstance.currentScreen = NSStringFromClass([selfRef class]);
         uint_fast64_t trackingIdentifier = [[_RPTTrackingManager sharedInstance].tracker startMethod:@"loadView" receiver:selfRef];
-        if (trackingIdentifier)
-        {
+        if (trackingIdentifier) {
             // associate the tracking identifier to the view controller
             objc_setAssociatedObject(selfRef, _RPT_UIVIEWCONTROLLER_TRACKINGIDENTIFIER, [NSNumber numberWithUnsignedLongLong:trackingIdentifier], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
         }
 
         SEL selector = @selector(loadView);
         IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:UIViewController.class];
-        if (originalImp)
-        {
-            return ((void(*)(id, SEL))originalImp)(selfRef, selector);
+        if (originalImp) {
+            return ((void (*)(id, SEL))originalImp)(selfRef, selector);
         }
     };
     [self swizzleSelector:@selector(loadView)
@@ -33,20 +30,18 @@ static const void *_RPT_UIVIEWCONTROLLER_TRACKINGIDENTIFIER = &_RPT_UIVIEWCONTRO
         newImplementation:imp_implementationWithBlock(loadView_swizzle_blockImp)
                     types:"v@:"];
 
-    id viewDidLoad_swizzle_blockImp = ^void (id<NSObject> selfRef) {
+    id viewDidLoad_swizzle_blockImp = ^void(id<NSObject> selfRef) {
         RPTLogVerbose(@"UIViewController viewDidLoad_swizzle_blockImp called");
 
         uint_fast64_t trackingIdentifier = [objc_getAssociatedObject(selfRef, _RPT_UIVIEWCONTROLLER_TRACKINGIDENTIFIER) unsignedLongLongValue];
-        if (trackingIdentifier)
-        {
+        if (trackingIdentifier) {
             [[_RPTTrackingManager sharedInstance].tracker end:trackingIdentifier];
         }
 
         SEL selector = @selector(viewDidLoad);
         IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:UIViewController.class];
-        if (originalImp)
-        {
-            return ((void(*)(id, SEL))originalImp)(selfRef, selector);
+        if (originalImp) {
+            return ((void (*)(id, SEL))originalImp)(selfRef, selector);
         }
     };
     [self swizzleSelector:@selector(viewDidLoad)
@@ -54,13 +49,12 @@ static const void *_RPT_UIVIEWCONTROLLER_TRACKINGIDENTIFIER = &_RPT_UIVIEWCONTRO
         newImplementation:imp_implementationWithBlock(viewDidLoad_swizzle_blockImp)
                     types:"v@:"];
 
-    id viewWillAppear_swizzle_blockImp = ^void (id<NSObject> selfRef, BOOL animated) {
+    id viewWillAppear_swizzle_blockImp = ^void(id<NSObject> selfRef, BOOL animated) {
         RPTLogVerbose(@"UIViewController viewWillAppear_swizzle_blockImp called");
 
         _RPTTrackingManager.sharedInstance.currentScreen = NSStringFromClass([selfRef class]);
         uint_fast64_t trackingIdentifier = [[_RPTTrackingManager sharedInstance].tracker startMethod:@"displayView" receiver:selfRef];
-        if (trackingIdentifier)
-        {
+        if (trackingIdentifier) {
             // associate the tracking identifier to the view controller
             objc_setAssociatedObject(selfRef, _RPT_UIVIEWCONTROLLER_TRACKINGIDENTIFIER, [NSNumber numberWithUnsignedLongLong:trackingIdentifier], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
         }
@@ -68,9 +62,8 @@ static const void *_RPT_UIVIEWCONTROLLER_TRACKINGIDENTIFIER = &_RPT_UIVIEWCONTRO
 
         SEL selector = @selector(viewWillAppear:);
         IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:UIViewController.class];
-        if (originalImp)
-        {
-            return ((void(*)(id, SEL, BOOL))originalImp)(selfRef, selector, animated);
+        if (originalImp) {
+            return ((void (*)(id, SEL, BOOL))originalImp)(selfRef, selector, animated);
         }
     };
     [self swizzleSelector:@selector(viewWillAppear:)
@@ -78,20 +71,18 @@ static const void *_RPT_UIVIEWCONTROLLER_TRACKINGIDENTIFIER = &_RPT_UIVIEWCONTRO
         newImplementation:imp_implementationWithBlock(viewWillAppear_swizzle_blockImp)
                     types:"v@:B"];
 
-    id viewDidAppear_swizzle_blockImp = ^void (id<NSObject> selfRef, BOOL animated) {
+    id viewDidAppear_swizzle_blockImp = ^void(id<NSObject> selfRef, BOOL animated) {
         RPTLogVerbose(@"UIViewController viewDidAppear_swizzle_blockImp called");
 
         uint_fast64_t trackingIdentifier = [objc_getAssociatedObject(selfRef, _RPT_UIVIEWCONTROLLER_TRACKINGIDENTIFIER) unsignedLongLongValue];
-        if (trackingIdentifier)
-        {
+        if (trackingIdentifier) {
             [[_RPTTrackingManager sharedInstance].tracker end:trackingIdentifier];
         }
 
         SEL selector = @selector(viewDidAppear:);
         IMP originalImp = [_RPTClassManipulator implementationForOriginalSelector:selector class:UIViewController.class];
-        if (originalImp)
-        {
-            return ((void(*)(id, SEL, BOOL))originalImp)(selfRef, selector, animated);
+        if (originalImp) {
+            return ((void (*)(id, SEL, BOOL))originalImp)(selfRef, selector, animated);
         }
     };
     [self swizzleSelector:@selector(viewDidAppear:)
