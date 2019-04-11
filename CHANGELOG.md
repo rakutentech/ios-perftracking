@@ -1,5 +1,12 @@
 ## Changelog
 
+### 2.0.1 (2019-04-15)
+
+- APTT-759 Fix bug affecting 32-bit devices that resulted in tracking always being enabled regardless of the enable percentage value set in the portal
+- APTT-741 Fix bug where metrics are not always sent due to the measurement buffer being full
+- APTT-780 Improve diagnostic logging of metrics
+- APTT-785 Apply in-house code style to source
+
 ### 2.0.0 (2019-01-16)
 
 - SDKCF-743 Drop support for iOS versions below iOS 10.0.
