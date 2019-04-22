@@ -198,15 +198,7 @@
 				69194F731CED9D3500879A11 /* Tests */,
 				69194F721CED9D3400879A11 /* UnitTests.xctest */,
 				5AEA72D620E4605B00D0D4E0 /* FunctionalTests.xctest */,
-				FACB0AC4E83C85EB3B087CFB /* Pods */,
 			);
-			sourceTree = "<group>";
-		};
-		FACB0AC4E83C85EB3B087CFB /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

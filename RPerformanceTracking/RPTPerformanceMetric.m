@@ -9,4 +9,8 @@
 + (void)prolong {
     [_RPTTrackingManager.sharedInstance prolongMetric];
 }
+
++ (void)end {
+    [_RPTTrackingManager.sharedInstance endMetric];
+}
 @end
