@@ -20,6 +20,11 @@ RPT_EXPORT @interface RPTPerformanceMetric : NSObject
  * Prolong an existing metric.
  */
 + (void)prolong;
+
+/**
+ * End an existing metric.
+ */
++ (void)end;
 @end
 
 NS_ASSUME_NONNULL_END
