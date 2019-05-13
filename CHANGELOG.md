@@ -1,5 +1,9 @@
 ## Changelog
 
+### 1.3.1 (2018-05-13)
+- APTT-759 Fix bug affecting 32-bit devices that resulted in tracking always being enabled regardless of the enable percentage value set in the portal
+- APTT-741 Fix bug where metrics are not always sent due to the measurement buffer being full
+
 ### 1.3.0 (2018-12-18)
 
 - Known issue: Due to an Apple issue it is not possible to track the response status code in UIWebViews in iOS 12. WKWebView is unaffected.
