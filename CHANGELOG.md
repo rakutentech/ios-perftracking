@@ -1,6 +1,6 @@
 ## Changelog
 
-### 1.3.1 (2018-05-13)
+### 1.3.1 (2019-05-13)
 - APTT-759 Fix bug affecting 32-bit devices that resulted in tracking always being enabled regardless of the enable percentage value set in the portal
 - APTT-741 Fix bug where metrics are not always sent due to the measurement buffer being full
 
