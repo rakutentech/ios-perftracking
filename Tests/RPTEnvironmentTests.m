@@ -96,12 +96,12 @@ describe(@"RPTEnvironment", ^{
             [[env.performanceTrackingSubscriptionKey should] equal:@"ras-perftrack_subscription_key"];
         });
 
-        it(@"should set performance tracking subscription key as empty string when info.plist doesn't contain subscription key", ^{
+        it(@"performance tracking subscription key should be nil when info.plist doesn't contain subscription key", ^{
             [[NSBundle mainBundle] stub:@selector(objectForInfoDictionaryKey:) andReturn:nil];
 
             _RPTEnvironment* env = [_RPTEnvironment new];
 
-            [[env.performanceTrackingSubscriptionKey should] equal:@""];
+            [[env.performanceTrackingSubscriptionKey should] beNil];
         });
         
         it(@"should set device country as coutry reported by current locale", ^{
