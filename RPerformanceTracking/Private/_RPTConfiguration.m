@@ -108,7 +108,7 @@ static NSString *const KEY = @"com.rakuten.performancetracking";
         path = [path stringByAppendingString:[NSString stringWithFormat:@"app/%@/", relayAppID]];
     }
 #if DEBUG
-    NSAssert(relayAppID.length, @"Your application's Info.plist must contain a key 'RPTRelayAppID' set to the relay Portal application ID");
+    NSAssert(relayAppID.length, @"Your application's Info.plist must contain a key 'RPTRelayAppID' set to your Mission Control application ID");
 #endif
 
     path = [path stringByAppendingString:[NSString stringWithFormat:@"version/%@/", appVersion]];
@@ -122,10 +122,10 @@ static NSString *const KEY = @"com.rakuten.performancetracking";
 
     NSString *subscriptionKey = environment.performanceTrackingSubscriptionKey;
     if (subscriptionKey.length) {
-        sessionConfiguration.HTTPAdditionalHeaders = @{@"Ocp-Apim-Subscription-Key": subscriptionKey};
+        sessionConfiguration.HTTPAdditionalHeaders = @{@"apikey": subscriptionKey};
     }
 #if DEBUG
-    NSAssert(subscriptionKey.length, @"Your application's Info.plist file must contain a key 'RPTSubscriptionKey' which should be set to your 'Ocp-Apim-Subscription-Key' from the API Portal");
+    NSAssert(subscriptionKey.length, @"Your application's Info.plist file must contain a key 'RPTSubscriptionKey' which should be set to your subscription key from the Mission Control portal");
 #endif
 
     NSURL *url = [base URLByAppendingPathComponent:path];
