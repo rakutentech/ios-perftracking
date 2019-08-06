@@ -35,7 +35,8 @@ NSString *const RPTSDKVersion = @RPT_EXPAND_AND_QUOTE(RPT_SDK_VERSION);
         _relayAppId = [bundle objectForInfoDictionaryKey:@"RPTRelayAppID"];
 
         _performanceTrackingBaseURL = [self performanceTrackingBaseURLFromConfig];
-        _performanceTrackingSubscriptionKey = [bundle objectForInfoDictionaryKey:@"RPTSubscriptionKey"];
+        NSString *bundleKey = [bundle objectForInfoDictionaryKey:@"RPTSubscriptionKey"];
+        _performanceTrackingSubscriptionKey = bundleKey.length ? [@"ras-" stringByAppendingString:bundleKey] : nil;
 
         _deviceCountry = [[NSLocale currentLocale] objectForKey:NSLocaleCountryCode];
     }
