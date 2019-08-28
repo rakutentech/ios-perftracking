@@ -1,5 +1,10 @@
 ## Changelog
 
+### 2.1.0 (2019-08-28)
+
+- SDKCF-882 Add public API method to end the metric
+- SDKCF-1248 Support API-C
+
 ### 2.0.1 (2019-04-15)
 
 - APTT-759 Fix bug affecting 32-bit devices that resulted in tracking always being enabled regardless of the enable percentage value set in the portal
