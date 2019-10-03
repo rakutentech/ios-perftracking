@@ -14,7 +14,7 @@ NSString *const RPTSDKVersion = @RPT_EXPAND_AND_QUOTE(RPT_SDK_VERSION);
 @interface _RPTEnvironment (Private)
 
 - (NSString *)determineModelIdentifier;
-- (NSURL *)performanceTrackingBaseURLFromConfig;
+- (NSURL *)baseURLFromConfig;
 
 @end
 
@@ -34,9 +34,13 @@ NSString *const RPTSDKVersion = @RPT_EXPAND_AND_QUOTE(RPT_SDK_VERSION);
 
         _relayAppId = [bundle objectForInfoDictionaryKey:@"RPTRelayAppID"];
 
-        _performanceTrackingBaseURL = [self performanceTrackingBaseURLFromConfig];
-        NSString *bundleKey = [bundle objectForInfoDictionaryKey:@"RPTSubscriptionKey"];
-        _performanceTrackingSubscriptionKey = bundleKey.length ? [@"ras-" stringByAppendingString:bundleKey] : nil;
+        _baseURL = [self baseURLFromConfig];
+
+        NSString *bundleKey = [bundle objectForInfoDictionaryKey:@"RASSubscriptionKey"] ?: [bundle objectForInfoDictionaryKey:@"RPTSubscriptionKey"];
+        _subscriptionKey = bundleKey.length ? [@"ras-" stringByAppendingString:bundleKey] : nil;
+
+        NSNumber *bundleMaximumMetricDuration = [bundle objectForInfoDictionaryKey:@"RPTMaximumMetricDurationSeconds"];
+        _maximumMetricDurationSeconds = bundleMaximumMetricDuration.doubleValue;
 
         _deviceCountry = [[NSLocale currentLocale] objectForKey:NSLocaleCountryCode];
     }
@@ -56,7 +60,7 @@ NSString *const RPTSDKVersion = @RPT_EXPAND_AND_QUOTE(RPT_SDK_VERSION);
     return [NSString stringWithUTF8String:systemInfo.machine];
 }
 
-- (NSURL *)performanceTrackingBaseURLFromConfig {
+- (NSURL *)baseURLFromConfig {
     NSBundle *bundle = NSBundle.mainBundle;
     NSURL *candidateURL = [NSURL URLWithString:(NSString *)[bundle objectForInfoDictionaryKey:@"RPTConfigAPIEndpoint"]];
 

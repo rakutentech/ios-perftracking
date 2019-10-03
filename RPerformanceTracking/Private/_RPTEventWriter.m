@@ -260,7 +260,7 @@ NSString *_RPTJSONFormatWithFloatValue(NSString *key, float value) {
 
     NSURLResponse *response = nil;
     NSError *error = nil;
-    
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [NSURLConnection sendSynchronousRequest:request

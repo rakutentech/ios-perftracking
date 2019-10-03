@@ -79,8 +79,8 @@ _RPTEnvironment* mkEnvironmentStub(NSDictionary* params) {
         @"modelIdentifier": @"default_iOS_device",
         @"osVersion": @"0.0.1",
         @"relayAppId": @"default_relay_app_id",
-        @"performanceTrackingBaseURL": [NSURL URLWithString:@"http://default_perftrack_base_url"],
-        @"performanceTrackingSubscriptionKey": @"default_performance_tracking_subscription_key",
+        @"baseURL": [NSURL URLWithString:@"http://default_base_url"],
+        @"subscriptionKey": @"default_subscription_key",
         @"deviceCountry": @"default_device_country"
     });
     
