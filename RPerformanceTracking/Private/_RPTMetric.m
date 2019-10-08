@@ -1,4 +1,5 @@
 #import "_RPTMetric.h"
+#import "_RPTEnvironment.h"
 
 const NSTimeInterval _RPT_METRIC_MAXTIME = 10.0;
 
@@ -37,7 +38,8 @@ const NSTimeInterval _RPT_METRIC_MAXTIME = 10.0;
 }
 
 + (NSTimeInterval)maxDurationInSecs {
-    return _RPT_METRIC_MAXTIME;
+    _RPTEnvironment *env = _RPTEnvironment.new;
+    return env.maximumMetricDurationSeconds > 0 ? env.maximumMetricDurationSeconds : _RPT_METRIC_MAXTIME;
 }
 
 @end

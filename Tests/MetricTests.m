@@ -5,9 +5,27 @@ SPEC_BEGIN(RPTMetricTests)
 
 describe(@"RPTMetric", ^{
     describe(@"maxDurationInSecs", ^{
-        it(@"should return value 10.0", ^{
+        it(@"should return default value 10.0 when the RPTMaximumMetricDurationSeconds key is missing from the plist", ^{
+            [[NSBundle mainBundle] stub:@selector(objectForInfoDictionaryKey:) andReturn:nil withArguments:@"RPTMaximumMetricDurationSeconds"];
+
             NSTimeInterval max = [_RPTMetric maxDurationInSecs];
             
+            [[theValue(max) should] equal:theValue(10.0)];
+        });
+
+        it(@"should return value equal to the RPTMaximumMetricDurationSeconds plist key", ^{
+            [[NSBundle mainBundle] stub:@selector(objectForInfoDictionaryKey:) andReturn:@(20.5) withArguments:@"RPTMaximumMetricDurationSeconds"];
+
+            NSTimeInterval max = [_RPTMetric maxDurationInSecs];
+
+            [[theValue(max) should] equal:theValue(20.5)];
+        });
+
+        it(@"should return default value 10.0 when the RPTMaximumMetricDurationSeconds plist key is set to 0", ^{
+            [[NSBundle mainBundle] stub:@selector(objectForInfoDictionaryKey:) andReturn:@(0) withArguments:@"RPTMaximumMetricDurationSeconds"];
+
+            NSTimeInterval max = [_RPTMetric maxDurationInSecs];
+
             [[theValue(max) should] equal:theValue(10.0)];
         });
     });

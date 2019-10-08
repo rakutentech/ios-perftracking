@@ -15,8 +15,9 @@ RPT_EXPORT @interface _RPTEnvironment : NSObject
 
 @property (nonatomic, readonly, copy, nullable) NSString *relayAppId;
 
-@property (nonatomic, readonly, copy, nullable) NSURL *performanceTrackingBaseURL;
-@property (nonatomic, readonly, copy, nullable) NSString *performanceTrackingSubscriptionKey;
+@property (nonatomic, readonly, copy, nullable) NSURL *baseURL;
+@property (nonatomic, readonly, copy, nullable) NSString *subscriptionKey;
+@property (nonatomic, readonly) NSTimeInterval maximumMetricDurationSeconds;
 
 @property (nonatomic, readonly, copy, nullable) NSString *deviceCountry;
 

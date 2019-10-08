@@ -115,12 +115,12 @@ static NSString *const KEY = @"com.rakuten.performancetracking";
 
     NSURLSessionConfiguration *sessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration;
 
-    NSURL *base = environment.performanceTrackingBaseURL;
+    NSURL *base = environment.baseURL;
 #if DEBUG
     NSAssert(base, @"Your application's Info.plist must contain a key 'RPTConfigAPIEndpoint' set to the endpoint URL of your Config API");
 #endif
 
-    NSString *subscriptionKey = environment.performanceTrackingSubscriptionKey;
+    NSString *subscriptionKey = environment.subscriptionKey;
     if (subscriptionKey.length) {
         sessionConfiguration.HTTPAdditionalHeaders = @{@"apikey": subscriptionKey};
     }

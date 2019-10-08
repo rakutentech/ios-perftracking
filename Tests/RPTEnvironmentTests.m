@@ -60,7 +60,7 @@ describe(@"RPTEnvironment", ^{
                 
                 _RPTEnvironment* env = [_RPTEnvironment new];
                 
-                [[env.performanceTrackingBaseURL should] equal:[NSURL URLWithString:@"http://example.com"]];
+                [[env.baseURL should] equal:[NSURL URLWithString:@"http://example.com"]];
             });
             
             it(@"should set performance tracking base URL as nil if base URL is not available in info.plist", ^{
@@ -68,7 +68,7 @@ describe(@"RPTEnvironment", ^{
                 
                 _RPTEnvironment* env = [_RPTEnvironment new];
                 
-                [[env.performanceTrackingBaseURL should] beNil];
+                [[env.baseURL should] beNil];
             });
             
             it(@"should set performance tracking base URL as nil if base URL in info.plist is not a valid URL", ^{
@@ -76,7 +76,7 @@ describe(@"RPTEnvironment", ^{
                 
                 _RPTEnvironment* env = [_RPTEnvironment new];
                 
-                [[env.performanceTrackingBaseURL should] beNil];
+                [[env.baseURL should] beNil];
             });
             
             it(@"should set performance tracking base URL as nil if base URL in info.plist is an empty string", ^{
@@ -84,27 +84,55 @@ describe(@"RPTEnvironment", ^{
                 
                 _RPTEnvironment* env = [_RPTEnvironment new];
                 
-                [[env.performanceTrackingBaseURL should] beNil];
+                [[env.baseURL should] beNil];
+            });
+        });
+
+        describe(@"performanceTrackingSubscriptionKey", ^{
+            it(@"should set subscription key to info.plist sub key with a ras- prefix", ^{
+                [[NSBundle mainBundle] stub:@selector(objectForInfoDictionaryKey:) andReturn:@"perftrack_subscription_key" withArguments:@"RPTSubscriptionKey"];
+
+                _RPTEnvironment* env = [_RPTEnvironment new];
+
+                [[env.subscriptionKey should] equal:@"ras-perftrack_subscription_key"];
+            });
+
+            it(@"subscription key should be nil when info.plist doesn't contain sub key", ^{
+                [[NSBundle mainBundle] stub:@selector(objectForInfoDictionaryKey:) andReturn:nil];
+
+                _RPTEnvironment* env = [_RPTEnvironment new];
+
+                [[env.subscriptionKey should] beNil];
+            });
+        });
+
+        describe(@"maximumMetricDurationSeconds", ^{
+            it(@"should set max duration to info.plist RPTMaximumMetricDurationSeconds integer value", ^{
+                [[NSBundle mainBundle] stub:@selector(objectForInfoDictionaryKey:) andReturn:@(20) withArguments:@"RPTMaximumMetricDurationSeconds"];
+
+                _RPTEnvironment* env = [_RPTEnvironment new];
+
+                [[theValue(env.maximumMetricDurationSeconds) should] equal:theValue(20.0)];
+            });
+
+            it(@"should set max duration to info.plist RPTMaximumMetricDurationSeconds double value", ^{
+                [[NSBundle mainBundle] stub:@selector(objectForInfoDictionaryKey:) andReturn:@(20.5) withArguments:@"RPTMaximumMetricDurationSeconds"];
+
+                _RPTEnvironment* env = [_RPTEnvironment new];
+
+                [[theValue(env.maximumMetricDurationSeconds) should] equal:theValue(20.5)];
+            });
+
+            it(@"should set max duration to 0 when RPTMaximumMetricDurationSeconds is not in info.plist", ^{
+                [[NSBundle mainBundle] stub:@selector(objectForInfoDictionaryKey:) andReturn:nil withArguments:@"RPTMaximumMetricDurationSeconds"];
+
+                _RPTEnvironment* env = [_RPTEnvironment new];
+
+                [[theValue(env.maximumMetricDurationSeconds) should] equal:theValue(0)];
             });
         });
         
-        it(@"should set performance tracking subscription key as performance tracking subscription key from info.plist with a ras- prefix", ^{
-            [[NSBundle mainBundle] stub:@selector(objectForInfoDictionaryKey:) andReturn:@"perftrack_subscription_key" withArguments:@"RPTSubscriptionKey"];
-            
-            _RPTEnvironment* env = [_RPTEnvironment new];
-            
-            [[env.performanceTrackingSubscriptionKey should] equal:@"ras-perftrack_subscription_key"];
-        });
-
-        it(@"performance tracking subscription key should be nil when info.plist doesn't contain subscription key", ^{
-            [[NSBundle mainBundle] stub:@selector(objectForInfoDictionaryKey:) andReturn:nil];
-
-            _RPTEnvironment* env = [_RPTEnvironment new];
-
-            [[env.performanceTrackingSubscriptionKey should] beNil];
-        });
-        
-        it(@"should set device country as coutry reported by current locale", ^{
+        it(@"should set device country as country reported by current locale", ^{
             [[NSLocale currentLocale] stub:@selector(objectForKey:) andReturn:@"country_code" withArguments:NSLocaleCountryCode];
             
             _RPTEnvironment* env = [_RPTEnvironment new];
