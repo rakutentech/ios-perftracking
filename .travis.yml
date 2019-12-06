@@ -4,7 +4,7 @@ xcode_scheme: Tests
 osx_image: xcode10.1
 
 before_install:
-- gem update fastlane cocoapods --no-ri --no-rdoc --no-document
+- gem update fastlane cocoapods --no-document
 - pod repo update
 
 script: fastlane ci

@@ -27,7 +27,9 @@
 
 @end
 
-@interface LocationTests : XCTestCase
+@interface LocationTests : XCTestCase {
+    id mockLocale;
+}
 @end
 
 @implementation LocationTests
@@ -36,6 +38,10 @@ static _RPTTrackingManager *_trackingManager = nil;
 - (void)setUp
 {
 	[super setUp];
+    
+    mockLocale = OCMClassMock(NSLocale.class);
+    NSLocale *localeStub = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US"];
+    OCMStub(ClassMethod([mockLocale currentLocale])).andReturn(localeStub);
 
 	_trackingManager = [_RPTTrackingManager sharedInstance];
 	_trackingManager.eventWriter =  [_RPTEventWriter.alloc initWithConfiguration:[_RPTConfiguration loadConfiguration]];
@@ -49,6 +55,7 @@ static _RPTTrackingManager *_trackingManager = nil;
 	[OHHTTPStubs removeAllStubs];
 	[[NSUserDefaults standardUserDefaults] removeObjectForKey:@"com.rakuten.performancetracking.location"];
 	_trackingManager = nil;
+    [mockLocale stopMocking];
 	[super tearDown];
 }
 
@@ -135,6 +142,7 @@ static _RPTTrackingManager *_trackingManager = nil;
 	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 		[_trackingManager.eventWriter begin];
 		XCTAssertNotNil(_trackingManager.eventWriter.writer);
+        // Value for key NSLocaleCountryCode can be nil (ex. by setting Esperanto language)
 		XCTAssertTrue([_trackingManager.eventWriter.writer containsString:[[NSLocale currentLocale] objectForKey:NSLocaleCountryCode]]);
 		[waitForResponse fulfill];
 	});
