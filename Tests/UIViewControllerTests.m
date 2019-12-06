@@ -21,11 +21,16 @@ static const NSUInteger      MAX_MEASUREMENTS    = 512u;
 @property (nonatomic) UIViewController *presentingViewController;
 @property (nonatomic) UIStoryboard *mainStoryboard;
 @property (nonatomic) NSBundle *testBundle;
+@property (nonatomic, readonly) UIWindow *keyWindow;
 @end
 
 @implementation UIViewControllerTests
 
 static _RPTTrackingManager *_trackingManager = nil;
+
+- (UIWindow *)keyWindow {
+    return [[UIApplication sharedApplication] keyWindow];
+}
 
 + (void)setUp
 {
@@ -52,6 +57,7 @@ static _RPTTrackingManager *_trackingManager = nil;
     _testBundle = [NSBundle bundleForClass:self.class];
     _mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle:_testBundle];
     _presentingViewController = [_mainStoryboard instantiateViewControllerWithIdentifier:@"PresentingViewController"];
+    [self.keyWindow setRootViewController: _presentingViewController];
 }
 
 - (void)tearDown
@@ -59,6 +65,7 @@ static _RPTTrackingManager *_trackingManager = nil;
     _testBundle = nil;
     _mainStoryboard = nil;
     _presentingViewController = nil;
+    [self.keyWindow setRootViewController: nil];
     [super tearDown];
 }
 

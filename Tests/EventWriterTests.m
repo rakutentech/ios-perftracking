@@ -8,6 +8,7 @@
 #import "../RPerformanceTracking/Private/_RPTMetric.h"
 #import "_RPTLocation.h"
 #import "../RPerformanceTracking/Private/UIDevice+RPerformanceTracking.h"
+#import "../RPerformanceTracking/Private/_RPTEnvironment.h"
 
 @interface _RPTEventWriter ()
 @property (nonatomic) NSMutableString           *writer;
@@ -17,6 +18,7 @@
 @interface EventWriterTests : XCTestCase
 {
     id mockDevice;
+    id mockLocale;
 }
 @property (nonatomic, copy) NSString            *fixedPrefix;
 @end
@@ -25,6 +27,7 @@
 
 - (void)setUp {
     [super setUp];
+
     NSDictionary *dict = @{
         @"enablePercent": @(100),
         @"sendUrl": @"https://performance-endpoint.com/measurements/messages?timeout=60&api-version=2014-01",
@@ -41,6 +44,10 @@
     OCMStub([mockDevice totalDeviceMemory]).andReturn(10000);
     OCMStub([mockDevice usedAppMemory]).andReturn(100);
     OCMStub([mockDevice batteryLevel]).andReturn(0.86f);
+    
+    mockLocale = OCMClassMock(NSLocale.class);
+    NSLocale *localeStub = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US"];
+    OCMStub(ClassMethod([mockLocale currentLocale])).andReturn(localeStub);
 
     _fixedPrefix = [NSString stringWithFormat:@"{\"app\":\"%@\",\"relay_app_id\":\"%@\",\"version\":\"1.0\",\"device\":\"x86_64\",\"country\":\"US\",\"network\":\"wifi\",\"os\":\"ios\",\"os_version\":\"%@\",\"app_mem_used\":100,\"device_mem_free\":3000,\"device_mem_total\":10000,\"battery_level\":0.86,\"measurements\":[", NSBundle.mainBundle.bundleIdentifier, [NSBundle.mainBundle objectForInfoDictionaryKey:@"RPTRelayAppID"], UIDevice.currentDevice.systemVersion];
     
@@ -57,6 +64,7 @@
     [NSUserDefaults.standardUserDefaults setObject:nil forKey:@"com.rakuten.performancetracking"];
     [OHHTTPStubs removeAllStubs];
     [mockDevice stopMocking];
+    [mockLocale stopMocking];
 }
 
 - (_RPTConfiguration *)defaultConfiguration
