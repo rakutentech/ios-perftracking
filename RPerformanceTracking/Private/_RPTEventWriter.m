@@ -63,6 +63,10 @@ NSString *_RPTJSONFormatWithFloatValue(NSString *key, float value) {
     return self;
 }
 
+- (BOOL)writingInProgress {
+    return _measurementCount > 0;
+}
+
 - (void)begin {
     UIDevice *device = [UIDevice currentDevice];
     __block NSString *carrierName;
