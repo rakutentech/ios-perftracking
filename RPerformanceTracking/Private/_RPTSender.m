@@ -196,7 +196,7 @@ static const NSTimeInterval SLEEP_MAX_INTERVAL = 1800;         // 30 minutes
         return;
     }
 
-    if (!_sentCount) {
+    if (![_eventWriter writingInProgress]) {
         [_eventWriter begin];
     }
 

@@ -18,6 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)writeWithMetric:(_RPTMetric *)metric;
 - (void)writeWithMeasurement:(_RPTMeasurement *)measurement metricIdentifier:(nullable NSString *)metricIdentifier;
 - (void)end;
+- (BOOL)writingInProgress;
 
 @end
 
