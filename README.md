@@ -4,6 +4,8 @@
 
 # Performance Tracking
 
+:skull: *This product was shut down internally at the end of 2020. The repo is now archived.*
+
 The **Performance Tracking** module is a tool that lets you measure the performance of your iOS mobile application. It does this by adding measurement calls to app lifecycle, network requests and some standard UIKit class methods.
 
 ## How it works
